@@ -35,3 +35,14 @@
 using namespace std;
 using namespace cv;
 static const char *driverName="NDPluginCV";
+
+
+
+void NDPluginCV::processCallbacks(NDArray *pArray){
+    NDArray* pScratch = NULL;
+    NDArrayInfo arrayInfo;
+    unsigned int numRows, numCols;
+    unsigned char *inData, *outData;
+
+    static const char* functionName = "processCallbacks";
+}
