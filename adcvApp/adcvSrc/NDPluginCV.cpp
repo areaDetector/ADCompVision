@@ -103,7 +103,14 @@ void NDPluginCV::processImage(int visionMode, Mat &img){
             }
             else asynPrint(this->pasynUserSelf, "%s::%s No valid edge detector selected\n", driverName, functionName);
         case 1 :
-            //TODO
+            int roiX, roiY, roiWidth, roiHeight, blurDegree, threshVal;
+            getIntegerParam(NDPluginCVROICornerX, &roiX);
+            getIntegerParam(NDPluginCVROICornerY, &roiY);
+            getIntegerParam(NDPluginCVROIWidth, &roiWidth);
+            getIntegerParam(NDPluginCVROIHeight, &roiHeight);
+            getIntegerParam(NDPluginCVThresholdVal, &threshVal);
+            getIntegerParam(NDPluginCVBlurDegree, &blurDegree);
+            Mat result = centroid_finder(img, roiX, roiY, roiWidth, roiHeight, blurDegree, threshVal);
             break;
         default :
             asynPrint(this->pasynUserSelf, "%s::%s No valid image processing selected.\n", driverName, functionName);
