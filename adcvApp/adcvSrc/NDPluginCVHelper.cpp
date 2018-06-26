@@ -98,6 +98,20 @@ Mat edge_detector_laplacian(Mat &img, int blurDegree){
     return detected;
 }
 
+/*
+ * Function that finds centroid of all contours in a given region of interest.
+ * The following process is taken:
+ * Gaussian blur -> threshold -> crop -> find contours+moments -> find centroids
+ * 
+ * @params: img -> image to be processed
+ * @params: roiX -> x-coordinate of upper left corner of ROI (region of interest)
+ * @params: roiY -> y-coordinate of upper left corner of ROI
+ * @params: roiWidth -> width of the ROI
+ * @params: roiHeight -> height of the ROI. Note that the height in an image is measured from the top down
+ * @params: blurDegree -> size of kernel in Gaussian blur
+ * @params: threshVal -> cutoff  for threshold
+ * @return: cropped image with detected contours and centroids
+ */
 Mat centroid_finder(Mat &img, int roiX, int roiY, int roiWidth, int roiHeight, int blurDegree, int threshVal){
     Mat afterBlur, afterThresh, afterCrop, cropOriginal;
     GaussianBlur(img, afterBlur, Size(blurDegree,blurDegree), 0);
