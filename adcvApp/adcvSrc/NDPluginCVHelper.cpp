@@ -97,3 +97,31 @@ Mat edge_detector_laplacian(Mat &img, int blurDegree){
     waitKey(0);
     return detected;
 }
+
+Mat centroid_finder(Mat &img, int roiX, int roiY, int roiWidth, int roiHeight, int blurDegree, int threshVal){
+    Mat afterBlur, afterThresh, afterCrop, cropOriginal;
+    GaussianBlur(img, afterBlur, Size(blurDegree,blurDegree), 0);
+    threshold(afterBlur, afterThresh, threshVal, 255, THRESH_BINARY);
+    Rect myROI(roiX, roiY, roiWidth, roiHeight);
+    afterCrop = afterThresh(myROI);
+    cropOriginal = img(myROI);
+    vector<vector<Point>> contours;
+    vector<Vec4i> hierarchy;
+
+    findContours(afterCrop, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0,0));
+    vector<Moments> contour_moments(contours.size());
+    for(int i = 0; i< contours.size(); i++){
+        contour_moments[i] = moments(contours[i], false);
+    }
+    vector<Point2f> contour_centroids(contours.size());
+    for(int i = 0; i< contours.size(); i++){
+        contour_centroids[i] = Point2f((contour_moments[i].m10/contour_moments[i].m00), (contour_moments[i].m01/contour_moments[i].m00));
+    }
+    for(int i = 0; i< contours.size; i++){
+        drawContours(cropOriginal, contours, i, Scalar(0,255,0), 2, 8, hierarchy, 0, Point());
+        circle(cropOriginal, contour_centroids[i], 3, Scalar(255,0,0), -1, 8, 0);
+    }
+    imshow("contours+centroids", cropOriginal);
+    waitKey(0);
+    return img;
+}
