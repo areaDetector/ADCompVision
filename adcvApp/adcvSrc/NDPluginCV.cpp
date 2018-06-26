@@ -26,6 +26,7 @@
 #include <iocsh.h>
 #include "NDArray.h"
 #include "NDPluginCV.h"
+#include "NDPluginCVHelper.h"
 #include <epicsExport.h>
 
 //OpenCV is used for image manipulation
@@ -36,6 +37,38 @@ using namespace std;
 using namespace cv;
 static const char *driverName="NDPluginCV";
 
+
+void NDPluginCV::processImage(int visionMode, Mat &img){
+
+    static char* functionName = "processImage";
+
+    switch(visionMode){
+        case 0 :
+            int edgeDet;
+            getIntegerParam(NDPluginCVEdgeMethod, &edgeDet);
+            if(edgeDet == 0){
+                int threshVal, threshRatio, blurDegree;
+                getIntegerParam(NDPluginCVThresholdVal, &threshVal);
+                getIntegerParam(NDPluginCVThresholdRatio, &threshRatio);
+                getIntegerParam(NDPluginCVBlurDegree, &blurDegree);
+                Mat result = edge_detector_canny(img, threshVal, threshRatio, blurDegree);
+                break;
+            }
+            else if(edgeDet == 1){
+                int blurDegree;
+                getIntegerParam(NDPluginCVBlurDegree, &blurDegree);
+                Mat result = edge_detector_laplacian(img, blurDegree);
+                break;
+            }
+            else asynPrint(this->pasynUserSelf, "%s::%s No valid edge detector selected\n", driverName, functionName);
+        case 1 :
+            //TODO
+            break;
+        default :
+            asynPrint(this->pasynUserSelf, "%s::%s No valid image processing selected.\n", driverName, functionName);
+            break;
+    }
+}
 
 
 void NDPluginCV::processCallbacks(NDArray *pArray){
