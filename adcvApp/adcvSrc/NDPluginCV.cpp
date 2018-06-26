@@ -170,4 +170,20 @@ NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallback
             ASYN_MULTIDEVICE, 1, priority, stackSize, 1)
 {
     char versionString[25];
+
+    //create the parameters
+    createParam(NDPluginCVComputerVisionFunctionString, asynParamInt32, &NDPluginCVComputerVisionFunction);
+    createParam(NDPluginCVThresholdValueString, asynParamFloat64, &NDPluginCVThresholdValue);
+    createParam(NDPluginCVThresholdRatioString, asynParamFloat64, &NDPluginCVThresholdRatio);
+    createParam(NDPluginCVBlurDegreeString, asynParamInt32, &NDPluginCVBlurDegree);
+    createParam(NDPluginCVEdgeMethodString, asynParamInt32, &NDPluginCVEdgeMethod);
+    createParam(NDPluginCVROICornerXString, asynParamInt32, &NDPluginCVROICornerX);
+    createParam(NDPluginCVROICornerYString, asynParamInt32, &NDPluginCVROICornerY);
+    createParam(NDPluginCVROIWidthString, asynParamInt32, &NDPluginCVROIWidth);
+    createParam(NDPluginCVROIHeightString, asynParamInt32, &NDPluginCVROIHeight);
+
+    setStringParam(NDPluginDriverPluginType, "NDPluginCV");
+    epicsSprintf(versionString, sizof(versionString), "%d.%d.%d", NDPluginCV_VERSION, NDPluginCV_REVISION, NDPluginCV_MODIFICATION);
+    setStringParam(NDDriverVersion, versionString);
+    connectToArrayPort();
 }
