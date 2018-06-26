@@ -38,6 +38,24 @@ using namespace cv;
 static const char *driverName="NDPluginCV";
 
 
+Mat NDPluginCV::getMatFromNDArray(NDArray* pScratch, NDArray* pArray, int numCols, int numRows){
+    NDimension_t scratch_dims[2];
+    unsigned char *inData, *outData;
+    pScratch->initDimension(&scratch_dims[0], numCols);
+    pScratch->initDimension(&scratch_dims[1], numRows);
+    this->pNDArrayPool->convert(pArray, &pScratch, NDUInt8);
+    int numRowsScratch, numColsScratch;
+    NDArrayInfo scratchInfo;
+    pScratch->getInfo(&scratchInfo);
+    numRowsScratch = pScratch->dims[scratchInfo.yDim].size;
+    numColsScratch = pScratch->dims[scratchInfo.xDim].size;
+    Mat img = Mat(numRowsScratch, numColsScratch, CV_8UC1);
+    inData = (unsigned char*) pScratch->pData;
+    outData = (unsigned char*) img.data;
+    memcpy(outData, inData, scratchInfo.nElements*sizeof(unsigned char));
+    return img;
+}
+
 void NDPluginCV::processImage(int visionMode, Mat &img){
 
     static char* functionName = "processImage";
@@ -75,7 +93,29 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
     NDArray* pScratch = NULL;
     NDArrayInfo arrayInfo;
     unsigned int numRows, numCols;
-    unsigned char *inData, *outData;
+    
 
     static const char* functionName = "processCallbacks";
+
+    if(pArray.ndims !=2){
+        asynPrint(this->pasynUserSelf, "%s::%s Please convert image passed to image processing plugin to mono\n", diriverName, functionName);
+        return;
+    }
+    NDPluginDriver::beginProcessCallbacks(pArray);
+
+    pArray->getInfo(&arrayInfo);
+    numCols = pArray->dims[arrayInfo.xDim].size;
+    numRows = pArray->dims[arrayInfo.yDim].size;
+
+    this->unlock();
+
+    Mat img = getMatFromNDArray(pScratch, pArray);
+    int visionMode;
+    getIntegerParam(NDPluginCVVisionFunction, &visionMode);
+    processImage(visionMode, img);
+    this->lock();
+    if(NULL != pScratch){
+        pScratch->release();
+    }
+    callParamCallbacks();
 }
