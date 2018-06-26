@@ -68,6 +68,17 @@ Mat NDPluginCV::getMatFromNDArray(NDArray* pScratch, NDArray* pArray, int numCol
     return img;
 }
 
+/*
+ * Function calls the aproppriate image processing function. These functions can be
+ * found in the helper .cpp file. To select the appropriate mode, it simply detects
+ * the value in the PV CompVisionFunction_RBV which is set by the user. It switches on
+ * this value, and calls the appropriate function, replacing the arguments in the call
+ * with PV values, which can also be set by the user.
+ * 
+ * @params: visionMode -> value in CompVisionFunction_RBV PV
+ * @params: img -> image to be processed
+ * @return: void
+ */
 void NDPluginCV::processImage(int visionMode, Mat &img){
 
     static char* functionName = "processImage";
