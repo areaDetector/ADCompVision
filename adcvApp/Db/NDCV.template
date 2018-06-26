@@ -1,0 +1,85 @@
+#
+# EPICS database template file for ADCompVision. 
+# This will contatin records used by the plugin's various
+# functions.
+# 
+# Author: Jakub Wlodek June 2018
+#
+
+
+# Some necessary records:
+# Function selector: select from variety of functions
+# 
+
+
+###########################################################
+# Common Records: records used by all functions           #
+###########################################################
+
+record(mbbi, "$(P)$(R)CompVisionFunction_RBV")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))VISION_FUNCTION"))
+    field(ZRST, "Edge Detector")
+    field(ZRVL, "0")
+    field(ONST, "Centroid Finder")
+    field(ONVL, "1")
+    field(SCAN, "I/O Intr")
+}
+
+# records that determine threshold value
+record(ao, "$(P)$(R)ThresholdVal")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynFloat64")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))THRESHOLD_VAL")
+    field(VAL, "50.0")
+}
+
+record(ai, "$(P)$(R)ThresholdVal_RBV)
+{
+    field(DTYP, "asynFloat64")
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))THRESHOLD_VAL")
+    field(SCAN, "I/O Intr")
+}
+
+# records that determine degree of Gaussian Blur
+record(ao, "$(P)$(R)BlurDegree")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))BLUR_DEGREE"))
+    field(VAL, "3")
+}
+
+record(ai, "$(P)$(R)BlurDegree_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))BLUR_DEGREE"))
+    field(SCAN, "I/O Intr")
+}
+
+
+##########################################################
+# Edge Detector Records                                  #
+##########################################################
+
+# record that selects edge detection types
+record(mbbi, "$(P)$(R)EdgeMethod_RBV")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDGE_METHOD"))
+    field(ZRST, "Canny")
+    field(ZRVL, "0")
+    field(ONST, "Laplacian")
+    field(ONVL, "1")
+    field(SCAN, "I/O Intr")
+}
+
+
+
+##########################################################
+# Centroid/Center of Mass Finder Records                 #
+##########################################################
