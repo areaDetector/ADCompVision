@@ -44,6 +44,22 @@ record(ai, "$(P)$(R)ThresholdVal_RBV)
     field(SCAN, "I/O Intr")
 }
 
+#records that hold threshold ratio
+record(ao, $(P)$(R)ThresholdRatio)
+{
+    field(PINI, "YES")
+    field(DTYP, "asynFloat64")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))THRESHOLD_RATIO")
+    field(VAL, "2")
+}
+
+record(ai, $(P)$(R)ThresholdRatio_RBV)
+{
+    field(DTYP, "asynFloat64")
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))THRESHOLD_RATIO)
+    field(SCAN, "I/O Intr")
+}
+
 # records that determine degree of Gaussian Blur
 record(ao, "$(P)$(R)BlurDegree")
 {
@@ -70,7 +86,7 @@ record(mbbi, "$(P)$(R)EdgeMethod_RBV")
 {
     field(PINI, "YES")
     field(DTYP, "asynInt32")
-    field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDGE_METHOD"))
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))EDGE_METHOD")
     field(ZRST, "Canny")
     field(ZRVL, "0")
     field(ONST, "Laplacian")
@@ -83,3 +99,63 @@ record(mbbi, "$(P)$(R)EdgeMethod_RBV")
 ##########################################################
 # Centroid/Center of Mass Finder Records                 #
 ##########################################################
+
+#records that hold coords of ROI in which object detection will take place
+record(ao, "$(P)$(R)ROICornerX")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ROI_CORNERX")
+    field(VAL, "0")
+}
+
+record(ai, "$(P)$(R)ROICornerX_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ROI_CORNERX"))
+    field(SCAN, "I/O Intr")
+}
+
+#records that hold coords of ROI in which object detection will take place
+record(ao, "$(P)$(R)ROICornerY")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ROI_CORNERY")
+    field(VAL, "0")
+}
+
+record(ai, "$(P)$(R)ROICornerY_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ROI_CORNERY"))
+    field(SCAN, "I/O Intr")
+}
+
+record(ao, "$(P)$(R)ROIWidth")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ROI_WIDTH"))
+    field(VAL, "400")
+}
+record(ao, "$(P)$(R)ROIWidth_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ROI_WIDTH"))
+    field(SCAN, "I/O Intr")
+}
+
+record(ao, "$(P)$(R)ROIHeight")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ROI_HEIGHT"))
+    field(VAL, "400")
+}
+record(ao, "$(P)$(R)ROIHeight_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ROI_HEIGHT"))
+    field(SCAN, "I/O Intr")
+}
