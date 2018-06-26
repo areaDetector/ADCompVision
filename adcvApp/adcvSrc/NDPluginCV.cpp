@@ -111,7 +111,15 @@ void NDPluginCV::processImage(int visionMode, Mat &img){
     }
 }
 
-
+/*
+ * Function that overrides the process callbacks function in the base NDPluginDriver
+ * class. This function recieves an Image in the form of an NDArray. Then it checks
+ * if the image is in mono form. Then, it converts it into an OpenCV Mat. Finally,
+ * it calls the processImage function to perform the desired computer vision operation
+ * 
+ * @params: pArray -> pointer to image in the form of an NDArray
+ * @return: void
+ */
 void NDPluginCV::processCallbacks(NDArray *pArray){
     NDArray* pScratch = NULL;
     NDArrayInfo arrayInfo;
