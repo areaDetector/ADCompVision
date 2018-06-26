@@ -38,6 +38,18 @@ using namespace cv;
 static const char *driverName="NDPluginCV";
 
 
+/*
+ * Function that converts incoming NDArray into an OpenCV Mat that will be passed to the 
+ * image processing functions. First, we copy the original NDArray into a scratch array,
+ * so that we do not affect the performance of othe plugins. Next, the function generates
+ * a blank Mat object, and then finally copies the data from the NDArray into the Mat.
+ * 
+ * @params: pScratch -> pointer to a blank temporary NDArray
+ * @params: pArray -> NDArray recieved from the camera
+ * @params: numCols -> number of columns in the original NDArray
+ * @params: numRows -> number of rows in the original NDArray
+ * @return: the converted OpenCV Mat
+ */
 Mat NDPluginCV::getMatFromNDArray(NDArray* pScratch, NDArray* pArray, int numCols, int numRows){
     NDimension_t scratch_dims[2];
     unsigned char *inData, *outData;
