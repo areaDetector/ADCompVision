@@ -19,7 +19,7 @@
 
 #include "NDPluginCVHelper.h"
 
-//OpenCV is used for image manipulation, zbar for barcode detection
+//OpenCV is used for image manipulation
 #include <opencv2/opencv.hpp>
 
 using namespace cv;
@@ -35,6 +35,7 @@ using namespace std;
 void print_cv_error(Exception &e){
     cout << "OpenCV error: " << e.err << " code: " << e.code << " file: " << e.file << endl;
 }
+
 
 /*
  * Function that does Edge detection using the OpenCV canny function
@@ -67,6 +68,7 @@ Mat edge_detector_canny(Mat &img, int threshVal, int threshRatio, int blurDegree
     waitKey(0);
     return detected;
 }
+
 
 /*
  * Function that uses the laplacian method of edge detection
