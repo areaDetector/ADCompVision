@@ -150,3 +150,17 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
     }
     callParamCallbacks();
 }
+
+NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallbacks,
+		    const char *NDArrayPort, int NDArrayAddr,
+		    int maxBuffers, size_t maxMemory,
+		    int priority, int stackSize)
+		    /* Invoke the base class constructor */
+		    : NDPluginDriver(portName, queueSize, blockingCallbacks,
+		    NDArrayPort, NDArrayAddr, 1, maxBuffers, maxMemory,
+		    asynInt32ArrayMask | asynFloat64ArrayMask | asynGenericPointerMask,
+		    asynInt32ArrayMask | asynFloat64ArrayMask | asynGenericPointerMask,
+            ASYN_MULTIDEVICE, 1, priority, stackSize, 1)
+{
+    char versionString[25];
+}
