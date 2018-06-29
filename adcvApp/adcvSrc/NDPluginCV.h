@@ -78,6 +78,11 @@ class NDPluginCV : public NDPluginDriver{
         //function definitions
         Mat getMatFromNDArray(NDArray* pScratch, NDArray* pArray, int numCols, int numRows);
         void processImage(int visionMode, Mat &img);
+        
+        //wrapper functions
+        Mat canny_wrapper();
+        Mat laplacian_wrapper();
+        Mat centroid_wrapper();
 };
 
 #endif

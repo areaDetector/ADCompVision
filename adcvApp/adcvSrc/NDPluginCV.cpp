@@ -69,6 +69,43 @@ Mat NDPluginCV::getMatFromNDArray(NDArray* pScratch, NDArray* pArray, int numCol
 }
 
 /*
+ * Wrapper function for canny. Gets args from PV and calls helper function
+ */
+Mat NDPluginCV::canny_wrapper(){
+    int threshVal, threshRatio, blurDegree;
+    getIntegerParam(NDPluginCVThresholdVal, &threshVal);
+    getIntegerParam(NDPluginCVThresholdRatio, &threshRatio);
+    getIntegerParam(NDPluginCVBlurDegree, &blurDegree);
+    Mat result = edge_detector_canny(img, threshVal, threshRatio, blurDegree);
+    return result;
+}
+
+/*
+ * Wrapper function for laplacian. Gets args from PV and calls helper function
+ */
+Mat NDPluginCV::laplacian_wrapper(){
+    int blurDegree;
+    getIntegerParam(NDPluginCVBlurDegree, &blurDegree);
+    Mat result = edge_detector_laplacian(img, blurDegree);
+    return result;
+}
+
+/*
+ * Wrapper function for centroid finding. Gets args from PV and calls helper function
+ */
+Mat NDPluginCV::centroid_wrapper(){
+    int roiX, roiY, roiWidth, roiHeight, blurDegree, threshVal;
+    getIntegerParam(NDPluginCVROICornerX, &roiX);
+    getIntegerParam(NDPluginCVROICornerY, &roiY);
+    getIntegerParam(NDPluginCVROIWidth, &roiWidth);
+    getIntegerParam(NDPluginCVROIHeight, &roiHeight);
+    getIntegerParam(NDPluginCVThresholdVal, &threshVal);
+    getIntegerParam(NDPluginCVBlurDegree, &blurDegree);
+    Mat result = centroid_finder(img, roiX, roiY, roiWidth, roiHeight, blurDegree, threshVal);
+    return result;
+}
+
+/*
  * Function calls the aproppriate image processing function. These functions can be
  * found in the helper .cpp file. To select the appropriate mode, it simply detects
  * the value in the PV CompVisionFunction_RBV which is set by the user. It switches on
@@ -88,29 +125,16 @@ void NDPluginCV::processImage(int visionMode, Mat &img){
             int edgeDet;
             getIntegerParam(NDPluginCVEdgeMethod, &edgeDet);
             if(edgeDet == 0){
-                int threshVal, threshRatio, blurDegree;
-                getIntegerParam(NDPluginCVThresholdVal, &threshVal);
-                getIntegerParam(NDPluginCVThresholdRatio, &threshRatio);
-                getIntegerParam(NDPluginCVBlurDegree, &blurDegree);
-                Mat result = edge_detector_canny(img, threshVal, threshRatio, blurDegree);
+                Mat result = canny_wrapper();
                 break;
             }
             else if(edgeDet == 1){
-                int blurDegree;
-                getIntegerParam(NDPluginCVBlurDegree, &blurDegree);
-                Mat result = edge_detector_laplacian(img, blurDegree);
+                Mat result = laplacian_wrapper();
                 break;
             }
             else asynPrint(this->pasynUserSelf, "%s::%s No valid edge detector selected\n", driverName, functionName);
         case 1 :
-            int roiX, roiY, roiWidth, roiHeight, blurDegree, threshVal;
-            getIntegerParam(NDPluginCVROICornerX, &roiX);
-            getIntegerParam(NDPluginCVROICornerY, &roiY);
-            getIntegerParam(NDPluginCVROIWidth, &roiWidth);
-            getIntegerParam(NDPluginCVROIHeight, &roiHeight);
-            getIntegerParam(NDPluginCVThresholdVal, &threshVal);
-            getIntegerParam(NDPluginCVBlurDegree, &blurDegree);
-            Mat result = centroid_finder(img, roiX, roiY, roiWidth, roiHeight, blurDegree, threshVal);
+            Mat result = centroid_wrapper();
             break;
         default :
             asynPrint(this->pasynUserSelf, "%s::%s No valid image processing selected.\n", driverName, functionName);
