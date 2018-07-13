@@ -1,14 +1,14 @@
 /*
  * Main header file for NDPluginCV
- * 
+ *
  * Includes version number definition, the class itself, function definitions,
  * and parameter definitions. The parameters themselves are initialized
  * in the constructor in the corresponding .cpp file
- * 
+ *
  * Author: Jakub Wlodek
- * 
+ *
  * Created: June 2018
- * 
+ *
  */
 
 //include guard to avoid multiple inclusions
@@ -23,9 +23,9 @@ using namespace cv;
 //base driver header file
 #include "NDPluginDriver.h"
 
-//version numbers 
+//version numbers
 #define NDPluginCV_VERSION      0
-#define NDPluginCV_REVISION     0
+#define NDPluginCV_REVISION     1
 #define NDPluginCV_MODIFICATION 0
 
 //definitions of parameters
@@ -49,7 +49,7 @@ class NDPluginCV : public NDPluginDriver{
         NDPluginCV(const char *portName, int queueSize, int blockingCallbacks,
 			const char* NDArrayPort, int NDArrayAddr, int maxBuffers,
             size_t maxMemory, int priority, int stackSize);
-        
+
         void processCallbacks(NDArray* pArray);
 
     protected:
@@ -80,9 +80,9 @@ class NDPluginCV : public NDPluginDriver{
         void processImage(int visionMode, Mat &img);
         
         //wrapper functions
-        Mat canny_wrapper();
-        Mat laplacian_wrapper();
-        Mat centroid_wrapper();
+        Mat canny_wrapper(Mat &img);
+        Mat laplacian_wrapper(Mat &img);
+        Mat centroid_wrapper(Mat &img);
 };
 
 #endif

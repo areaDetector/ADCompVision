@@ -1,15 +1,15 @@
 /*
  * NDPluginCV.cpp
- * 
+ *
  * Top level source file for OpenCV based computer vision plugin for EPICS
  * Area Detector. Extends from the base NDPluginDriver found in ADCore, and
  * overrides its process callbacks function.
  * The OpenCV computer vision library is used for all image processing
- * 
+ *
  * Author: Jakub Wlodek
- * 
+ *
  * Created: June 23, 2018
- * 
+ *
  */
 
 
@@ -39,11 +39,11 @@ static const char *driverName="NDPluginCV";
 
 
 /*
- * Function that converts incoming NDArray into an OpenCV Mat that will be passed to the 
+ * Function that converts incoming NDArray into an OpenCV Mat that will be passed to the
  * image processing functions. First, we copy the original NDArray into a scratch array,
  * so that we do not affect the performance of othe plugins. Next, the function generates
  * a blank Mat object, and then finally copies the data from the NDArray into the Mat.
- * 
+ *
  * @params: pScratch -> pointer to a blank temporary NDArray
  * @params: pArray -> NDArray recieved from the camera
  * @params: numCols -> number of columns in the original NDArray
@@ -51,7 +51,7 @@ static const char *driverName="NDPluginCV";
  * @return: the converted OpenCV Mat
  */
 Mat NDPluginCV::getMatFromNDArray(NDArray* pScratch, NDArray* pArray, int numCols, int numRows){
-    NDimension_t scratch_dims[2];
+    NDDimension_t scratch_dims[2];
     unsigned char *inData, *outData;
     pScratch->initDimension(&scratch_dims[0], numCols);
     pScratch->initDimension(&scratch_dims[1], numRows);
@@ -71,9 +71,9 @@ Mat NDPluginCV::getMatFromNDArray(NDArray* pScratch, NDArray* pArray, int numCol
 /*
  * Wrapper function for canny. Gets args from PV and calls helper function
  */
-Mat NDPluginCV::canny_wrapper(){
+Mat NDPluginCV::canny_wrapper(Mat &img){
     int threshVal, threshRatio, blurDegree;
-    getIntegerParam(NDPluginCVThresholdVal, &threshVal);
+    getIntegerParam(NDPluginCVThresholdValue, &threshVal);
     getIntegerParam(NDPluginCVThresholdRatio, &threshRatio);
     getIntegerParam(NDPluginCVBlurDegree, &blurDegree);
     Mat result = edge_detector_canny(img, threshVal, threshRatio, blurDegree);
@@ -83,7 +83,7 @@ Mat NDPluginCV::canny_wrapper(){
 /*
  * Wrapper function for laplacian. Gets args from PV and calls helper function
  */
-Mat NDPluginCV::laplacian_wrapper(){
+Mat NDPluginCV::laplacian_wrapper(Mat &img){
     int blurDegree;
     getIntegerParam(NDPluginCVBlurDegree, &blurDegree);
     Mat result = edge_detector_laplacian(img, blurDegree);
@@ -93,13 +93,13 @@ Mat NDPluginCV::laplacian_wrapper(){
 /*
  * Wrapper function for centroid finding. Gets args from PV and calls helper function
  */
-Mat NDPluginCV::centroid_wrapper(){
+Mat NDPluginCV::centroid_wrapper(Mat &img){
     int roiX, roiY, roiWidth, roiHeight, blurDegree, threshVal;
     getIntegerParam(NDPluginCVROICornerX, &roiX);
     getIntegerParam(NDPluginCVROICornerY, &roiY);
     getIntegerParam(NDPluginCVROIWidth, &roiWidth);
     getIntegerParam(NDPluginCVROIHeight, &roiHeight);
-    getIntegerParam(NDPluginCVThresholdVal, &threshVal);
+    getIntegerParam(NDPluginCVThresholdValue, &threshVal);
     getIntegerParam(NDPluginCVBlurDegree, &blurDegree);
     Mat result = centroid_finder(img, roiX, roiY, roiWidth, roiHeight, blurDegree, threshVal);
     return result;
@@ -125,16 +125,16 @@ void NDPluginCV::processImage(int visionMode, Mat &img){
             int edgeDet;
             getIntegerParam(NDPluginCVEdgeMethod, &edgeDet);
             if(edgeDet == 0){
-                Mat result = canny_wrapper();
+                Mat result = canny_wrapper(img);
                 break;
             }
             else if(edgeDet == 1){
-                Mat result = laplacian_wrapper();
+                Mat result = laplacian_wrapper(img);
                 break;
             }
             else asynPrint(this->pasynUserSelf, "%s::%s No valid edge detector selected\n", driverName, functionName);
         case 1 :
-            Mat result = centroid_wrapper();
+            Mat result = centroid_wrapper(img);
             break;
         default :
             asynPrint(this->pasynUserSelf, "%s::%s No valid image processing selected.\n", driverName, functionName);
@@ -147,7 +147,7 @@ void NDPluginCV::processImage(int visionMode, Mat &img){
  * class. This function recieves an Image in the form of an NDArray. Then it checks
  * if the image is in mono form. Then, it converts it into an OpenCV Mat. Finally,
  * it calls the processImage function to perform the desired computer vision operation
- * 
+ *
  * @params: pArray -> pointer to image in the form of an NDArray
  * @return: void
  */
@@ -155,7 +155,6 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
     NDArray* pScratch = NULL;
     NDArrayInfo arrayInfo;
     unsigned int numRows, numCols;
-    
 
     static const char* functionName = "processCallbacks";
 
