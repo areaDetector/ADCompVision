@@ -32,7 +32,7 @@ using namespace std;
  * 
  * @params: e -> exception thrown by OpenCV function
  */
-void print_cv_error(Exception &e){
+void NDPluginCVHelper::print_cv_error(Exception &e){
     cout << "OpenCV error: " << e.err << " code: " << e.code << " file: " << e.file << endl;
 }
 
@@ -48,7 +48,7 @@ void print_cv_error(Exception &e){
  * @params: blurDegree -> degree to which image is blurred to remove noise
  * @return: Image with edges detected
  */
-Mat edge_detector_canny(Mat &img, int threshVal, int threshRatio, int blurDegree){
+Mat NDPluginCVHelper::edge_detector_canny(Mat &img, int threshVal, int threshRatio, int blurDegree){
     Mat temp, detected;
     try{
         blur(img, temp, Size(blurDegree, blurDegree));
@@ -78,7 +78,7 @@ Mat edge_detector_canny(Mat &img, int threshVal, int threshRatio, int blurDegree
  * @params: blurDegree -> kernel size for Gaussian Blur
  * @return: image with detected edges.
  */
-Mat edge_detector_laplacian(Mat &img, int blurDegree){
+Mat NDPluginCVHelper::edge_detector_laplacian(Mat &img, int blurDegree){
     Mat temp, detected;
     try{
         GaussianBlur(img, temp, Size(blurDegree, blurDegree),1, 0, BORDER_DEFAULT);
@@ -112,7 +112,7 @@ Mat edge_detector_laplacian(Mat &img, int blurDegree){
  * @params: threshVal -> cutoff  for threshold
  * @return: cropped image with detected contours and centroids
  */
-Mat centroid_finder(Mat &img, int roiX, int roiY, int roiWidth, int roiHeight, int blurDegree, int threshVal){
+Mat NDPluginCVHelper::centroid_finder(Mat &img, int roiX, int roiY, int roiWidth, int roiHeight, int blurDegree, int threshVal){
     Mat afterBlur, afterThresh, afterCrop, cropOriginal;
     GaussianBlur(img, afterBlur, Size(blurDegree,blurDegree), 0);
     threshold(afterBlur, afterThresh, threshVal, 255, THRESH_BINARY);
@@ -138,4 +138,12 @@ Mat centroid_finder(Mat &img, int roiX, int roiY, int roiWidth, int roiHeight, i
     imshow("contours+centroids", cropOriginal);
     waitKey(0);
     return img;
+}
+
+NDPluginCVHelper::NDPluginCVHelper(){
+    
+}
+
+NDPluginCVHelper::~NDPluginCVHelper(){
+    delete this;
 }
