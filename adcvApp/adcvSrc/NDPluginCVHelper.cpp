@@ -4,10 +4,10 @@
  * The main plugin will call a function that switches on a PV val,
  * and based on the results, passes the image to the correct helper
  * function.
- * 
+ *
  * Author: Jakub Wlodek
  * Date: June 2018
- * 
+ *
  */
 
 //include some standard libraries
@@ -29,7 +29,7 @@ using namespace std;
 /*
  * Simple function that prints OpenCV error information.
  * Used in try/catch blocks
- * 
+ *
  * @params: e -> exception thrown by OpenCV function
  */
 void NDPluginCVHelper::print_cv_error(Exception &e){
@@ -41,7 +41,7 @@ void NDPluginCVHelper::print_cv_error(Exception &e){
  * Function that does Edge detection using the OpenCV canny function
  * It first blurs the image, then runs the canny function on the resulting
  * blurred image.
- * 
+ *
  * @params: img -> the image on which edge detection is to be run
  * @params: threshVal -> value of low threshold
  * @params: threshRatio -> ratio of thresholding, i.e. 1:3 has threshRatio of 3
@@ -54,13 +54,13 @@ Mat NDPluginCVHelper::edge_detector_canny(Mat &img, int threshVal, int threshRat
         blur(img, temp, Size(blurDegree, blurDegree));
     }catch(Exception &e){
         print_cv_error(e);
-        return;
+        return temp;
     }
     try{
         Canny(temp, temp, threshVal, (threshVal*threshRatio));
     }catch(Exception &e){
         print_cv_error(e);
-        return;
+        return temp;
     }
     detected = Scalar::all(0);
     img.copyTo(detected, temp);
@@ -73,7 +73,7 @@ Mat NDPluginCVHelper::edge_detector_canny(Mat &img, int threshVal, int threshRat
 /*
  * Function that uses the laplacian method of edge detection
  * First uses Gaussian blur to blur the image, then laplacian for edge detection
- * 
+ *
  * @params: img -> image on which edge detection will be applied
  * @params: blurDegree -> kernel size for Gaussian Blur
  * @return: image with detected edges.
@@ -84,14 +84,14 @@ Mat NDPluginCVHelper::edge_detector_laplacian(Mat &img, int blurDegree){
         GaussianBlur(img, temp, Size(blurDegree, blurDegree),1, 0, BORDER_DEFAULT);
     }catch(Exception &e){
         print_cv_error(e);
-        return;
+        return temp;
     }
     try{
         Laplacian(temp, temp, CV_16S);
         convertScaleAbs(temp, detected);
     }catch(Exception &e){
         print_cv_error(e);
-        return;
+        return temp;
     }
     imshow("Laplacian", detected);
     waitKey(0);
@@ -131,7 +131,7 @@ Mat NDPluginCVHelper::centroid_finder(Mat &img, int roiX, int roiY, int roiWidth
     for(int i = 0; i< contours.size(); i++){
         contour_centroids[i] = Point2f((contour_moments[i].m10/contour_moments[i].m00), (contour_moments[i].m01/contour_moments[i].m00));
     }
-    for(int i = 0; i< contours.size; i++){
+    for(int i = 0; i< contours.size(); i++){
         drawContours(cropOriginal, contours, i, Scalar(0,255,0), 2, 8, hierarchy, 0, Point());
         circle(cropOriginal, contour_centroids[i], 3, Scalar(255,0,0), -1, 8, 0);
     }
@@ -141,7 +141,7 @@ Mat NDPluginCVHelper::centroid_finder(Mat &img, int roiX, int roiY, int roiWidth
 }
 
 NDPluginCVHelper::NDPluginCVHelper(){
-    
+
 }
 
 NDPluginCVHelper::~NDPluginCVHelper(){

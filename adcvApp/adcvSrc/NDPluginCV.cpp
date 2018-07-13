@@ -158,8 +158,8 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
 
     static const char* functionName = "processCallbacks";
 
-    if(pArray.ndims !=2){
-        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Please convert image passed to image processing plugin to mono\n", diriverName, functionName);
+    if(pArray->ndims !=2){
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Please convert image passed to image processing plugin to mono\n", driverName, functionName);
         return;
     }
     NDPluginDriver::beginProcessCallbacks(pArray);
@@ -170,7 +170,7 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
 
     this->unlock();
 
-    Mat img = getMatFromNDArray(pScratch, pArray);
+    Mat img = getMatFromNDArray(pScratch, pArray, numCols, numRows);
     int visionMode;
     getIntegerParam(NDPluginCVComputerVisionFunction, &visionMode);
     processImage(visionMode, img);

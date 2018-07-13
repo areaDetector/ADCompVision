@@ -1,10 +1,10 @@
 /*
  * Header file for helper functions/structs for NDPluginCV
- * 
+ *
  * Author: Jakub Wlodek
- * 
+ *
  * Created: June 2018
- * 
+ *
  */
 
 #ifndef NDPluginCVHelper_H
@@ -20,6 +20,8 @@
 //OpenCV is used for image manipulation
 #include <opencv2/opencv.hpp>
 
+using namespace cv;
+using namespace std;
 
 class NDPluginCVHelper {
 
@@ -39,7 +41,7 @@ class NDPluginCVHelper {
 
         //function that will find contours and the centroids of them in a given ROI
         Mat centroid_finder(Mat &img, int roiX, int roiY, int roiWidth, int roiHeight, int blurDegree, int threshVal);
-    
+
     protected:
 
     private:
