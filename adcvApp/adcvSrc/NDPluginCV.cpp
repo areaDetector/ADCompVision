@@ -26,7 +26,6 @@
 #include <iocsh.h>
 #include "NDArray.h"
 #include "NDPluginCV.h"
-#include "NDPluginCVHelper.h"
 #include <epicsExport.h>
 
 //OpenCV is used for image manipulation
@@ -76,7 +75,7 @@ Mat NDPluginCV::canny_wrapper(Mat &img){
     getIntegerParam(NDPluginCVThresholdValue, &threshVal);
     getIntegerParam(NDPluginCVThresholdRatio, &threshRatio);
     getIntegerParam(NDPluginCVBlurDegree, &blurDegree);
-    Mat result = edge_detector_canny(img, threshVal, threshRatio, blurDegree);
+    Mat result = cvHelper->edge_detector_canny(img, threshVal, threshRatio, blurDegree);
     return result;
 }
 
@@ -86,7 +85,7 @@ Mat NDPluginCV::canny_wrapper(Mat &img){
 Mat NDPluginCV::laplacian_wrapper(Mat &img){
     int blurDegree;
     getIntegerParam(NDPluginCVBlurDegree, &blurDegree);
-    Mat result = edge_detector_laplacian(img, blurDegree);
+    Mat result = cvHelper->edge_detector_laplacian(img, blurDegree);
     return result;
 }
 
@@ -101,7 +100,7 @@ Mat NDPluginCV::centroid_wrapper(Mat &img){
     getIntegerParam(NDPluginCVROIHeight, &roiHeight);
     getIntegerParam(NDPluginCVThresholdValue, &threshVal);
     getIntegerParam(NDPluginCVBlurDegree, &blurDegree);
-    Mat result = centroid_finder(img, roiX, roiY, roiWidth, roiHeight, blurDegree, threshVal);
+    Mat result = cvHelper->centroid_finder(img, roiX, roiY, roiWidth, roiHeight, blurDegree, threshVal);
     return result;
 }
 
@@ -118,26 +117,27 @@ Mat NDPluginCV::centroid_wrapper(Mat &img){
  */
 void NDPluginCV::processImage(int visionMode, Mat &img){
 
-    static char* functionName = "processImage";
+    static const char* functionName = "processImage";
+    Mat result;
 
     switch(visionMode){
         case 0 :
             int edgeDet;
             getIntegerParam(NDPluginCVEdgeMethod, &edgeDet);
             if(edgeDet == 0){
-                Mat result = canny_wrapper(img);
+               result = canny_wrapper(img);
                 break;
             }
             else if(edgeDet == 1){
-                Mat result = laplacian_wrapper(img);
+                result = laplacian_wrapper(img);
                 break;
             }
-            else asynPrint(this->pasynUserSelf, "%s::%s No valid edge detector selected\n", driverName, functionName);
+            else asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s No valid edge detector selected\n", driverName, functionName);
         case 1 :
-            Mat result = centroid_wrapper(img);
+            result = centroid_wrapper(img);
             break;
         default :
-            asynPrint(this->pasynUserSelf, "%s::%s No valid image processing selected.\n", driverName, functionName);
+            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s No valid image processing selected.\n", driverName, functionName);
             break;
     }
 }
@@ -159,7 +159,7 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
     static const char* functionName = "processCallbacks";
 
     if(pArray.ndims !=2){
-        asynPrint(this->pasynUserSelf, "%s::%s Please convert image passed to image processing plugin to mono\n", diriverName, functionName);
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Please convert image passed to image processing plugin to mono\n", diriverName, functionName);
         return;
     }
     NDPluginDriver::beginProcessCallbacks(pArray);
@@ -208,6 +208,9 @@ NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallback
     setStringParam(NDPluginDriverPluginType, "NDPluginCV");
     epicsSprintf(versionString, sizof(versionString), "%d.%d.%d", NDPluginCV_VERSION, NDPluginCV_REVISION, NDPluginCV_MODIFICATION);
     setStringParam(NDDriverVersion, versionString);
+
+    cvHelper = new NDPluginCVHelper();
+
     connectToArrayPort();
 }
 

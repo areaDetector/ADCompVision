@@ -22,6 +22,7 @@ using namespace cv;
 
 //base driver header file
 #include "NDPluginDriver.h"
+#include "NDPluginCVHelper.h"
 
 //version numbers
 #define NDPluginCV_VERSION      0
@@ -72,6 +73,8 @@ class NDPluginCV : public NDPluginDriver{
         int NDPluginCVROIWidth;
         
         int NDPluginCVROIHeight;
+
+	NDPluginCVHelper* cvHelper;
 
     private:
 
