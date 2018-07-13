@@ -36,7 +36,7 @@ using namespace cv;
 #define NDPluginCVBlurDegreeString "BLUR_DEGREE" //asynInt32
 #define NDPluginCVEdgeMethodString "EDGE_METHOD" //asynInt32
 #define NDPluginCVROICornerXString "ROI_CORNERX" //asynInt32
-#define NDPluginCVROIDCornerYString "ROI_CORNERY" //asynInt32
+#define NDPluginCVROICornerYString "ROI_CORNERY" //asynInt32
 #define NDPluginCVROIWidthString "ROI_WIDTH" //asynInt32
 #define NDPluginCVROIHeightString "ROI_HEIGHT" //asynInt32
 

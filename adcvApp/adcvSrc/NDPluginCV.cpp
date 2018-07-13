@@ -172,7 +172,7 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
 
     Mat img = getMatFromNDArray(pScratch, pArray);
     int visionMode;
-    getIntegerParam(NDPluginCVVisionFunction, &visionMode);
+    getIntegerParam(NDPluginCVComputerVisionFunction, &visionMode);
     processImage(visionMode, img);
     this->lock();
     if(NULL != pScratch){
@@ -206,7 +206,7 @@ NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallback
     createParam(NDPluginCVROIHeightString, asynParamInt32, &NDPluginCVROIHeight);
 
     setStringParam(NDPluginDriverPluginType, "NDPluginCV");
-    epicsSprintf(versionString, sizof(versionString), "%d.%d.%d", NDPluginCV_VERSION, NDPluginCV_REVISION, NDPluginCV_MODIFICATION);
+    epicsSnprintf(versionString, sizeof(versionString), "%d.%d.%d", NDPluginCV_VERSION, NDPluginCV_REVISION, NDPluginCV_MODIFICATION);
     setStringParam(NDDriverVersion, versionString);
 
     cvHelper = new NDPluginCVHelper();
@@ -219,7 +219,7 @@ extern "C" int NDCVConfigure(const char *portName, int queueSize, int blockingCa
 	const char *NDArrayPort, int NDArrayAddr,
 	int maxBuffers, size_t maxMemory,
 	int priority, int stackSize){
-	    NDPluginBar *pPlugin = new NDPluginBar(portName, queueSize, blockingCallbacks, NDArrayPort, NDArrayAddr,
+	    NDPluginCV *pPlugin = new NDPluginCV(portName, queueSize, blockingCallbacks, NDArrayPort, NDArrayAddr,
 	        maxBuffers, maxMemory, priority, stackSize);
 	        return pPlugin->start();
 }
