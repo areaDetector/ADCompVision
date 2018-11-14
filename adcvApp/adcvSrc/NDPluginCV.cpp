@@ -38,6 +38,26 @@ static const char *driverName="NDPluginCV";
 
 
 /*
+
+TODO (NOW)
+
+* Rewrite the ndArray2Mat function to support all kinds of NDArray Data types
+* Write a mat2NDArray funtion for converting back into NDArray
+* remove all the 'wrapper' functions, I will do this diffferently
+* Rewrite the process image funciton to simply call a function from the helper lib
+* have all necessary params as global vars that are passed as pointer
+
+
+TODO (LATER)
+
+* Allow for chainging CV functions by passing int* and num_processes to helper lib
+
+*/
+
+
+
+
+/*
  * Function that converts incoming NDArray into an OpenCV Mat that will be passed to the
  * image processing functions. First, we copy the original NDArray into a scratch array,
  * so that we do not affect the performance of othe plugins. Next, the function generates
