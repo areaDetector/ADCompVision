@@ -33,85 +33,75 @@ const char* libraryName = "NDPluginCVHelper";
  *
  * @params: e -> exception thrown by OpenCV function
  */
-void NDPluginCVHelper::print_cv_error(Exception &e){
-    cout << "OpenCV error: " << e.err << " code: " << e.code << " file: " << e.file << endl;
+void NDPluginCVHelper::print_cv_error(Exception &e, const char* functionName){
+    //cout << "OpenCV error: " << e.err << " code: " << e.code << " file: " << e.file << endl;
+    printf("OpenCV Error in function %s: %s code: %d file: %s\n", functionName, e.err, e.code, e.file);
 }
 
 
 /**
  * Function for canny-based edge detection
  * 
+ * input type       -> Integer (3)
+ * input format     -> [threshold value, threshold ratio, blur degree]
  * 
- * 
- * 
+ * output type      -> TODO
+ * output format    -> TODO
  */
 ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat* img, int* intParams, double* floatParams, int* intOutput, double* floatOutput){
-
+    const char* functionName = "canny_edge_detection";
+    ADCVStatus_t status = cvHelperSuccess;
+    int threshVal = intParams[0];
+    int threshRatio = intParams[1];
+    int blurDegree = intParams[2];
+    try{
+        blur(*img, *img, Size(blurDegree, blurDegree));
+    }catch(Exception &e){
+        print_cv_error(e, functionName);
+        return cvHelperError;
+    }
+    try{
+        Canny(*img, *img, threshVal, (threshVal*threshRatio));
+    }catch(Exception &e){
+        print_cv_error(e, functionName);
+        return cvHelperError;
+    }
+    return status;
 }
 
-
 /*
- * Function that does Edge detection using the OpenCV canny function
- * It first blurs the image, then runs the canny function on the resulting
- * blurred image.
- *
- * @params: img -> the image on which edge detection is to be run
- * @params: threshVal -> value of low threshold
- * @params: threshRatio -> ratio of thresholding, i.e. 1:3 has threshRatio of 3
- * @params: blurDegree -> degree to which image is blurred to remove noise
- * @return: Image with edges detected
+ * Function for canny-based edge detection
+ * 
+ * input type       -> Integer (1)
+ * input format     -> [blur degree]
+ * 
+ * output type      -> TODO
+ * output format    -> TODO
  */
-Mat NDPluginCVHelper::edge_detector_canny(Mat &img, int threshVal, int threshRatio, int blurDegree){
-    Mat temp, detected;
+ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat* img, int* intParams, double* floatParams, int* intOutput, double* floatOutput){
+    const char* functionName = "laplacian_edge_detection";
+    int blurDegree = intParams[0];
+    ADCVStatus_t status = cvHelperSuccess;
     try{
-        blur(img, temp, Size(blurDegree, blurDegree));
+        GaussianBlur(*img, *img, Size(blurDegree, blurDegree),1, 0, BORDER_DEFAULT);
     }catch(Exception &e){
-        print_cv_error(e);
-        return temp;
+        print_cv_error(e, functionName);
+        return cvHelperError;
     }
     try{
-        Canny(temp, temp, threshVal, (threshVal*threshRatio));
+        Laplacian(*img, *img, img->depth);
+        convertScaleAbs(*img, *img);
     }catch(Exception &e){
-        print_cv_error(e);
-        return temp;
+        print_cv_error(e, functionName);
+        return cvHelperError;
     }
-    detected = Scalar::all(0);
-    img.copyTo(detected, temp);
-    imshow("Canny", detected);
-    waitKey(0);
-    return detected;
-}
-
-
-/*
- * Function that uses the laplacian method of edge detection
- * First uses Gaussian blur to blur the image, then laplacian for edge detection
- *
- * @params: img -> image on which edge detection will be applied
- * @params: blurDegree -> kernel size for Gaussian Blur
- * @return: image with detected edges.
- */
-Mat NDPluginCVHelper::edge_detector_laplacian(Mat &img, int blurDegree){
-    Mat temp, detected;
-    try{
-        GaussianBlur(img, temp, Size(blurDegree, blurDegree),1, 0, BORDER_DEFAULT);
-    }catch(Exception &e){
-        print_cv_error(e);
-        return temp;
-    }
-    try{
-        Laplacian(temp, temp, CV_16S);
-        convertScaleAbs(temp, detected);
-    }catch(Exception &e){
-        print_cv_error(e);
-        return temp;
-    }
-    imshow("Laplacian", detected);
-    waitKey(0);
-    return detected;
+    return status;
 }
 
 /*
+
+    TODO: Rewrite this function/test chainging core functions to achieve the same result
+
  * Function that finds centroid of all contours in a given region of interest.
  * The following process is taken:
  * Gaussian blur -> threshold -> crop -> find contours+moments -> find centroids
@@ -124,7 +114,6 @@ Mat NDPluginCVHelper::edge_detector_laplacian(Mat &img, int blurDegree){
  * @params: blurDegree -> size of kernel in Gaussian blur
  * @params: threshVal -> cutoff  for threshold
  * @return: cropped image with detected contours and centroids
- */
 Mat NDPluginCVHelper::centroid_finder(Mat &img, int roiX, int roiY, int roiWidth, int roiHeight, int blurDegree, int threshVal){
     Mat afterBlur, afterThresh, afterCrop, cropOriginal;
     GaussianBlur(img, afterBlur, Size(blurDegree,blurDegree), 0);
@@ -152,6 +141,8 @@ Mat NDPluginCVHelper::centroid_finder(Mat &img, int roiX, int roiY, int roiWidth
     waitKey(0);
     return img;
 }
+
+*/
 
 
 ADCVStatus_t NDPluginCVHelper::processImage(Mat* image, ADCVFunction_t function, int* intParams, double* floatParams, int* intOutput, double* floatOutput){

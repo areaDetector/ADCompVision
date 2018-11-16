@@ -43,15 +43,13 @@ class NDPluginCVHelper {
         ~NDPluginCVHelper();
 
         //function that will print information about an opencv error
-        void print_cv_error(Exception &e);
+        void print_cv_error(Exception &e, const char* functionName);
+
+        ADCVStatus_t canny_edge_detection(Mat* img, int* intParams, double* floatParams, int* intOutput, double* floatOutput);
+
+        ADCVStatus_t laplacian_edge_detection(Mat* img, int* intParams, double* floatParams, int* intOutput, double* floatOutput);
 
         ADCVStatus_t processImage(Mat* image, ADCVFunction_t function, int* intParams, double* floatParams, int* intOutput, double* floatOutput);
-
-        //function that will perform Canny edge detection
-        Mat edge_detector_canny(Mat &img, int threshVal, int threshRatio, int blurDegree);
-
-        //function that will perform Laplacian edge detection
-        Mat edge_detector_laplacian(Mat &img, int blurDegree);
 
         //function that will find contours and the centroids of them in a given ROI
         Mat centroid_finder(Mat &img, int roiX, int roiY, int roiWidth, int roiHeight, int blurDegree, int threshVal);
