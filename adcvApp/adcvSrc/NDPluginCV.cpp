@@ -34,8 +34,7 @@
 //some basic namespaces
 using namespace std;
 using namespace cv;
-static const char *driverName="NDPluginCV";
-
+static const char *pluginName="NDPluginCV";
 
 /*
 
@@ -54,6 +53,57 @@ TODO (LATER)
 
 */
 
+
+ADCVFrameFormat_t NDPluginCV::getCurrentImageFormat(NDDataType_t dataType, NDColorMode_t colorMode){
+    static const char* functionName = "getCurrentImageFormat";
+    if(colorMode==NDColorModeMono){
+        switch(dataType){
+            case NDUInt8:
+                return ADCV_Mono_U8;
+            case NDInt8:
+                return ADCV_Mono_S8;
+            case NDUInt16:
+                return ADCV_Mono_U16;
+            case NDInt16:
+                return ADCV_Mono_S16;
+            case NDInt32:
+                return ADCV_Mono_S32;
+            case NDFloat32:
+                return ADCV_Mono_F32;
+            case NDFloat64:
+                return ADCV_Mono_F64;
+            default:
+                asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Unsupported Image format\n", pluginName, functionName);
+                return ADCV_UnsupportedFormat;
+        }
+    }
+    else if(colorMode == NDColorModeRGB1){
+        switch(dataType){
+            case NDUInt8:
+                return ADCV_RGB_U8;
+            case NDInt8:
+                return ADCV_RGB_S8;
+            case NDUInt16:
+                return ADCV_RGB_U16;
+            case NDInt16:
+                return ADCV_RGB_S16;
+            case NDInt32:
+                return ADCV_RGB_S32;
+            case NDFloat32:
+                return ADCV_RGB_F32;
+            case NDFloat64:
+                return ADCV_RGB_F64;
+            default:
+                asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Unsupported Image format\n", pluginName, functionName);
+                return ADCV_UnsupportedFormat;
+        }
+    }
+}
+
+
+Mat ndArray2Mat(NDArray* pArray, NDDataType_t dataType, NDColorMode_t colorMode){
+
+}
 
 
 

@@ -26,19 +26,39 @@ using namespace cv;
 
 //version numbers
 #define NDPluginCV_VERSION      0
-#define NDPluginCV_REVISION     1
-#define NDPluginCV_MODIFICATION 0
+#define NDPluginCV_REVISION     0
+#define NDPluginCV_MODIFICATION 3
 
 //definitions of parameters
-#define NDPluginCVComputerVisionFunctionString "VISION_FUNCTION" //asynInt32
-#define NDPluginCVThresholdValueString "THRESHOLD_VAL" //asynFloat64
-#define NDPluginCVThresholdRatioString "THRESHOLD_RATIO" //asynFloat64
-#define NDPluginCVBlurDegreeString "BLUR_DEGREE" //asynInt32
-#define NDPluginCVEdgeMethodString "EDGE_METHOD" //asynInt32
-#define NDPluginCVROICornerXString "ROI_CORNERX" //asynInt32
-#define NDPluginCVROICornerYString "ROI_CORNERY" //asynInt32
-#define NDPluginCVROIWidthString "ROI_WIDTH" //asynInt32
-#define NDPluginCVROIHeightString "ROI_HEIGHT" //asynInt32
+#define NDPluginCVComputerVisionFunctionString      "VISION_FUNCTION"   //asynInt32
+#define NDPluginCVThresholdValueString              "THRESHOLD_VAL"     //asynFloat64
+#define NDPluginCVThresholdRatioString              "THRESHOLD_RATIO"   //asynFloat64
+#define NDPluginCVBlurDegreeString                  "BLUR_DEGREE"       //asynInt32
+#define NDPluginCVEdgeMethodString                  "EDGE_METHOD"       //asynInt32
+#define NDPluginCVROICornerXString                  "ROI_CORNERX"       //asynInt32
+#define NDPluginCVROICornerYString                  "ROI_CORNERY"       //asynInt32
+#define NDPluginCVROIWidthString                    "ROI_WIDTH"         //asynInt32
+#define NDPluginCVROIHeightString                   "ROI_HEIGHT"        //asynInt32
+
+
+/* Enum that maps the openCV data types. Used for copying from NDArray to Mat and back */
+typedef enum {
+    ADCV_Mono_U8            = CV_8UC1,
+    ADCV_Mono_S8            = CV_8SC1,
+    ADCV_RGB_U8             = CV_8UC3,
+    ADCV_RGB_S8             = CV_8SC3,
+    ADCV_Mono_U16           = CV_16UC1,
+    ADCV_Mono_S16           = CV_16SC1,
+    ADCV_RGB_U16            = CV_16UC3,
+    ADCV_RGB_S16            = CV_16SC3,
+    ADCV_Mono_S32           = CV_32SC1,
+    ADCV_RGB_S32            = CV_32SC3,
+    ADCV_Mono_F32           = CV_32FC1,
+    ADCV_RGB_F32            = CV_32FC3,
+    ADCV_Mono_F64           = CV_64FC1,
+    ADCV_RGB_F64            = CV_64FC3,
+    ADCV_UnsupportedFormat  = -1,
+} ADCVFrameFormat_t;
 
 
 //NDPluginCV class that extends base NDPluginDriver class
@@ -79,6 +99,7 @@ class NDPluginCV : public NDPluginDriver{
     private:
 
         //function definitions
+        ADCVFrameFormat_t getCurrentImageFormat(NDDataType_t dataType, NDColorMode_t colorMode);
         Mat getMatFromNDArray(NDArray* pScratch, NDArray* pArray, int numCols, int numRows);
         void processImage(int visionMode, Mat &img);
         
