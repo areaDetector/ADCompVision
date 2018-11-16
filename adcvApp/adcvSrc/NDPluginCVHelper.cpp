@@ -25,6 +25,7 @@
 using namespace cv;
 using namespace std;
 
+const char* libraryName = "NDPluginCVHelper";
 
 /*
  * Simple function that prints OpenCV error information.
@@ -34,6 +35,18 @@ using namespace std;
  */
 void NDPluginCVHelper::print_cv_error(Exception &e){
     cout << "OpenCV error: " << e.err << " code: " << e.code << " file: " << e.file << endl;
+}
+
+
+/**
+ * Function for canny-based edge detection
+ * 
+ * 
+ * 
+ * 
+ */
+ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat* img, int* intParams, double* floatParams, int* intOutput, double* floatOutput){
+
 }
 
 
@@ -138,6 +151,29 @@ Mat NDPluginCVHelper::centroid_finder(Mat &img, int roiX, int roiY, int roiWidth
     imshow("contours+centroids", cropOriginal);
     waitKey(0);
     return img;
+}
+
+
+ADCVStatus_t NDPluginCVHelper::processImage(Mat* image, ADCVFunction_t function, int* intParams, double* floatParams, int* intOutput, double* floatOutput){
+    const char* functionName = "processImage";
+    ADCVStatus_t status;
+
+    switch(function){
+        case ADCV_EdgeDetectionCanny:
+            status = canny_edge_detection(image, intParams, floatParams, intOutput, floatOutput);
+            break;
+        case ADCV_Threshold:
+            status = threshold_image(image, intParams, floatParams, intOutput, floatOutput);
+            break;
+        default:
+            status = cvHelperError;
+            break;
+    }
+
+    if(status == cvHelperError){
+        printf("%s::%s Error in helper library\n", libraryName, functionName);
+    }
+    return status;
 }
 
 NDPluginCVHelper::NDPluginCVHelper(){

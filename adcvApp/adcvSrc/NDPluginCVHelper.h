@@ -23,6 +23,18 @@
 using namespace cv;
 using namespace std;
 
+
+typedef enum {
+    ADCV_NoFunction         = 0,
+    ADCV_EdgeDetectionCanny = 1,
+    ADCV_Threshold          = 2,
+} ADCVFunction_t;
+
+typedef enum {
+    cvHelperSuccess         = 0,
+    cvHelperError           = -1,
+} ADCVStatus_t;
+
 class NDPluginCVHelper {
 
     public:
@@ -32,6 +44,8 @@ class NDPluginCVHelper {
 
         //function that will print information about an opencv error
         void print_cv_error(Exception &e);
+
+        ADCVStatus_t processImage(Mat* image, ADCVFunction_t function, int* intParams, double* floatParams, int* intOutput, double* floatOutput);
 
         //function that will perform Canny edge detection
         Mat edge_detector_canny(Mat &img, int threshVal, int threshRatio, int blurDegree);

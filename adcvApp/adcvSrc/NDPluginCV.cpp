@@ -39,18 +39,9 @@ static const char *pluginName="NDPluginCV";
 
 /*
 
-TODO (NOW)
+TODO
 
-* Rewrite the ndArray2Mat function to support all kinds of NDArray Data types
-* Write a mat2NDArray funtion for converting back into NDArray
-* remove all the 'wrapper' functions, I will do this diffferently
 * Rewrite the process image funciton to simply call a function from the helper lib
-* have all necessary params as global vars that are passed as pointer
-
-
-TODO (LATER)
-
-* Allow for chainging CV functions by passing int* and num_processes to helper lib
 
 */
 
@@ -111,6 +102,7 @@ ADCVFrameFormat_t NDPluginCV::getCurrentImageFormat(NDDataType_t dataType, NDCol
     }
 }
 
+
 /**
  * Function that gets that NDDataType from an OpenCV Mat
  * 
@@ -137,6 +129,7 @@ asynStatus NDPluginCV::getDataTypeFromMat(ADCVFrameFormat_t matFormat, NDDataTyp
     }
     return status;
 }
+
 
 /**
  * Function that gets that NDColorMode from an OpenCV Mat
@@ -259,6 +252,46 @@ asynStatus NDPluginCV::mat2NDArray(NDArray* pScratch, Mat* pMat){
 }
 
 
+/**
+ * Function that pulls the integer and float parameters from the PVs,
+ * and places them into an array of ints and floats respectively
+ * 
+ * @params: intParams   -> the integer parameters that will be used by the CV functions
+ * @params: floatParams -> the float parameter values that will be used by the CV functions
+ * @return: asynStatus
+ */
+asynStatus NDPluginCV::getRequiredParams(int* intParams, double* floatParams){
+    static const char* functionName = "getRequiredParams";
+    asynStatus status = asynSuccess;
+    intParams = (int*) calloc(1, NUM_INT_INPUTS*sizeof(int));
+    floatParams = (double*) calloc(1, NUM_FLOAT_INPUTS*sizeof(double));
+    
+    status = getIntegerParam(NDPluginCVIntegerInput1, intParams);
+    if(status == asynError) return status;
+    status = getIntegerParam(NDPluginCVIntegerInput2, intParams+1);
+    if(status == asynError) return status;
+    status = getIntegerParam(NDPluginCVIntegerInput3, intParams+2);
+    if(status == asynError) return status;
+    status = getIntegerParam(NDPluginCVIntegerInput4, intParams+3);
+    if(status == asynError) return status;
+    status = getIntegerParam(NDPluginCVIntegerInput5, intParams+4);
+    if(status == asynError) return status;
+
+    status = getDoubleParam(NDPluginCVFloatInput1, floatParams);
+    if(status == asynError) return status;
+    status = getDoubleParam(NDPluginCVFloatInput2, floatParams+1);
+    if(status == asynError) return status;
+    status = getDoubleParam(NDPluginCVFloatInput3, floatParams+2);
+    if(status == asynError) return status;
+    status = getDoubleParam(NDPluginCVFloatInput4, floatParams+3);
+    if(status == asynError) return status;
+    status = getDoubleParam(NDPluginCVFloatInput5, floatParams+4);
+    if(status == asynError) return status;
+
+    return status;
+}
+
+
 /*
  * Function calls the aproppriate image processing function. These functions can be
  * found in the helper .cpp file. To select the appropriate mode, it simply detects
@@ -271,12 +304,30 @@ asynStatus NDPluginCV::mat2NDArray(NDArray* pScratch, Mat* pMat){
  * @params: outputImg   -> pointer to output of image processing
  * @return: status      -> asynSuccess if success, asynError if OpenCV exception thrown
  */
-asynStatus NDPluginCV::processImage(int visionMode, Mat* inputImg, Mat* outputImg){
+asynStatus NDPluginCV::processImage(int visionMode, Mat* inputImg){
     static const char* functionName = "processImage";
-    //TODO
+    int visionFunction1, visionFunction2, visionFunction3;
+    asynStatus status = asynSuccess;
+    ADCVStatus_t libStatus;
+    int* intParams;
+    double* floatParams;
+    int* intOutput;
+    double* floatOutput;
 
+    getIntegerParam(NDPluginCVFunction1, &visionFunction1);
+    getIntegerParam(NDPluginCVFunction2, &visionFunction2);
+    getIntegerParam(NDPluginCVFunction3, &visionFunction3);
 
-
+    if((ADCVFunction_t) visionFunction1 != ADCV_NoFunction){
+        status = getRequiredParams(intParams, floatParams);
+        if(status == asynError){
+            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Not all required parameters are valid\n", pluginName, functionName);
+        }
+        libStatus = cvHelper->processImage(inputImg, (ADCVFunction_t) visionFunction1, intParams, floatParams, intOutput, floatOutput);
+        if(libStatus == cvHelperError){
+            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error processing image in library\n", pluginName, functionName);
+        }
+    }
 }
 
 /*
@@ -297,9 +348,8 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
     int colorMode;
     getIntegerParam(NDDataType, &dataType);
     getIntegerParam(NDColorMode, &colorMode);
-    //opencv mats for input and output
+    //opencv mat for input
     Mat inputImage;
-    Mat outputImage;
     // copy the pArray into the mat
     status = ndArray2Mat(pArray, &inputImage, (NDDataType_t) dataType, (NDColorMode_t) colorMode);
     

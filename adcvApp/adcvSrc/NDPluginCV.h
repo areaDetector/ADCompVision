@@ -25,9 +25,15 @@ using namespace cv;
 #include "NDPluginCVHelper.h"
 
 //version numbers
-#define NDPluginCV_VERSION      0
-#define NDPluginCV_REVISION     0
-#define NDPluginCV_MODIFICATION 3
+#define NDPluginCV_VERSION          0
+#define NDPluginCV_REVISION         0
+#define NDPluginCV_MODIFICATION     3
+
+// Num inputs/outputs
+#define NUM_FLOAT_INPUTS            5
+#define NUM_INT_INPUTS              5
+#define NUM_FLOAT_OUTPUTS           3
+#define NUM_INT_OUTPUTS             3
 
 /* definitions of parameters */
 
@@ -148,7 +154,9 @@ class NDPluginCV : public NDPluginDriver{
         asynStatus ndArray2Mat(NDArray* pArray, Mat* pMat, NDDataType_t dataType, NDColorMode_t colorMode);
         asynStatus mat2NDArray(NDArray* pScratch, Mat* pMat);
 
-        asynStatus processImage(int visionMode, Mat* inputImg, Mat* outputImg);
+        asynStatus getRequiredParams(int* intParams, double* floatParams);
+
+        asynStatus processImage(int visionMode, Mat* inputImg);
         
 };
 
