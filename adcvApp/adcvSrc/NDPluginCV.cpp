@@ -177,8 +177,9 @@ asynStatus NDPluginCV::getColorModeFromMat(ADCVFrameFormat_t matFormat, NDColorM
  * @params: colorMode   -> color mode of current array
  * 
  */
-Mat ndArray2Mat(NDArray* pArray, NDDataType_t dataType, NDColorMode_t colorMode){
-
+asynStatus NDPluginCV::ndArray2Mat(NDArray* pArray, Mat* pMat, NDDataType_t dataType, NDColorMode_t colorMode){
+    static const char* functionName = "ndArray2Mat";
+    ADCVFrameFormat_t matFormat = getCurrentImageFormat(dataType, colorMode);
 }
 
 

@@ -109,7 +109,7 @@ class NDPluginCV : public NDPluginDriver{
     private:
 
         //function definitions
-
+        asynStatus ndArray2Mat(NDArray* pArray, Mat* pMat, NDDataType_t dataType, NDColorMode_t colorMode);
 
         Mat getMatFromNDArray(NDArray* pScratch, NDArray* pArray, int numCols, int numRows);
         void processImage(int visionMode, Mat &img);
