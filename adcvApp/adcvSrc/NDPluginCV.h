@@ -30,7 +30,7 @@ using namespace cv;
 #define NDPluginCV_MODIFICATION 3
 
 //definitions of parameters
-#define NDPluginCVComputerVisionFunctionString      "VISION_FUNCTION"   //asynInt32
+#define NDPluginCVFunctionString                    "VISION_FUNCTION"   //asynInt32
 #define NDPluginCVThresholdValueString              "THRESHOLD_VAL"     //asynFloat64
 #define NDPluginCVThresholdRatioString              "THRESHOLD_RATIO"   //asynFloat64
 #define NDPluginCVBlurDegreeString                  "BLUR_DEGREE"       //asynInt32
@@ -86,7 +86,7 @@ class NDPluginCV : public NDPluginDriver{
     protected:
 
         //database values
-        int NDPluginCVComputerVisionFunction;
+        int NDPluginCVFunction;
 
         int NDPluginCVThresholdValue;
 
@@ -110,8 +110,8 @@ class NDPluginCV : public NDPluginDriver{
 
         //function definitions
         asynStatus ndArray2Mat(NDArray* pArray, Mat* pMat, NDDataType_t dataType, NDColorMode_t colorMode);
+        asynStatus mat2NDArray(NDArray* pScratch, Mat* pMat);
 
-        Mat getMatFromNDArray(NDArray* pScratch, NDArray* pArray, int numCols, int numRows);
         void processImage(int visionMode, Mat &img);
         
         //wrapper functions

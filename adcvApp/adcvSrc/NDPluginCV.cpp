@@ -253,10 +253,6 @@ asynStatus NDPluginCV::mat2NDArray(NDArray* pScratch, Mat* pMat){
         memcpy(pScratch->pData, dataStart, dataSize);
         pScratch->pAttributeList->add("ColorMode", "Color Mode", NDAttrInt32, &colorMode);
         pScratch->pAttributeList->add("DataType", "Data Type", NDAttrInt32, &dataType);
-        getAttributes(pScratch->pAttributeList);
-        doCallbacksGenericPointer(pArray, NDArrayData, 0);
-
-        pScratch->release();
         status = asynSuccess;
     }
     return status;
@@ -340,43 +336,67 @@ void NDPluginCV::processImage(int visionMode, Mat &img){
 
 /*
  * Function that overrides the process callbacks function in the base NDPluginDriver
- * class. This function recieves an Image in the form of an NDArray. Then it checks
- * if the image is in mono form. Then, it converts it into an OpenCV Mat. Finally,
- * it calls the processImage function to perform the desired computer vision operation
+ * class. This function recieves an Image in the form of an NDArray. Then the image is
+ * converted into an OpenCV Mat. The processImage function is called on the Mat.
+ * the resulting Mat is placed into a temporary NDArray which is then called back
  *
  * @params: pArray -> pointer to image in the form of an NDArray
  * @return: void
  */
 void NDPluginCV::processCallbacks(NDArray *pArray){
-    NDArray* pScratch = NULL;
-    NDArrayInfo arrayInfo;
-    unsigned int numRows, numCols;
-
     static const char* functionName = "processCallbacks";
+    asynStatus status;
+    // temp array so we don't overwrite the pArray passed to us from the camera
+    NDArray* pScratch;
+    int dataType;
+    int colorMode;
+    getIntegerParam(NDDataType, &dataType);
+    getIntegerParam(NDColorMode, &colorMode);
+    //opencv mats for input and output
+    Mat inputImage;
+    Mat outputImage;
+    // copy the pArray into the mat
+    status = ndArray2Mat(pArray, &inputImage, (NDDataType_t) dataType, (NDColorMode_t) colorMode);
+    
+    //test to see if copying function works
+    imshow("Test image", inputImage);
+    waitKey(1);
 
-    if(pArray->ndims !=2){
-        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Please convert image passed to image processing plugin to mono\n", pluginName, functionName);
-        return;
-    }
     NDPluginDriver::beginProcessCallbacks(pArray);
 
-    pArray->getInfo(&arrayInfo);
-    numCols = pArray->dims[arrayInfo.xDim].size;
-    numRows = pArray->dims[arrayInfo.yDim].size;
-
+    // do the computations on multiple threads
     this->unlock();
 
-    Mat img = getMatFromNDArray(pScratch, pArray, numCols, numRows);
+
     int visionMode;
-    getIntegerParam(NDPluginCVComputerVisionFunction, &visionMode);
-    processImage(visionMode, img);
+    getIntegerParam(NDPluginCVFunction, &visionMode);
+
     this->lock();
-    if(NULL != pScratch){
-        pScratch->release();
-    }
+
     callParamCallbacks();
+    getAttributes(pScratch->pAttributeList);
+    doCallbacksGenericPointer(pScratch, NDArrayData, 0);
+
+    pScratch->release();
 }
 
+
+
+/**
+ * Constructor for NDPluginCV. Most parameters are passed on to the superclass
+ * NDPluginDriver constructor. Next, PV parameters are initialized, and then the
+ * plugin connects to the new Array port.
+ * 
+ * @params: portName            -> asyn port for the plugin
+ * @params: queueSize           -> number of Arrays the plugin can back up if it can't keep up
+ * @params: blockingCallbacks   -> Whether or not plugin can perform callbacks
+ * @params: NDArrayPort         -> portname for arrays sent out by the plugin
+ * @params: NDArrayAddr         -> address for arrays sent out by the plugin
+ * @params: maxBuffers          -> max buffer size for the plugin
+ * @params: maxMemeory          -> max memory the plugin can allocate
+ * @params: priority            -> plugin priority
+ * @params: stackSize           -> size of the stack given to the plugin
+ */
 NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallbacks,
 		    const char *NDArrayPort, int NDArrayAddr,
 		    int maxBuffers, size_t maxMemory,
@@ -391,7 +411,7 @@ NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallback
     char versionString[25];
 
     //create the parameters
-    createParam(NDPluginCVComputerVisionFunctionString, asynParamInt32, &NDPluginCVComputerVisionFunction);
+    createParam(NDPluginCVFunctionString, asynParamInt32, &NDPluginCVFunction);
     createParam(NDPluginCVThresholdValueString, asynParamFloat64, &NDPluginCVThresholdValue);
     createParam(NDPluginCVThresholdRatioString, asynParamFloat64, &NDPluginCVThresholdRatio);
     createParam(NDPluginCVBlurDegreeString, asynParamInt32, &NDPluginCVBlurDegree);
@@ -405,6 +425,7 @@ NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallback
     epicsSnprintf(versionString, sizeof(versionString), "%d.%d.%d", NDPluginCV_VERSION, NDPluginCV_REVISION, NDPluginCV_MODIFICATION);
     setStringParam(NDDriverVersion, versionString);
 
+    // This object will be the helper that will do the actual image processing 
     cvHelper = new NDPluginCVHelper();
 
     connectToArrayPort();
@@ -415,15 +436,18 @@ NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallback
 NDPluginCV::~NDPluginCV(){ }
 
 
-extern "C" int NDCVConfigure(const char *portName, int queueSize, int blockingCallbacks,
-	const char *NDArrayPort, int NDArrayAddr,
-	int maxBuffers, size_t maxMemory,
-	int priority, int stackSize){
-	    NDPluginCV *pPlugin = new NDPluginCV(portName, queueSize, blockingCallbacks, NDArrayPort, NDArrayAddr,
-	        maxBuffers, maxMemory, priority, stackSize);
-	        return pPlugin->start();
+extern "C" int NDCVConfigure(const char *portName, int queueSize, int blockingCallbacks, const char *NDArrayPort, 
+    int NDArrayAddr, int maxBuffers, size_t maxMemory, int priority, int stackSize){
+	
+    // calls the plugin constructor
+    NDPluginCV *pPlugin = new NDPluginCV(portName, queueSize, blockingCallbacks, NDArrayPort, NDArrayAddr,
+	    maxBuffers, maxMemory, priority, stackSize);
+	
+    // starts the plugin
+    return pPlugin->start();
 }
 
+/* IOC shell argument initialization here */
 static const iocshArg initArg0 = { "portName",iocshArgString};
 static const iocshArg initArg1 = { "frame queue size",iocshArgInt};
 static const iocshArg initArg2 = { "blocking callbacks",iocshArgInt};
@@ -443,18 +467,21 @@ static const iocshArg * const initArgs[] = {&initArg0,
 					&initArg7,
 					&initArg8};
 
+
+/* defines the configuration function for Initializing the plugin */
 static const iocshFuncDef initFuncDef = {"NDCVConfigure",9,initArgs};
 
 
+/* Init call function for the IOC shell */
 static void initCallFunc(const iocshArgBuf *args){
 	NDCVConfigure(args[0].sval, args[1].ival, args[2].ival,
 			args[3].sval, args[4].ival, args[5].ival,
 			args[6].ival, args[7].ival, args[8].ival);
 }
 
-
+/* Registration of NDPluginCV for PV autosaving and into the IOC shell command set*/
 extern "C" void NDCVRegister(void){
-	iocshRegister(&initFuncDef,initCallFunc);
+	iocshRegister(&initFuncDef, initCallFunc);
 }
 
 extern "C" {
