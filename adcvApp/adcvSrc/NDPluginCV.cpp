@@ -54,6 +54,16 @@ TODO (LATER)
 */
 
 
+/**
+ * Function that takes an NDDataType and an NDColorMode and returns an ADCVFrameFormat
+ * The Frame Format type corresponds to the OpenCV data types. To see the mappings from 
+ * NDDataType/ColorMode to CV data type, check the CV_DTYP_CONV.md file, or look at the 
+ * website in the documentation
+ * 
+ * @params: dataType -> dataType of NDArray
+ * @params: colorMode -> colorMode of NDArray
+ * @return: appropriate frame format based on dtype and color mode
+ */
 ADCVFrameFormat_t NDPluginCV::getCurrentImageFormat(NDDataType_t dataType, NDColorMode_t colorMode){
     static const char* functionName = "getCurrentImageFormat";
     if(colorMode==NDColorModeMono){
@@ -98,6 +108,33 @@ ADCVFrameFormat_t NDPluginCV::getCurrentImageFormat(NDDataType_t dataType, NDCol
                 return ADCV_UnsupportedFormat;
         }
     }
+}
+
+/**
+ * Function that gets that NDDataType from an OpenCV Mat
+ * 
+ * @params: matFormat -> current image format of OpenCV Matrix image
+ * @params: pdataType -> pointer to output data type
+ * @return: status -> asynSuccess if data Type identified, otherwise asynError
+ */
+asynStatus NDPluginCV::getDataTypeFromMat(ADCVFrameFormat_t matFormat, NDDataType_t* pdataType){
+    static const char* functionName = "getDataTypeFromMat";
+    asynStatus status = asynSuccess;
+    if(matFormat == ADCV_UnsupportedFormat){
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Unsupported Image format\n", pluginName, functionName);
+        status = asynError;
+    }
+    else{
+        if(matFormat == ADCV_Mono_U8 || matFormat == ADCV_RGB_U8) *pdataType = NDUInt8;
+        else if(matFormat == ADCV_Mono_S8 || matFormat == ADCV_RGB_S8) *pdataType = NDInt8;
+        else if(matFormat == ADCV_Mono_U16 || matFormat == ADCV_RGB_U16) *pdataType = NDUInt16;
+        else if(matFormat == ADCV_Mono_S16 || matFormat == ADCV_RGB_S16) *pdataType = NDInt16;
+        else if(matFormat == ADCV_Mono_S32 || matFormat == ADCV_RGB_S32) *pdataType = NDInt32;
+        else if(matFormat == ADCV_Mono_F32 || matFormat == ADCV_RGB_F32) *pdataType = NDFloat32;
+        else if(matFormat == ADCV_Mono_F64 || matFormat == ADCV_RGB_F64) *pdataType = NDFloat64;
+        else status = asynError;
+    }
+    return status;
 }
 
 
@@ -202,12 +239,12 @@ void NDPluginCV::processImage(int visionMode, Mat &img){
                 result = laplacian_wrapper(img);
                 break;
             }
-            else asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s No valid edge detector selected\n", driverName, functionName);
+            else asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s No valid edge detector selected\n", pluginName, functionName);
         case 1 :
             result = centroid_wrapper(img);
             break;
         default :
-            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s No valid image processing selected.\n", driverName, functionName);
+            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s No valid image processing selected.\n", pluginName, functionName);
             break;
     }
 }
@@ -229,7 +266,7 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
     static const char* functionName = "processCallbacks";
 
     if(pArray->ndims !=2){
-        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Please convert image passed to image processing plugin to mono\n", driverName, functionName);
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Please convert image passed to image processing plugin to mono\n", pluginName, functionName);
         return;
     }
     NDPluginDriver::beginProcessCallbacks(pArray);
@@ -283,6 +320,10 @@ NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallback
 
     connectToArrayPort();
 }
+
+
+/* NDPluginCV destructor, currently empty */
+NDPluginCV::~NDPluginCV(){ }
 
 
 extern "C" int NDCVConfigure(const char *portName, int queueSize, int blockingCallbacks,

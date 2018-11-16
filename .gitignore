@@ -9,3 +9,4 @@ envPaths*
 */O.linux-x86_64/*
 *.swp
 .vscode/
+adcvTests/

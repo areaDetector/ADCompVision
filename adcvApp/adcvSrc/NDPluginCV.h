@@ -41,22 +41,25 @@ using namespace cv;
 #define NDPluginCVROIHeightString                   "ROI_HEIGHT"        //asynInt32
 
 
-/* Enum that maps the openCV data types. Used for copying from NDArray to Mat and back */
+/**
+ * Enum that maps the openCV data types. Used for copying from NDArray to Mat and back 
+ * NOTE: OpenCV does not support an unsigned Int 32 image format 
+*/
 typedef enum {
-    ADCV_Mono_U8            = CV_8UC1,
-    ADCV_Mono_S8            = CV_8SC1,
-    ADCV_RGB_U8             = CV_8UC3,
-    ADCV_RGB_S8             = CV_8SC3,
-    ADCV_Mono_U16           = CV_16UC1,
-    ADCV_Mono_S16           = CV_16SC1,
-    ADCV_RGB_U16            = CV_16UC3,
-    ADCV_RGB_S16            = CV_16SC3,
-    ADCV_Mono_S32           = CV_32SC1,
-    ADCV_RGB_S32            = CV_32SC3,
-    ADCV_Mono_F32           = CV_32FC1,
-    ADCV_RGB_F32            = CV_32FC3,
-    ADCV_Mono_F64           = CV_64FC1,
-    ADCV_RGB_F64            = CV_64FC3,
+    ADCV_Mono_U8            = CV_8UC1,          // Unsigned 8 bit mono
+    ADCV_Mono_S8            = CV_8SC1,          // Signed 8 bit mono
+    ADCV_RGB_U8             = CV_8UC3,          // Unsigned 8 bit rgb
+    ADCV_RGB_S8             = CV_8SC3,          // Signed 8 bit rgb
+    ADCV_Mono_U16           = CV_16UC1,         // Unsigned 16 bit mono
+    ADCV_Mono_S16           = CV_16SC1,         // Signed 16 bit mono
+    ADCV_RGB_U16            = CV_16UC3,         // Unsigned 16 bit rgb
+    ADCV_RGB_S16            = CV_16SC3,         // Signed 8 bit rgb
+    ADCV_Mono_S32           = CV_32SC1,         // Signed 32 bit mono
+    ADCV_RGB_S32            = CV_32SC3,         // Signed 32 bit rgb
+    ADCV_Mono_F32           = CV_32FC1,         // Float 32 mono
+    ADCV_RGB_F32            = CV_32FC3,         // Float 32 rgb
+    ADCV_Mono_F64           = CV_64FC1,         // Float 64 mono
+    ADCV_RGB_F64            = CV_64FC3,         // Float 64 rgb
     ADCV_UnsupportedFormat  = -1,
 } ADCVFrameFormat_t;
 
@@ -71,7 +74,14 @@ class NDPluginCV : public NDPluginDriver{
 			const char* NDArrayPort, int NDArrayAddr, int maxBuffers,
             size_t maxMemory, int priority, int stackSize);
 
+        ~NDPluginCV();
+
         void processCallbacks(NDArray* pArray);
+
+        // Data type conversion functions
+        ADCVFrameFormat_t getCurrentImageFormat(NDDataType_t dataType, NDColorMode_t colorMode);
+        asynStatus getDataTypeFromMat(ADCVFrameFormat_t matFormat, NDDataType_t* pdataType);
+        asynStatus getColorModeFromMat(ADCVFrameFormat_t matFormat, NDColorMode_t* pcolorMode);
 
     protected:
 
@@ -94,12 +104,13 @@ class NDPluginCV : public NDPluginDriver{
         
         int NDPluginCVROIHeight;
 
-	NDPluginCVHelper* cvHelper;
+	    NDPluginCVHelper* cvHelper;
 
     private:
 
         //function definitions
-        ADCVFrameFormat_t getCurrentImageFormat(NDDataType_t dataType, NDColorMode_t colorMode);
+
+
         Mat getMatFromNDArray(NDArray* pScratch, NDArray* pArray, int numCols, int numRows);
         void processImage(int visionMode, Mat &img);
         
