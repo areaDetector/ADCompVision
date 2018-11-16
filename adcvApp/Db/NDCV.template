@@ -391,3 +391,22 @@ record(ai, "$(P)$(R)IntegerOutput3_RBV")
     field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_OUT3"))
     field(SCAN, "I/O Intr")
 }
+
+
+#################################################################
+# Other records                                                 #
+#################################################################
+
+record(stringout, "$(P)$(R)CVOutputDescription")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynOctet")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_DESCRIPTION"))
+}
+
+record(stringin, "$(P)$(R)CVOutputDescription_RBV")
+{
+    field(DTYP, "asynOctet")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_DESCRIPTION"))
+    field(SCAN, "I/O Intr")
+}

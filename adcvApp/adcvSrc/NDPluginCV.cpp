@@ -260,78 +260,23 @@ asynStatus NDPluginCV::mat2NDArray(NDArray* pScratch, Mat* pMat){
 
 
 /*
- * Wrapper function for canny. Gets args from PV and calls helper function
- */
-Mat NDPluginCV::canny_wrapper(Mat &img){
-    int threshVal, threshRatio, blurDegree;
-    getIntegerParam(NDPluginCVThresholdValue, &threshVal);
-    getIntegerParam(NDPluginCVThresholdRatio, &threshRatio);
-    getIntegerParam(NDPluginCVBlurDegree, &blurDegree);
-    Mat result = cvHelper->edge_detector_canny(img, threshVal, threshRatio, blurDegree);
-    return result;
-}
-
-/*
- * Wrapper function for laplacian. Gets args from PV and calls helper function
- */
-Mat NDPluginCV::laplacian_wrapper(Mat &img){
-    int blurDegree;
-    getIntegerParam(NDPluginCVBlurDegree, &blurDegree);
-    Mat result = cvHelper->edge_detector_laplacian(img, blurDegree);
-    return result;
-}
-
-/*
- * Wrapper function for centroid finding. Gets args from PV and calls helper function
- */
-Mat NDPluginCV::centroid_wrapper(Mat &img){
-    int roiX, roiY, roiWidth, roiHeight, blurDegree, threshVal;
-    getIntegerParam(NDPluginCVROICornerX, &roiX);
-    getIntegerParam(NDPluginCVROICornerY, &roiY);
-    getIntegerParam(NDPluginCVROIWidth, &roiWidth);
-    getIntegerParam(NDPluginCVROIHeight, &roiHeight);
-    getIntegerParam(NDPluginCVThresholdValue, &threshVal);
-    getIntegerParam(NDPluginCVBlurDegree, &blurDegree);
-    Mat result = cvHelper->centroid_finder(img, roiX, roiY, roiWidth, roiHeight, blurDegree, threshVal);
-    return result;
-}
-
-/*
  * Function calls the aproppriate image processing function. These functions can be
  * found in the helper .cpp file. To select the appropriate mode, it simply detects
  * the value in the PV CompVisionFunction_RBV which is set by the user. It switches on
  * this value, and calls the appropriate function, replacing the arguments in the call
  * with PV values, which can also be set by the user.
  * 
- * @params: visionMode -> value in CompVisionFunction_RBV PV
- * @params: img -> image to be processed
- * @return: void
+ * @params: visionMode  -> value in CompVisionFunction_RBV PV
+ * @params: inputImg    -> pointer to mat to be processed
+ * @params: outputImg   -> pointer to output of image processing
+ * @return: status      -> asynSuccess if success, asynError if OpenCV exception thrown
  */
-void NDPluginCV::processImage(int visionMode, Mat &img){
-
+asynStatus NDPluginCV::processImage(int visionMode, Mat* inputImg, Mat* outputImg){
     static const char* functionName = "processImage";
-    Mat result;
+    //TODO
 
-    switch(visionMode){
-        case 0 :
-            int edgeDet;
-            getIntegerParam(NDPluginCVEdgeMethod, &edgeDet);
-            if(edgeDet == 0){
-               result = canny_wrapper(img);
-                break;
-            }
-            else if(edgeDet == 1){
-                result = laplacian_wrapper(img);
-                break;
-            }
-            else asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s No valid edge detector selected\n", pluginName, functionName);
-        case 1 :
-            result = centroid_wrapper(img);
-            break;
-        default :
-            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s No valid image processing selected.\n", pluginName, functionName);
-            break;
-    }
+
+
 }
 
 /*
@@ -368,8 +313,6 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
     this->unlock();
 
 
-    int visionMode;
-    getIntegerParam(NDPluginCVFunction, &visionMode);
 
     this->lock();
 
@@ -410,16 +353,37 @@ NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallback
 {
     char versionString[25];
 
-    //create the parameters
-    createParam(NDPluginCVFunctionString, asynParamInt32, &NDPluginCVFunction);
-    createParam(NDPluginCVThresholdValueString, asynParamFloat64, &NDPluginCVThresholdValue);
-    createParam(NDPluginCVThresholdRatioString, asynParamFloat64, &NDPluginCVThresholdRatio);
-    createParam(NDPluginCVBlurDegreeString, asynParamInt32, &NDPluginCVBlurDegree);
-    createParam(NDPluginCVEdgeMethodString, asynParamInt32, &NDPluginCVEdgeMethod);
-    createParam(NDPluginCVROICornerXString, asynParamInt32, &NDPluginCVROICornerX);
-    createParam(NDPluginCVROICornerYString, asynParamInt32, &NDPluginCVROICornerY);
-    createParam(NDPluginCVROIWidthString, asynParamInt32, &NDPluginCVROIWidth);
-    createParam(NDPluginCVROIHeightString, asynParamInt32, &NDPluginCVROIHeight);
+    //create function params (3)
+    createParam(NDPluginCVFunction1String,          asynParamInt32,     &NDPluginCVFunction1);
+    createParam(NDPluginCVFunction2String,          asynParamInt32,     &NDPluginCVFunction2);
+    createParam(NDPluginCVFunction3String,          asynParamInt32,     &NDPluginCVFunction3);
+
+    //create the float input params (5)
+    createParam(NDPluginCVFloatInput1String,        asynParamFloat64,   &NDPluginCVFloatInput1);
+    createParam(NDPluginCVFloatInput2String,        asynParamFloat64,   &NDPluginCVFloatInput2);
+    createParam(NDPluginCVFloatInput3String,        asynParamFloat64,   &NDPluginCVFloatInput3);
+    createParam(NDPluginCVFloatInput4String,        asynParamFloat64,   &NDPluginCVFloatInput4);
+    createParam(NDPluginCVFloatInput5String,        asynParamFloat64,   &NDPluginCVFloatInput5);
+
+    //create the integer input params (5)
+    createParam(NDPluginCVIntegerInput1String,      asynParamInt32,     &NDPluginCVIntegerInput1);
+    createParam(NDPluginCVIntegerInput2String,      asynParamInt32,     &NDPluginCVIntegerInput2);
+    createParam(NDPluginCVIntegerInput3String,      asynParamInt32,     &NDPluginCVIntegerInput3);
+    createParam(NDPluginCVIntegerInput4String,      asynParamInt32,     &NDPluginCVIntegerInput4);
+    createParam(NDPluginCVIntegerInput5String,      asynParamInt32,     &NDPluginCVIntegerInput5);
+
+    //create the float output params (3)
+    createParam(NDPluginCVFloatOutput1String,       asynParamFloat64,   &NDPluginCVFloatOutput1);
+    createParam(NDPluginCVFloatOutput2String,       asynParamFloat64,   &NDPluginCVFloatOutput2);
+    createParam(NDPluginCVFloatOutput3String,       asynParamFloat64,   &NDPluginCVFloatOutput3);
+
+    //create the integer output params (3)
+    createParam(NDPluginCVIntegerOutput1String,     asynParamInt32,     &NDPluginCVIntegerOutput1);
+    createParam(NDPluginCVIntegerOutput2String,     asynParamInt32,     &NDPluginCVIntegerOutput2);
+    createParam(NDPluginCVIntegerOutput3String,     asynParamInt32,     &NDPluginCVIntegerOutput3);
+
+    //create the remaining params
+    createParam(NDPluginCVOutputDescriptionString,  asynParamOctet, &NDPluginCVOutputDescription);
 
     setStringParam(NDPluginDriverPluginType, "NDPluginCV");
     epicsSnprintf(versionString, sizeof(versionString), "%d.%d.%d", NDPluginCV_VERSION, NDPluginCV_REVISION, NDPluginCV_MODIFICATION);
