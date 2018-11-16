@@ -5,157 +5,389 @@
 # 
 # Author: Jakub Wlodek June 2018
 #
+# Last modified: November 18, 2018
 
 
-# Some necessary records:
-# Function selector: select from variety of functions
-# 
+#########################################################################
+# Function selection PVs. Multiple functions selected will chain them.  #
+#########################################################################
 
+############################ First Comp Vision Function ####################################
 
-###########################################################
-# Common Records: records used by all functions           #
-###########################################################
-
-record(mbbi, "$(P)$(R)CompVisionFunction_RBV")
+record(mbbo, "$(P)$(R)CompVisionFunction1")
 {
     field(PINI, "YES")
     field(DTYP, "asynInt32")
-    field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))VISION_FUNCTION"))
-    field(ZRST, "Edge Detector")
+    field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FUNCTION1"))
+    field(ZRST, "None")
     field(ZRVL, "0")
-    field(ONST, "Centroid Finder")
+    field(ONST, "Canny Edge Detection")
     field(ONVL, "1")
-    field(SCAN, "I/O Intr")
+    field(TWST, "Threshold")
+    field(TWVL, "2")
+    field(VAL, "0")
+    info(autosaveFields, "VAL")
 }
 
-# records that determine threshold value
-record(ao, "$(P)$(R)ThresholdVal")
-{
-    field(PINI, "YES")
-    field(DTYP, "asynFloat64")
-    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))THRESHOLD_VAL")
-    field(VAL, "50.0")
-}
-
-record(ai, "$(P)$(R)ThresholdVal_RBV)
-{
-    field(DTYP, "asynFloat64")
-    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))THRESHOLD_VAL")
-    field(SCAN, "I/O Intr")
-}
-
-#records that hold threshold ratio
-record(ao, $(P)$(R)ThresholdRatio)
-{
-    field(PINI, "YES")
-    field(DTYP, "asynFloat64")
-    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))THRESHOLD_RATIO")
-    field(VAL, "2")
-}
-
-record(ai, $(P)$(R)ThresholdRatio_RBV)
-{
-    field(DTYP, "asynFloat64")
-    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))THRESHOLD_RATIO)
-    field(SCAN, "I/O Intr")
-}
-
-# records that determine degree of Gaussian Blur
-record(ao, "$(P)$(R)BlurDegree")
-{
-    field(PINI, "YES")
-    field(DTYP, "asynInt32")
-    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))BLUR_DEGREE"))
-    field(VAL, "3")
-}
-
-record(ai, "$(P)$(R)BlurDegree_RBV")
+record(mbbi, "$(P)$(R)CompVisionFunction1_RBV")
 {
     field(DTYP, "asynInt32")
-    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))BLUR_DEGREE"))
-    field(SCAN, "I/O Intr")
-}
-
-
-##########################################################
-# Edge Detector Records                                  #
-##########################################################
-
-# record that selects edge detection types
-record(mbbi, "$(P)$(R)EdgeMethod_RBV")
-{
-    field(PINI, "YES")
-    field(DTYP, "asynInt32")
-    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))EDGE_METHOD")
-    field(ZRST, "Canny")
+    field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FUNCTION1"))
+    field(ZRST, "None")
     field(ZRVL, "0")
-    field(ONST, "Laplacian")
+    field(ONST, "Canny Edge Detection")
     field(ONVL, "1")
+    field(TWST, "Threshold")
+    field(TWVL, "2")
+    field(VAL, "0")
     field(SCAN, "I/O Intr")
 }
 
+############################ Second Comp Vision Function ####################################
 
-
-##########################################################
-# Centroid/Center of Mass Finder Records                 #
-##########################################################
-
-#records that hold coords of ROI in which object detection will take place
-record(ao, "$(P)$(R)ROICornerX")
+record(mbbo, "$(P)$(R)CompVisionFunction2")
 {
     field(PINI, "YES")
     field(DTYP, "asynInt32")
-    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ROI_CORNERX")
+    field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FUNCTION2"))
+    field(ZRST, "None")
+    field(ZRVL, "0")
+    field(ONST, "Canny Edge Detection")
+    field(ONVL, "1")
+    field(TWST, "Threshold")
+    field(TWVL, "2")
+    field(VAL, "0")
+    info(autosaveFields, "VAL")
+}
+
+record(mbbi, "$(P)$(R)CompVisionFunction2_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FUNCTION2"))
+    field(ZRST, "None")
+    field(ZRVL, "0")
+    field(ONST, "Canny Edge Detection")
+    field(ONVL, "1")
+    field(TWST, "Threshold")
+    field(TWVL, "2")
+    field(VAL, "0")
+    field(SCAN, "I/O Intr")
+}
+
+############################ Third Comp Vision Function ####################################
+
+record(mbbo, "$(P)$(R)CompVisionFunction3")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FUNCTION3"))
+    field(ZRST, "None")
+    field(ZRVL, "0")
+    field(ONST, "Canny Edge Detection")
+    field(ONVL, "1")
+    field(TWST, "Threshold")
+    field(TWVL, "2")
+    field(VAL, "0")
+    info(autosaveFields, "VAL")
+}
+
+record(mbbi, "$(P)$(R)CompVisionFunction3_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FUNCTION3"))
+    field(ZRST, "None")
+    field(ZRVL, "0")
+    field(ONST, "Canny Edge Detection")
+    field(ONVL, "1")
+    field(TWST, "Threshold")
+    field(TWVL, "2")
+    field(VAL, "0")
+    field(SCAN, "I/O Intr")
+}
+
+#############################################################################
+# Because OpenCV has so many functions with so many different flags and     #
+# parameters, the PV values for this plugin will vary in effect for each    #
+# OpenCV function. Further information can be found in the README.md file   #
+#############################################################################
+
+#############################################################################
+# Float input PVs (5)                                                       #
+#############################################################################
+
+record(ao, "$(P)$(R)FloatInput1")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynFloat64")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_FLOAT_IN1")
+    field(VAL, "0.0")
+}
+
+record(ai, "$(P)$(R)FloatInput1_RBV")
+{
+    field(DTYP, "asynFloat64")
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_FLOAT_IN1")
+    field(SCAN, "I/O Intr")
+}
+
+------------------------------------------------------------------------------------
+
+record(ao, "$(P)$(R)FloatInput2")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynFloat64")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_FLOAT_IN2")
+    field(VAL, "0.0")
+}
+
+record(ai, "$(P)$(R)FloatInput2_RBV")
+{
+    field(DTYP, "asynFloat64")
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_FLOAT_IN2")
+    field(SCAN, "I/O Intr")
+}
+
+------------------------------------------------------------------------------------
+
+record(ao, "$(P)$(R)FloatInput3")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynFloat64")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_FLOAT_IN3")
+    field(VAL, "0.0")
+}
+
+record(ai, "$(P)$(R)FloatInput3_RBV")
+{
+    field(DTYP, "asynFloat64")
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_FLOAT_IN3")
+    field(SCAN, "I/O Intr")
+}
+
+------------------------------------------------------------------------------------
+
+record(ao, "$(P)$(R)FloatInput4")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynFloat64")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_FLOAT4")
+    field(VAL, "0.0")
+}
+
+record(ai, "$(P)$(R)FloatInput4_RBV")
+{
+    field(DTYP, "asynFloat64")
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_FLOAT_IN4")
+    field(SCAN, "I/O Intr")
+}
+
+------------------------------------------------------------------------------------
+
+record(ao, "$(P)$(R)FloatInput5")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynFloat64")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_FLOAT_IN5")
+    field(VAL, "0.0")
+}
+
+record(ai, "$(P)$(R)FloatInput5_RBV")
+{
+    field(DTYP, "asynFloat64")
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_FLOAT_IN5")
+    field(SCAN, "I/O Intr")
+}
+
+#########################################################################
+# Integer Input PVs (5)                                                 #
+#########################################################################
+
+record(ao, "$(P)$(R)IntegerInput1")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN1"))
     field(VAL, "0")
 }
 
-record(ai, "$(P)$(R)ROICornerX_RBV")
+record(ai, "$(P)$(R)IntegerInput1_RBV")
 {
     field(DTYP, "asynInt32")
-    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ROI_CORNERX"))
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN1"))
     field(SCAN, "I/O Intr")
 }
 
-#records that hold coords of ROI in which object detection will take place
-record(ao, "$(P)$(R)ROICornerY")
+---------------------------------------------------------------------------------------
+
+record(ao, "$(P)$(R)IntegerInput2")
 {
     field(PINI, "YES")
     field(DTYP, "asynInt32")
-    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ROI_CORNERY")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN2"))
     field(VAL, "0")
 }
 
-record(ai, "$(P)$(R)ROICornerY_RBV")
+record(ai, "$(P)$(R)IntegerInput2_RBV")
 {
     field(DTYP, "asynInt32")
-    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ROI_CORNERY"))
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN2"))
     field(SCAN, "I/O Intr")
 }
 
-record(ao, "$(P)$(R)ROIWidth")
+----------------------------------------------------------------------------------
+
+record(ao, "$(P)$(R)IntegerInput3")
 {
     field(PINI, "YES")
     field(DTYP, "asynInt32")
-    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ROI_WIDTH"))
-    field(VAL, "400")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN3"))
+    field(VAL, "0")
 }
-record(ao, "$(P)$(R)ROIWidth_RBV")
+
+record(ai, "$(P)$(R)IntegerInput3_RBV")
 {
     field(DTYP, "asynInt32")
-    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ROI_WIDTH"))
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN3"))
     field(SCAN, "I/O Intr")
 }
 
-record(ao, "$(P)$(R)ROIHeight")
+-----------------------------------------------------------------------------------------
+
+record(ao, "$(P)$(R)IntegerInput4")
 {
     field(PINI, "YES")
     field(DTYP, "asynInt32")
-    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ROI_HEIGHT"))
-    field(VAL, "400")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN4"))
+    field(VAL, "0")
 }
-record(ao, "$(P)$(R)ROIHeight_RBV")
+
+record(ai, "$(P)$(R)IntegerInput4_RBV")
 {
     field(DTYP, "asynInt32")
-    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ROI_HEIGHT"))
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN4"))
+    field(SCAN, "I/O Intr")
+}
+
+-----------------------------------------------------------------------------------------
+
+record(ao, "$(P)$(R)IntegerInput5")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN5"))
+    field(VAL, "0")
+}
+
+record(ai, "$(P)$(R)IntegerInput5_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN5"))
+    field(SCAN, "I/O Intr")
+}
+
+
+#######################################################################
+# Float Output PVs (3)                                                #
+#######################################################################
+
+record(ao, "$(P)$(R)FloatOutput1")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynFloat64")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_FLOAT_OUT1")
+    field(VAL, "0.0")
+}
+
+record(ai, "$(P)$(R)FloatOutput1_RBV")
+{
+    field(DTYP, "asynFloat64")
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_FLOAT_OUT1")
+    field(SCAN, "I/O Intr")
+}
+
+------------------------------------------------------------------------------------
+
+record(ao, "$(P)$(R)FloatOutput2")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynFloat64")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_FLOAT_OUT2")
+    field(VAL, "0.0")
+}
+
+record(ai, "$(P)$(R)FloatOutput2_RBV")
+{
+    field(DTYP, "asynFloat64")
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_FLOAT_OUT2")
+    field(SCAN, "I/O Intr")
+}
+
+------------------------------------------------------------------------------------
+
+record(ao, "$(P)$(R)FloatOutput3")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynFloat64")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_FLOAT_OUT3")
+    field(VAL, "0.0")
+}
+
+record(ai, "$(P)$(R)FloatOutput3_RBV")
+{
+    field(DTYP, "asynFloat64")
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_FLOAT_OUT3")
+    field(SCAN, "I/O Intr")
+}
+
+#######################################################################
+# Integer Output PVs (3)                                              #
+#######################################################################
+
+record(ao, "$(P)$(R)IntegerOutput1")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_OUT1"))
+    field(VAL, "0")
+}
+
+record(ai, "$(P)$(R)IntegerOutput1_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_OUT1"))
+    field(SCAN, "I/O Intr")
+}
+
+---------------------------------------------------------------------------------------
+
+record(ao, "$(P)$(R)IntegerOutput2")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_OUT2"))
+    field(VAL, "0")
+}
+
+record(ai, "$(P)$(R)IntegerOutput2_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_OUT2"))
+    field(SCAN, "I/O Intr")
+}
+
+----------------------------------------------------------------------------------
+
+record(ao, "$(P)$(R)IntegerOutput3")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_OUT3"))
+    field(VAL, "0")
+}
+
+record(ai, "$(P)$(R)IntegerOutput3_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_OUT3"))
     field(SCAN, "I/O Intr")
 }
