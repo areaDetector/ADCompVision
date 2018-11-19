@@ -89,7 +89,8 @@ ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat* img, int* intParams
         return cvHelperError;
     }
     try{
-        Laplacian(*img, *img, img->depth);
+        int depth = img->depth();
+        Laplacian(*img, *img, depth);
         convertScaleAbs(*img, *img);
     }catch(Exception &e){
         print_cv_error(e, functionName);

@@ -224,13 +224,13 @@ asynStatus NDPluginCV::mat2NDArray(NDArray* pScratch, Mat* pMat){
     }
     size_t dims[ndims];
     if(ndims == 3){
-        dims[0] == pMat->channels();
-        dims[1] == matSize.width;
-        dims[2] == matSize.height;
+        dims[0] = pMat->channels();
+        dims[1] = matSize.width;
+        dims[2] = matSize.height;
     }
     else{
-        dims[0] == matSize.width;
-        dims[1] == matSize.height;
+        dims[0] = matSize.width;
+        dims[1] = matSize.height;
     }
     pScratch = pNDArrayPool->alloc(ndims, dims, dataType, 0, NULL);
     if(pScratch == NULL){
@@ -247,6 +247,7 @@ asynStatus NDPluginCV::mat2NDArray(NDArray* pScratch, Mat* pMat){
         memcpy(pScratch->pData, dataStart, dataSize);
         pScratch->pAttributeList->add("ColorMode", "Color Mode", NDAttrInt32, &colorMode);
         pScratch->pAttributeList->add("DataType", "Data Type", NDAttrInt32, &dataType);
+        getAttributes(pScratch->pAttributeList);
         status = asynSuccess;
     }
     return status;
@@ -331,8 +332,10 @@ asynStatus NDPluginCV::processImage(int visionMode, Mat* inputImg){
         libStatus = cvHelper->processImage(inputImg, (ADCVFunction_t) visionFunction1, intParams, floatParams, intOutput, floatOutput);
         if(libStatus == cvHelperError){
             asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error processing image in library\n", pluginName, functionName);
+            status  = asynError;
         }
     }
+    return status;
 }
 
 /*
@@ -358,24 +361,27 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
     // copy the pArray into the mat
     status = ndArray2Mat(pArray, &inputImage, (NDDataType_t) dataType, (NDColorMode_t) colorMode);
     
-    //test to see if copying function works
-    imshow("Test image", inputImage);
-    waitKey(1);
+    if(status == asynError){
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error copying from NDArray to Mat\n", pluginName, functionName);
+    }
+    else{
+        //test to see if copying function works
+        imshow("Test image", inputImage);
+        waitKey(1);
 
-    NDPluginDriver::beginProcessCallbacks(pArray);
+        NDPluginDriver::beginProcessCallbacks(pArray);
 
-    // do the computations on multiple threads
-    this->unlock();
+        // do the computations on multiple threads
+        this->unlock();
 
 
 
-    this->lock();
+        this->lock();
 
-    callParamCallbacks();
-    getAttributes(pScratch->pAttributeList);
-    doCallbacksGenericPointer(pScratch, NDArrayData, 0);
-
-    pScratch->release();
+        callParamCallbacks();
+        doCallbacksGenericPointer(pScratch, NDArrayData, 0);
+        pScratch->release();
+    }
 }
 
 
