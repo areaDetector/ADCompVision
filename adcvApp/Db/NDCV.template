@@ -18,7 +18,7 @@ record(mbbo, "$(P)$(R)CompVisionFunction1")
 {
     field(PINI, "YES")
     field(DTYP, "asynInt32")
-    field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FUNCTION1"))
+    field(OUT, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FUNCTION1")
     field(ZRST, "None")
     field(ZRVL, "0")
     field(ONST, "Canny Edge Detection")
@@ -32,7 +32,7 @@ record(mbbo, "$(P)$(R)CompVisionFunction1")
 record(mbbi, "$(P)$(R)CompVisionFunction1_RBV")
 {
     field(DTYP, "asynInt32")
-    field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FUNCTION1"))
+    field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FUNCTION1")
     field(ZRST, "None")
     field(ZRVL, "0")
     field(ONST, "Canny Edge Detection")
@@ -49,7 +49,7 @@ record(mbbo, "$(P)$(R)CompVisionFunction2")
 {
     field(PINI, "YES")
     field(DTYP, "asynInt32")
-    field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FUNCTION2"))
+    field(OUT, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FUNCTION2")
     field(ZRST, "None")
     field(ZRVL, "0")
     field(ONST, "Canny Edge Detection")
@@ -63,7 +63,7 @@ record(mbbo, "$(P)$(R)CompVisionFunction2")
 record(mbbi, "$(P)$(R)CompVisionFunction2_RBV")
 {
     field(DTYP, "asynInt32")
-    field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FUNCTION2"))
+    field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FUNCTION2")
     field(ZRST, "None")
     field(ZRVL, "0")
     field(ONST, "Canny Edge Detection")
@@ -80,7 +80,7 @@ record(mbbo, "$(P)$(R)CompVisionFunction3")
 {
     field(PINI, "YES")
     field(DTYP, "asynInt32")
-    field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FUNCTION3"))
+    field(OUT, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FUNCTION3")
     field(ZRST, "None")
     field(ZRVL, "0")
     field(ONST, "Canny Edge Detection")
@@ -94,7 +94,7 @@ record(mbbo, "$(P)$(R)CompVisionFunction3")
 record(mbbi, "$(P)$(R)CompVisionFunction3_RBV")
 {
     field(DTYP, "asynInt32")
-    field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FUNCTION3"))
+    field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FUNCTION3")
     field(ZRST, "None")
     field(ZRVL, "0")
     field(ONST, "Canny Edge Detection")
@@ -130,7 +130,7 @@ record(ai, "$(P)$(R)FloatInput1_RBV")
     field(SCAN, "I/O Intr")
 }
 
-------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
 
 record(ao, "$(P)$(R)FloatInput2")
 {
@@ -147,7 +147,7 @@ record(ai, "$(P)$(R)FloatInput2_RBV")
     field(SCAN, "I/O Intr")
 }
 
-------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
 
 record(ao, "$(P)$(R)FloatInput3")
 {
@@ -164,7 +164,7 @@ record(ai, "$(P)$(R)FloatInput3_RBV")
     field(SCAN, "I/O Intr")
 }
 
-------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
 
 record(ao, "$(P)$(R)FloatInput4")
 {
@@ -181,7 +181,7 @@ record(ai, "$(P)$(R)FloatInput4_RBV")
     field(SCAN, "I/O Intr")
 }
 
-------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
 
 record(ao, "$(P)$(R)FloatInput5")
 {
@@ -206,82 +206,82 @@ record(ao, "$(P)$(R)IntegerInput1")
 {
     field(PINI, "YES")
     field(DTYP, "asynInt32")
-    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN1"))
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN1")
     field(VAL, "0")
 }
 
 record(ai, "$(P)$(R)IntegerInput1_RBV")
 {
     field(DTYP, "asynInt32")
-    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN1"))
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN1")
     field(SCAN, "I/O Intr")
 }
 
----------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------
 
 record(ao, "$(P)$(R)IntegerInput2")
 {
     field(PINI, "YES")
     field(DTYP, "asynInt32")
-    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN2"))
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN2")
     field(VAL, "0")
 }
 
 record(ai, "$(P)$(R)IntegerInput2_RBV")
 {
     field(DTYP, "asynInt32")
-    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN2"))
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN2")
     field(SCAN, "I/O Intr")
 }
 
-----------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------
 
 record(ao, "$(P)$(R)IntegerInput3")
 {
     field(PINI, "YES")
     field(DTYP, "asynInt32")
-    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN3"))
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN3")
     field(VAL, "0")
 }
 
 record(ai, "$(P)$(R)IntegerInput3_RBV")
 {
     field(DTYP, "asynInt32")
-    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN3"))
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN3")
     field(SCAN, "I/O Intr")
 }
 
------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
 
 record(ao, "$(P)$(R)IntegerInput4")
 {
     field(PINI, "YES")
     field(DTYP, "asynInt32")
-    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN4"))
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN4")
     field(VAL, "0")
 }
 
 record(ai, "$(P)$(R)IntegerInput4_RBV")
 {
     field(DTYP, "asynInt32")
-    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN4"))
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN4")
     field(SCAN, "I/O Intr")
 }
 
------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
 
 record(ao, "$(P)$(R)IntegerInput5")
 {
     field(PINI, "YES")
     field(DTYP, "asynInt32")
-    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN5"))
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN5")
     field(VAL, "0")
 }
 
 record(ai, "$(P)$(R)IntegerInput5_RBV")
 {
     field(DTYP, "asynInt32")
-    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN5"))
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_IN5")
     field(SCAN, "I/O Intr")
 }
 
@@ -305,7 +305,7 @@ record(ai, "$(P)$(R)FloatOutput1_RBV")
     field(SCAN, "I/O Intr")
 }
 
-------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
 
 record(ao, "$(P)$(R)FloatOutput2")
 {
@@ -322,7 +322,7 @@ record(ai, "$(P)$(R)FloatOutput2_RBV")
     field(SCAN, "I/O Intr")
 }
 
-------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
 
 record(ao, "$(P)$(R)FloatOutput3")
 {
@@ -347,48 +347,48 @@ record(ao, "$(P)$(R)IntegerOutput1")
 {
     field(PINI, "YES")
     field(DTYP, "asynInt32")
-    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_OUT1"))
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_OUT1")
     field(VAL, "0")
 }
 
 record(ai, "$(P)$(R)IntegerOutput1_RBV")
 {
     field(DTYP, "asynInt32")
-    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_OUT1"))
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_OUT1")
     field(SCAN, "I/O Intr")
 }
 
----------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------
 
 record(ao, "$(P)$(R)IntegerOutput2")
 {
     field(PINI, "YES")
     field(DTYP, "asynInt32")
-    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_OUT2"))
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_OUT2")
     field(VAL, "0")
 }
 
 record(ai, "$(P)$(R)IntegerOutput2_RBV")
 {
     field(DTYP, "asynInt32")
-    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_OUT2"))
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_OUT2")
     field(SCAN, "I/O Intr")
 }
 
-----------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------
 
 record(ao, "$(P)$(R)IntegerOutput3")
 {
     field(PINI, "YES")
     field(DTYP, "asynInt32")
-    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_OUT3"))
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_OUT3")
     field(VAL, "0")
 }
 
 record(ai, "$(P)$(R)IntegerOutput3_RBV")
 {
     field(DTYP, "asynInt32")
-    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_OUT3"))
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_INT_OUT3")
     field(SCAN, "I/O Intr")
 }
 
@@ -401,12 +401,12 @@ record(stringout, "$(P)$(R)CVOutputDescription")
 {
     field(PINI, "YES")
     field(DTYP, "asynOctet")
-    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_DESCRIPTION"))
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_DESCRIPTION")
 }
 
 record(stringin, "$(P)$(R)CVOutputDescription_RBV")
 {
     field(DTYP, "asynOctet")
-    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_DESCRIPTION"))
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_DESCRIPTION")
     field(SCAN, "I/O Intr")
 }
