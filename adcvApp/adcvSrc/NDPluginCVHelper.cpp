@@ -27,7 +27,7 @@ using namespace std;
 
 const char* libraryName = "NDPluginCVHelper";
 
-/*
+/**
  * Simple function that prints OpenCV error information.
  * Used in try/catch blocks
  *
@@ -42,11 +42,11 @@ void NDPluginCVHelper::print_cv_error(Exception &e, const char* functionName){
 /**
  * Function for canny-based edge detection
  * 
- * input type       -> Integer (3)
- * input format     -> [threshold value, threshold ratio, blur degree]
+ * @inType       -> Integer (3)
+ * @inFormat     -> [threshold value, threshold ratio, blur degree]
  * 
- * output type      -> TODO
- * output format    -> TODO
+ * @outType      -> TODO
+ * @outFormat    -> TODO
  */
 ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat* img, int* intParams, double* floatParams, int* intOutput, double* floatOutput){
     const char* functionName = "canny_edge_detection";
@@ -69,14 +69,14 @@ ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat* img, int* intParams, do
     return status;
 }
 
-/*
+/**
  * Function for canny-based edge detection
  * 
- * input type       -> Integer (1)
- * input format     -> [blur degree]
+ * @inType       -> Integer (1)
+ * @inFormat     -> [blur degree]
  * 
- * output type      -> TODO
- * output format    -> TODO
+ * @outType      -> TODO
+ * @outFormat    -> TODO
  */
 ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat* img, int* intParams, double* floatParams, int* intOutput, double* floatOutput){
     const char* functionName = "laplacian_edge_detection";
@@ -94,6 +94,31 @@ ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat* img, int* intParams
     }catch(Exception &e){
         print_cv_error(e, functionName);
         return cvHelperError;
+    }
+    return status;
+}
+
+
+/**
+ * Function that thresholds an image based on a certain pixel value
+ * 
+ * @inType      -> Integer (3)
+ * @inFormat    -> [Threshhold Value, Max Pixel Value, Threshold Type]
+ * 
+ * @outType     -> TODO
+ * @outFormat   -> TODO
+ */
+ADCVStatus_t NDPluginCVHelper::threshold_image(Mat* img, int* intParams, double* floatParams, int* intOutput, double* floatOutput){
+    const char* functionName = "threshold_image";
+    ADCVStatus_t status = cvHelperSuccess;
+    int threshVal = intParams[0];
+    int threshMax = intParams[1];
+    int threshType = intParams[2];
+    try{
+        threshold(*img, *img, threshVal, threshMax, threshType);
+    }catch(Exception &e){
+        status = cvHelperError;
+        print_cv_error(e, functionName);
     }
     return status;
 }
@@ -167,10 +192,6 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat* image, ADCVFunction_t function,
     return status;
 }
 
-NDPluginCVHelper::NDPluginCVHelper(){
+NDPluginCVHelper::NDPluginCVHelper(){ }
 
-}
-
-NDPluginCVHelper::~NDPluginCVHelper(){
-    delete this;
-}
+NDPluginCVHelper::~NDPluginCVHelper(){ delete this; }

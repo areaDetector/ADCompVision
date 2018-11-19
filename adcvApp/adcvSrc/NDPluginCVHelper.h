@@ -49,6 +49,8 @@ class NDPluginCVHelper {
 
         ADCVStatus_t laplacian_edge_detection(Mat* img, int* intParams, double* floatParams, int* intOutput, double* floatOutput);
 
+        ADCVStatus_t threshold_image(Mat* img, int* intParams, double* floatParams, int* intOutput, double* floatOutput);
+
         ADCVStatus_t processImage(Mat* image, ADCVFunction_t function, int* intParams, double* floatParams, int* intOutput, double* floatOutput);
 
         //function that will find contours and the centroids of them in a given ROI
