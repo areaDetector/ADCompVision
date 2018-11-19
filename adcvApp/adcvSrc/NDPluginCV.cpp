@@ -100,6 +100,7 @@ ADCVFrameFormat_t NDPluginCV::getCurrentImageFormat(NDDataType_t dataType, NDCol
                 return ADCV_UnsupportedFormat;
         }
     }
+    return ADCV_UnsupportedFormat;
 }
 
 
@@ -263,30 +264,33 @@ asynStatus NDPluginCV::mat2NDArray(NDArray* pScratch, Mat* pMat){
 asynStatus NDPluginCV::getRequiredParams(int* intParams, double* floatParams){
     static const char* functionName = "getRequiredParams";
     asynStatus status = asynSuccess;
-    intParams = (int*) calloc(1, NUM_INT_INPUTS*sizeof(int));
-    floatParams = (double*) calloc(1, NUM_FLOAT_INPUTS*sizeof(double));
+    asynStatus tempStatus;
     
-    status = getIntegerParam(NDPluginCVIntegerInput1, intParams);
-    if(status == asynError) return status;
-    status = getIntegerParam(NDPluginCVIntegerInput2, intParams+1);
-    if(status == asynError) return status;
-    status = getIntegerParam(NDPluginCVIntegerInput3, intParams+2);
-    if(status == asynError) return status;
-    status = getIntegerParam(NDPluginCVIntegerInput4, intParams+3);
-    if(status == asynError) return status;
-    status = getIntegerParam(NDPluginCVIntegerInput5, intParams+4);
-    if(status == asynError) return status;
+    tempStatus = getIntegerParam(NDPluginCVIntegerInput1, intParams);
+    if(tempStatus == asynError) status = tempStatus;
+    tempStatus = getIntegerParam(NDPluginCVIntegerInput2, intParams+1);
+    if(tempStatus == asynError) status = tempStatus;
+    tempStatus = getIntegerParam(NDPluginCVIntegerInput3, intParams+2);
+    if(tempStatus == asynError) status = tempStatus;
+    tempStatus = getIntegerParam(NDPluginCVIntegerInput4, intParams+3);
+    if(tempStatus == asynError) status = tempStatus;
+    tempStatus = getIntegerParam(NDPluginCVIntegerInput5, intParams+4);
+    if(tempStatus == asynError) status = tempStatus;
 
-    status = getDoubleParam(NDPluginCVFloatInput1, floatParams);
-    if(status == asynError) return status;
-    status = getDoubleParam(NDPluginCVFloatInput2, floatParams+1);
-    if(status == asynError) return status;
-    status = getDoubleParam(NDPluginCVFloatInput3, floatParams+2);
-    if(status == asynError) return status;
-    status = getDoubleParam(NDPluginCVFloatInput4, floatParams+3);
-    if(status == asynError) return status;
-    status = getDoubleParam(NDPluginCVFloatInput5, floatParams+4);
-    if(status == asynError) return status;
+    tempStatus = getDoubleParam(NDPluginCVFloatInput1, floatParams);
+    if(tempStatus == asynError) status = tempStatus;
+    tempStatus = getDoubleParam(NDPluginCVFloatInput2, floatParams+1);
+    if(tempStatus == asynError) status = tempStatus;
+    tempStatus = getDoubleParam(NDPluginCVFloatInput3, floatParams+2);
+    if(tempStatus == asynError) status = tempStatus;
+    tempStatus = getDoubleParam(NDPluginCVFloatInput4, floatParams+3);
+    if(tempStatus == asynError) status = tempStatus;
+    tempStatus = getDoubleParam(NDPluginCVFloatInput5, floatParams+4);
+    if(tempStatus == asynError) status = tempStatus;
+
+    if(status == asynError){
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error reading back parameter values\n", pluginName, functionName);
+    }
 
     return status;
 }
@@ -309,10 +313,11 @@ asynStatus NDPluginCV::processImage(int visionMode, Mat* inputImg){
     int visionFunction1, visionFunction2, visionFunction3;
     asynStatus status = asynSuccess;
     ADCVStatus_t libStatus;
-    int* intParams;
-    double* floatParams;
-    int* intOutput;
-    double* floatOutput;
+
+    int* intParams = (int*) calloc(1, NUM_INT_INPUTS*sizeof(int));
+    double* floatParams = (double*) calloc(1, NUM_FLOAT_INPUTS*sizeof(double));
+    int* intOutput = (int*) calloc(1, NUM_INT_OUTPUTS*sizeof(int));
+    double* floatOutput = (double*) calloc(1, NUM_FLOAT_OUTPUTS*sizeof(double));
 
     getIntegerParam(NDPluginCVFunction1, &visionFunction1);
     getIntegerParam(NDPluginCVFunction2, &visionFunction2);
