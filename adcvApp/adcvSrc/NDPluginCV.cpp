@@ -375,7 +375,7 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
     //opencv mat for input
     Mat inputImage;
     // copy the pArray into the mat
-    status = ndArray2Mat(pArray, &inputImage, (NDDataType_t) dataType, (NDColorMode_t) colorMode);
+    status = ndArray2Mat(pArray, inputImage, (NDDataType_t) dataType, (NDColorMode_t) colorMode);
     
     if(status == asynError){
         asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error copying from NDArray to Mat\n", pluginName, functionName);

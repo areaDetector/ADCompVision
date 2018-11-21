@@ -69,13 +69,13 @@ ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat &img, double* inputs, do
     int threshRatio = inputs[1];
     int blurDegree = inputs[2];
     try{
-        blur(*img, *img, Size(blurDegree, blurDegree));
+        blur(img, img, Size(blurDegree, blurDegree));
     }catch(Exception &e){
         print_cv_error(e, functionName);
         return cvHelperError;
     }
     try{
-        Canny(*img, *img, threshVal, (threshVal*threshRatio));
+        Canny(img, img, threshVal, (threshVal*threshRatio));
     }catch(Exception &e){
         print_cv_error(e, functionName);
         return cvHelperError;
@@ -97,15 +97,15 @@ ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat &img, double* inputs
     int blurDegree = inputs[0];
     ADCVStatus_t status = cvHelperSuccess;
     try{
-        GaussianBlur(*img, *img, Size(blurDegree, blurDegree),1, 0, BORDER_DEFAULT);
+        GaussianBlur(img, img, Size(blurDegree, blurDegree),1, 0, BORDER_DEFAULT);
     }catch(Exception &e){
         print_cv_error(e, functionName);
         return cvHelperError;
     }
     try{
-        int depth = img->depth();
-        Laplacian(*img, *img, depth);
-        convertScaleAbs(*img, *img);
+        int depth = img.depth();
+        Laplacian(img, img, depth);
+        convertScaleAbs(img, img);
     }catch(Exception &e){
         print_cv_error(e, functionName);
         return cvHelperError;
