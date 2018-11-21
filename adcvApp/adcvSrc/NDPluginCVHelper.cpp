@@ -38,22 +38,36 @@ void NDPluginCVHelper::print_cv_error(Exception &e, const char* functionName){
     printf("OpenCV Error in function %s: %s code: %d file: %s\n", functionName, e.err, e.code, e.file);
 }
 
+/*
+#############################################################################
+#                                                                           #
+# OpenCV wrapper functions. All of these functions will take a Mat* and     #
+# pointers for inputs and outputs. Next, it will collect the necessary      #
+# inputs, use the correct openCV function on the Mat image, and place any   #
+# required values in the outputs array. Finally, it returns a status.       #
+#                                                                           #
+# The comments before each function describe the input and output values    #
+# that the function will create, along with their types                     #
+#                                                                           #
+#############################################################################
+*/
+
 
 /**
  * Function for canny-based edge detection
  * 
- * @inType       -> Integer (3)
- * @inFormat     -> [threshold value, threshold ratio, blur degree]
+ * @inCount      -> 3
+ * @inFormat     -> [Threshold value (Int), Threshold ratio (Int), Blur degree (Int)]
  * 
- * @outType      -> TODO
+ * @outCount     -> TODO
  * @outFormat    -> TODO
  */
-ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat* img, int* intParams, double* floatParams, int* intOutput, double* floatOutput){
+ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat* img, double* inputs, double* outputs){
     const char* functionName = "canny_edge_detection";
     ADCVStatus_t status = cvHelperSuccess;
-    int threshVal = intParams[0];
-    int threshRatio = intParams[1];
-    int blurDegree = intParams[2];
+    int threshVal = inputs[0];
+    int threshRatio = inputs[1];
+    int blurDegree = inputs[2];
     try{
         blur(*img, *img, Size(blurDegree, blurDegree));
     }catch(Exception &e){
@@ -72,15 +86,15 @@ ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat* img, int* intParams, do
 /**
  * Function for canny-based edge detection
  * 
- * @inType       -> Integer (1)
- * @inFormat     -> [blur degree]
+ * @inCount      -> 1
+ * @inFormat     -> [Blur degree (Int)]
  * 
- * @outType      -> TODO
+ * @outCount     -> TODO
  * @outFormat    -> TODO
  */
-ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat* img, int* intParams, double* floatParams, int* intOutput, double* floatOutput){
+ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat* img, double* inputs, double* outputs){
     const char* functionName = "laplacian_edge_detection";
-    int blurDegree = intParams[0];
+    int blurDegree = inputs[0];
     ADCVStatus_t status = cvHelperSuccess;
     try{
         GaussianBlur(*img, *img, Size(blurDegree, blurDegree),1, 0, BORDER_DEFAULT);
@@ -103,18 +117,18 @@ ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat* img, int* intParams
 /**
  * Function that thresholds an image based on a certain pixel value
  * 
- * @inType      -> Integer (3)
- * @inFormat    -> [Threshhold Value, Max Pixel Value, Threshold Type]
+ * @inCount     -> 3
+ * @inFormat    -> [Threshhold Value (Int), Max Pixel Value (Int), Threshold Type (Int)]
  * 
- * @outType     -> TODO
+ * @outCount    -> TODO
  * @outFormat   -> TODO
  */
-ADCVStatus_t NDPluginCVHelper::threshold_image(Mat* img, int* intParams, double* floatParams, int* intOutput, double* floatOutput){
+ADCVStatus_t NDPluginCVHelper::threshold_image(Mat* img, double* inputs, double* outputs){
     const char* functionName = "threshold_image";
     ADCVStatus_t status = cvHelperSuccess;
-    int threshVal = intParams[0];
-    int threshMax = intParams[1];
-    int threshType = intParams[2];
+    int threshVal = inputs[0];
+    int threshMax = inputs[1];
+    int threshType = inputs[2];
     try{
         threshold(*img, *img, threshVal, threshMax, threshType);
     }catch(Exception &e){
@@ -123,6 +137,49 @@ ADCVStatus_t NDPluginCVHelper::threshold_image(Mat* img, int* intParams, double*
     }
     return status;
 }
+
+
+ADCVStatus_t NDPluginCVHelper::find_centroids(Mat* img, double* inputs, double* outputs){
+    static const char* functionName = "find_centroids";
+    ADCVStatus_t status = cvHelperSuccess;
+    int blurDegree = inputs[0];
+    int thresholdVal = inputs[1];
+    try{
+        GaussianBlur(*img, *img, Size(blurDegree, blurDegree), 0);
+        threshold(*img, *img, thresholdVal, 255, THRESH_BINARY);
+        vector<vector<Point>> contours;
+        vector<Vec4i> heirarchy;
+
+        findContours(*img, contours, heirarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0,0));
+        vector<Moments> contour_moments(contours.size());
+        int i, j, k;
+        for(i = 0; i < contours.size(); i++){
+            contour_moments[i] = moments(contours[i], false);
+        }
+        vector<Point2f> contour_centroids(contours.size());
+        for(j = 0; j < contours.size(); j++){
+            contour_centroids[i] = Point2f((contour_moments[j].m10/contour_moments[j].m00), (contour_moments[j].m01/contour_moments[j].m00));
+        }
+        for(k = 0; k < contour_centroids.size(); k++){
+            if(k%2==0){
+                outputs[k] == contour_centroids[k/2].x;
+            }
+            else{
+                outputs[k] == contour_centroids[k/2].y;
+            }
+
+            if(k == NUM_OUTPUTS) break;
+        }
+
+    } catch(Exception &e){
+        status = cvHelperError;
+        print_cv_error(e, functionName);
+    }
+    return status;
+}
+
+//------------------------ End of OpenCV wrapper functions -------------------------------------------------
+
 
 /*
 
@@ -171,16 +228,26 @@ Mat NDPluginCVHelper::centroid_finder(Mat &img, int roiX, int roiY, int roiWidth
 */
 
 
-ADCVStatus_t NDPluginCVHelper::processImage(Mat* image, ADCVFunction_t function, int* intParams, double* floatParams, int* intOutput, double* floatOutput){
+/**
+ * Function that is called from the ADCompVision plugin. It detects which function is being requested, and calls the appropriate
+ * opencv wrapper function from those above.
+ * 
+ * @params: image       -> pointer to Mat object
+ * @params: function    -> type of CV function to perform
+ * @params: inputs      -> array with inputs for functions
+ * @params: outputs     -> array for outputs of functions
+ * @return: status      -> check if library function completed successfully
+ */
+ADCVStatus_t NDPluginCVHelper::processImage(Mat* image, ADCVFunction_t function, double* inputs, double* outputs){
     const char* functionName = "processImage";
     ADCVStatus_t status;
 
     switch(function){
         case ADCV_EdgeDetectionCanny:
-            status = canny_edge_detection(image, intParams, floatParams, intOutput, floatOutput);
+            status = canny_edge_detection(image, inputs, outputs);
             break;
         case ADCV_Threshold:
-            status = threshold_image(image, intParams, floatParams, intOutput, floatOutput);
+            status = threshold_image(image, inputs, outputs);
             break;
         default:
             status = cvHelperError;
@@ -192,6 +259,9 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat* image, ADCVFunction_t function,
     }
     return status;
 }
+
+
+/* Basic constructor/destructor, used by plugin to call processImage */
 
 NDPluginCVHelper::NDPluginCVHelper(){ }
 
