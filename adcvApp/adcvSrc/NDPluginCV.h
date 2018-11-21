@@ -29,12 +29,6 @@ using namespace cv;
 #define NDPluginCV_REVISION         0
 #define NDPluginCV_MODIFICATION     3
 
-// Num inputs/outputs
-#define NUM_FLOAT_INPUTS            5
-#define NUM_INT_INPUTS              5
-#define NUM_FLOAT_OUTPUTS           3
-#define NUM_INT_OUTPUTS             3
-
 /* definitions of parameters */
 
 // CV functions (3)
@@ -42,29 +36,30 @@ using namespace cv;
 #define NDPluginCVFunction2String               "NDCV_FUNCTION2"    //asynInt32
 #define NDPluginCVFunction3String               "NDCV_FUNCTION3"    //asynInt32
 
-// Float inputs (5)
-#define NDPluginCVFloatInput1String             "NDCV_FLOAT_IN1"    //asynFloat64
-#define NDPluginCVFloatInput2String             "NDCV_FLOAT_IN2"    //asynFloat64
-#define NDPluginCVFloatInput3String             "NDCV_FLOAT_IN3"    //asynFloat64
-#define NDPluginCVFloatInput4String             "NDCV_FLOAT_IN4"    //asynFloat64
-#define NDPluginCVFloatInput5String             "NDCV_FLOAT_IN5"    //asynFloat64
+// Input PVs (10)
+#define NDPluginCVInput1String                  "NDCV_IN1"          //asynFloat64
+#define NDPluginCVInput2String                  "NDCV_IN2"          //asynFloat64
+#define NDPluginCVInput3String                  "NDCV_IN3"          //asynFloat64
+#define NDPluginCVInput4String                  "NDCV_IN4"          //asynFloat64
+#define NDPluginCVInput5String                  "NDCV_IN5"          //asynFloat64
+#define NDPluginCVInput6String                  "NDCV_IN6"          //asynFloat64
+#define NDPluginCVInput7String                  "NDCV_IN7"          //asynFloat64
+#define NDPluginCVInput8String                  "NDCV_IN8"          //asynFloat64
+#define NDPluginCVInput9String                  "NDCV_IN9"          //asynFloat64
+#define NDPluginCVInput10String                 "NDCV_IN10"         //asynFloat64
 
-// Integer inputs (5)
-#define NDPluginCVIntegerInput1String           "NDCV_INT_IN1"      //asynInt32
-#define NDPluginCVIntegerInput2String           "NDCV_INT_IN2"      //asynInt32
-#define NDPluginCVIntegerInput3String           "NDCV_INT_IN3"      //asynInt32
-#define NDPluginCVIntegerInput4String           "NDCV_INT_IN4"      //asynInt32
-#define NDPluginCVIntegerInput5String           "NDCV_INT_IN5"      //asynInt32
+// Output PVs (10)
+#define NDPluginCVOutput1String                 "NDCV_OUT1"         //asynFloat64
+#define NDPluginCVOutput2String                 "NDCV_OUT2"         //asynFloat64
+#define NDPluginCVOutput3String                 "NDCV_OUT3"         //asynFloat64
+#define NDPluginCVOutput4String                 "NDCV_OUT4"         //asynFloat64
+#define NDPluginCVOutput5String                 "NDCV_OUT5"         //asynFloat64
+#define NDPluginCVOutput6String                 "NDCV_OUT6"         //asynFloat64
+#define NDPluginCVOutput7String                 "NDCV_OUT7"         //asynFloat64
+#define NDPluginCVOutput8String                 "NDCV_OUT8"         //asynFloat64
+#define NDPluginCVOutput9String                 "NDCV_OUT9"         //asynFloat64
+#define NDPluginCVOutput10String                "NDCV_OUT10"        //asynFloat64
 
-// Float outputs (3)
-#define NDPluginCVFloatOutput1String            "NDCV_FLOAT_OUT1"   //asynFloat64
-#define NDPluginCVFloatOutput2String            "NDCV_FLOAT_OUT2"   //asynFloat64
-#define NDPluginCVFloatOutput3String            "NDCV_FLOAT_OUT3"   //asynFloat64
-
-// Integer outputs (3)
-#define NDPluginCVIntegerOutput1String          "NDCV_INT_OUT1"     //asynInt32
-#define NDPluginCVIntegerOutput2String          "NDCV_INT_OUT2"     //asynInt32
-#define NDPluginCVIntegerOutput3String          "NDCV_INT_OUT3"     //asynInt32
 
 // Other records
 #define NDPluginCVOutputDescriptionString       "NDCV_DESCRIPTION"  //asynOctet
@@ -119,29 +114,29 @@ class NDPluginCV : public NDPluginDriver{
         int NDPluginCVFunction2;
         int NDPluginCVFunction3;
 
-        // database values for float inputs
-        int NDPluginCVFloatInput1;
-        int NDPluginCVFloatInput2;
-        int NDPluginCVFloatInput3;
-        int NDPluginCVFloatInput4;
-        int NDPluginCVFloatInput5;
+        // database values for inputs
+        int NDPluginCVInput1;
+        int NDPluginCVInput2;
+        int NDPluginCVInput3;
+        int NDPluginCVInput4;
+        int NDPluginCVInput5;
+        int NDPluginCVInput6;
+        int NDPluginCVInput7;
+        int NDPluginCVInput8;
+        int NDPluginCVInput9;
+        int NDPluginCVInput10;
 
-        //database values for integer inputs
-        int NDPluginCVIntegerInput1;
-        int NDPluginCVIntegerInput2;
-        int NDPluginCVIntegerInput3;
-        int NDPluginCVIntegerInput4;
-        int NDPluginCVIntegerInput5;
-
-        // database values for float outputs
-        int NDPluginCVFloatOutput1;
-        int NDPluginCVFloatOutput2;
-        int NDPluginCVFloatOutput3;
-        
-        // database values for integer outputs
-        int NDPluginCVIntegerOutput1;
-        int NDPluginCVIntegerOutput2;
-        int NDPluginCVIntegerOutput3;
+        // database values for outputs
+        int NDPluginCVOutput1;
+        int NDPluginCVOutput2;
+        int NDPluginCVOutput3;
+        int NDPluginCVOutput4;
+        int NDPluginCVOutput5;
+        int NDPluginCVOutput6;
+        int NDPluginCVOutput7;
+        int NDPluginCVOutput8;
+        int NDPluginCVOutput9;
+        int NDPluginCVOutput10;
 
         // Other db values
         int NDPluginCVOutputDescription;
@@ -150,11 +145,18 @@ class NDPluginCV : public NDPluginDriver{
 
     private:
 
+        // arrays that will make it easier for iterating over the inputs and outputs
+        int inputPVs[NUM_INPUTS];
+        int outputPVs[NUM_OUTPUTS];
+
+        void assignInputs();
+        void assignOutputs();
+
         //function definitions
         asynStatus ndArray2Mat(NDArray* pArray, Mat* pMat, NDDataType_t dataType, NDColorMode_t colorMode);
         asynStatus mat2NDArray(NDArray* pScratch, Mat* pMat);
 
-        asynStatus getRequiredParams(int* intParams, double* floatParams);
+        asynStatus getRequiredParams(double* inputs);
 
         asynStatus processImage(int visionMode, Mat* inputImg);
         

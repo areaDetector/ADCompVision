@@ -255,44 +255,60 @@ asynStatus NDPluginCV::mat2NDArray(NDArray* pScratch, Mat* pMat){
 
 
 /**
- * Function that pulls the integer and float parameters from the PVs,
- * and places them into an array of ints and floats respectively
+ * Basic function used to assign input PV pointers into an array for easier iteration
+ */
+void NDPluginCV::assignInputs(){
+    static const char* functionName = "assignInputs";
+    inputPVs[0] = NDPluginCVInput1;
+    inputPVs[1] = NDPluginCVInput2;
+    inputPVs[2] = NDPluginCVInput3;
+    inputPVs[3] = NDPluginCVInput4;
+    inputPVs[4] = NDPluginCVInput5;
+    inputPVs[5] = NDPluginCVInput6;
+    inputPVs[6] = NDPluginCVInput7;
+    inputPVs[7] = NDPluginCVInput8;
+    inputPVs[8] = NDPluginCVInput9;
+    inputPVs[9] = NDPluginCVInput10;
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Finished assigning input values\n", pluginName, functionName);
+}
+
+
+/**
+ * Basic function used to assign output PV pointers into an array for easier iteration
+ */
+void NDPluginCV::assignOutputs(){
+    static const char* functionName = "assignOutputs";
+    outputPVs[0] = NDPluginCVOutput1;
+    outputPVs[1] = NDPluginCVOutput2;
+    outputPVs[2] = NDPluginCVOutput3;
+    outputPVs[3] = NDPluginCVOutput4;
+    outputPVs[4] = NDPluginCVOutput5;
+    outputPVs[5] = NDPluginCVOutput6;
+    outputPVs[6] = NDPluginCVOutput7;
+    outputPVs[7] = NDPluginCVOutput8;
+    outputPVs[8] = NDPluginCVOutput9;
+    outputPVs[9] = NDPluginCVOutput10;
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Finished assigning output values\n", pluginName, functionName);
+}
+
+
+/**
+ * Function that pulls the input values from the PVs and puts them into an array
  * 
- * @params: intParams   -> the integer parameters that will be used by the CV functions
- * @params: floatParams -> the float parameter values that will be used by the CV functions
+ * @params: inputs -> a pointer that is populated by the values stored in the input PVs.
  * @return: asynStatus
  */
-asynStatus NDPluginCV::getRequiredParams(int* intParams, double* floatParams){
+asynStatus NDPluginCV::getRequiredParams(double* inputs){
     static const char* functionName = "getRequiredParams";
     asynStatus status = asynSuccess;
-    asynStatus tempStatus;
-    
-    tempStatus = getIntegerParam(NDPluginCVIntegerInput1, intParams);
-    if(tempStatus == asynError) status = tempStatus;
-    tempStatus = getIntegerParam(NDPluginCVIntegerInput2, intParams+1);
-    if(tempStatus == asynError) status = tempStatus;
-    tempStatus = getIntegerParam(NDPluginCVIntegerInput3, intParams+2);
-    if(tempStatus == asynError) status = tempStatus;
-    tempStatus = getIntegerParam(NDPluginCVIntegerInput4, intParams+3);
-    if(tempStatus == asynError) status = tempStatus;
-    tempStatus = getIntegerParam(NDPluginCVIntegerInput5, intParams+4);
-    if(tempStatus == asynError) status = tempStatus;
-
-    tempStatus = getDoubleParam(NDPluginCVFloatInput1, floatParams);
-    if(tempStatus == asynError) status = tempStatus;
-    tempStatus = getDoubleParam(NDPluginCVFloatInput2, floatParams+1);
-    if(tempStatus == asynError) status = tempStatus;
-    tempStatus = getDoubleParam(NDPluginCVFloatInput3, floatParams+2);
-    if(tempStatus == asynError) status = tempStatus;
-    tempStatus = getDoubleParam(NDPluginCVFloatInput4, floatParams+3);
-    if(tempStatus == asynError) status = tempStatus;
-    tempStatus = getDoubleParam(NDPluginCVFloatInput5, floatParams+4);
-    if(tempStatus == asynError) status = tempStatus;
-
-    if(status == asynError){
-        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error reading back parameter values\n", pluginName, functionName);
+    int i;
+    for(i=0; i<NUM_INPUTS; i++){
+        status = getDoubleParam(inputPVs[i], (inputs+i));
+        if(status == asynError){
+            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error reading back parameter values\n", pluginName, functionName);
+            return status;
+        }   
     }
-
     return status;
 }
 
@@ -315,21 +331,21 @@ asynStatus NDPluginCV::processImage(int visionMode, Mat* inputImg){
     asynStatus status = asynSuccess;
     ADCVStatus_t libStatus;
 
-    int* intParams = (int*) calloc(1, NUM_INT_INPUTS*sizeof(int));
-    double* floatParams = (double*) calloc(1, NUM_FLOAT_INPUTS*sizeof(double));
-    int* intOutput = (int*) calloc(1, NUM_INT_OUTPUTS*sizeof(int));
-    double* floatOutput = (double*) calloc(1, NUM_FLOAT_OUTPUTS*sizeof(double));
+    // init arrays for inputs and outputs
+    double* inputs = (double*) calloc(1, NUM_INPUTS*sizeof(double));
+    double* outputs = (double*) calloc(1, NUM_OUTPUTS*sizeof(double));
 
+    // get the three functions
     getIntegerParam(NDPluginCVFunction1, &visionFunction1);
     getIntegerParam(NDPluginCVFunction2, &visionFunction2);
     getIntegerParam(NDPluginCVFunction3, &visionFunction3);
 
     if((ADCVFunction_t) visionFunction1 != ADCV_NoFunction){
-        status = getRequiredParams(intParams, floatParams);
+        status = getRequiredParams(inputs);
         if(status == asynError){
             asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Not all required parameters are valid\n", pluginName, functionName);
         }
-        libStatus = cvHelper->processImage(inputImg, (ADCVFunction_t) visionFunction1, intParams, floatParams, intOutput, floatOutput);
+        libStatus = cvHelper->processImage(inputImg, (ADCVFunction_t) visionFunction1, inputs, outputs);
         if(libStatus == cvHelperError){
             asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error processing image in library\n", pluginName, functionName);
             status  = asynError;
@@ -419,29 +435,32 @@ NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallback
     createParam(NDPluginCVFunction2String,          asynParamInt32,     &NDPluginCVFunction2);
     createParam(NDPluginCVFunction3String,          asynParamInt32,     &NDPluginCVFunction3);
 
-    //create the float input params (5)
-    createParam(NDPluginCVFloatInput1String,        asynParamFloat64,   &NDPluginCVFloatInput1);
-    createParam(NDPluginCVFloatInput2String,        asynParamFloat64,   &NDPluginCVFloatInput2);
-    createParam(NDPluginCVFloatInput3String,        asynParamFloat64,   &NDPluginCVFloatInput3);
-    createParam(NDPluginCVFloatInput4String,        asynParamFloat64,   &NDPluginCVFloatInput4);
-    createParam(NDPluginCVFloatInput5String,        asynParamFloat64,   &NDPluginCVFloatInput5);
-
-    //create the integer input params (5)
-    createParam(NDPluginCVIntegerInput1String,      asynParamInt32,     &NDPluginCVIntegerInput1);
-    createParam(NDPluginCVIntegerInput2String,      asynParamInt32,     &NDPluginCVIntegerInput2);
-    createParam(NDPluginCVIntegerInput3String,      asynParamInt32,     &NDPluginCVIntegerInput3);
-    createParam(NDPluginCVIntegerInput4String,      asynParamInt32,     &NDPluginCVIntegerInput4);
-    createParam(NDPluginCVIntegerInput5String,      asynParamInt32,     &NDPluginCVIntegerInput5);
+    //create the input params (10)
+    createParam(NDPluginCVInput1String,             asynParamFloat64,   &NDPluginCVInput1);
+    createParam(NDPluginCVInput2String,             asynParamFloat64,   &NDPluginCVInput2);
+    createParam(NDPluginCVInput3String,             asynParamFloat64,   &NDPluginCVInput3);
+    createParam(NDPluginCVInput4String,             asynParamFloat64,   &NDPluginCVInput4);
+    createParam(NDPluginCVInput5String,             asynParamFloat64,   &NDPluginCVInput5);
+    createParam(NDPluginCVInput6String,             asynParamFloat64,   &NDPluginCVInput6);
+    createParam(NDPluginCVInput7String,             asynParamFloat64,   &NDPluginCVInput7);
+    createParam(NDPluginCVInput8String,             asynParamFloat64,   &NDPluginCVInput8);
+    createParam(NDPluginCVInput9String,             asynParamFloat64,   &NDPluginCVInput9);
+    createParam(NDPluginCVInput10String,            asynParamFloat64,   &NDPluginCVInput10);
 
     //create the float output params (3)
-    createParam(NDPluginCVFloatOutput1String,       asynParamFloat64,   &NDPluginCVFloatOutput1);
-    createParam(NDPluginCVFloatOutput2String,       asynParamFloat64,   &NDPluginCVFloatOutput2);
-    createParam(NDPluginCVFloatOutput3String,       asynParamFloat64,   &NDPluginCVFloatOutput3);
+    createParam(NDPluginCVOutput1String,            asynParamFloat64,   &NDPluginCVOutput1);
+    createParam(NDPluginCVOutput2String,            asynParamFloat64,   &NDPluginCVOutput2);
+    createParam(NDPluginCVOutput3String,            asynParamFloat64,   &NDPluginCVOutput3);
+    createParam(NDPluginCVOutput4String,            asynParamFloat64,   &NDPluginCVOutput4);
+    createParam(NDPluginCVOutput5String,            asynParamFloat64,   &NDPluginCVOutput5);
+    createParam(NDPluginCVOutput6String,            asynParamFloat64,   &NDPluginCVOutput6);
+    createParam(NDPluginCVOutput7String,            asynParamFloat64,   &NDPluginCVOutput7);
+    createParam(NDPluginCVOutput8String,            asynParamFloat64,   &NDPluginCVOutput8);
+    createParam(NDPluginCVOutput9String,            asynParamFloat64,   &NDPluginCVOutput9);
+    createParam(NDPluginCVOutput10String,           asynParamFloat64,   &NDPluginCVOutput10);
 
-    //create the integer output params (3)
-    createParam(NDPluginCVIntegerOutput1String,     asynParamInt32,     &NDPluginCVIntegerOutput1);
-    createParam(NDPluginCVIntegerOutput2String,     asynParamInt32,     &NDPluginCVIntegerOutput2);
-    createParam(NDPluginCVIntegerOutput3String,     asynParamInt32,     &NDPluginCVIntegerOutput3);
+    assignInputs();
+    assignOutputs();
 
     //create the remaining params
     createParam(NDPluginCVOutputDescriptionString,  asynParamOctet, &NDPluginCVOutputDescription);
