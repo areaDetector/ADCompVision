@@ -27,7 +27,7 @@ using namespace cv;
 //version numbers
 #define NDPluginCV_VERSION          0
 #define NDPluginCV_REVISION         0
-#define NDPluginCV_MODIFICATION     3
+#define NDPluginCV_MODIFICATION     4
 
 /* definitions of parameters */
 
@@ -94,15 +94,17 @@ class NDPluginCV : public NDPluginDriver{
 
     public:
 
+        // Constructor/Destructor declarations
         NDPluginCV(const char *portName, int queueSize, int blockingCallbacks,
 			const char* NDArrayPort, int NDArrayAddr, int maxBuffers,
             size_t maxMemory, int priority, int stackSize);
 
         ~NDPluginCV();
 
+        // Process callbacks that will accept arrays from driver
         void processCallbacks(NDArray* pArray);
 
-        // Data type conversion functions
+        // Data type conversion functions (in public because I am working on unit tests)
         ADCVFrameFormat_t getCurrentImageFormat(NDDataType_t dataType, NDColorMode_t colorMode);
         asynStatus getDataTypeFromMat(ADCVFrameFormat_t matFormat, NDDataType_t* pdataType);
         asynStatus getColorModeFromMat(ADCVFrameFormat_t matFormat, NDColorMode_t* pcolorMode);
@@ -141,6 +143,7 @@ class NDPluginCV : public NDPluginDriver{
         // Other db values
         int NDPluginCVOutputDescription;
 
+        // Helper library object. Will be created at constructor invocation
 	    NDPluginCVHelper* cvHelper;
 
     private:
@@ -149,16 +152,22 @@ class NDPluginCV : public NDPluginDriver{
         int inputPVs[NUM_INPUTS];
         int outputPVs[NUM_OUTPUTS];
 
+        //functions that assing the PV indexes to arrays
         void assignInputs();
         void assignOutputs();
 
-        //function definitions
+        // Conversion functions
         asynStatus ndArray2Mat(NDArray* pArray, Mat &pMat, NDDataType_t dataType, NDColorMode_t colorMode);
         asynStatus mat2NDArray(NDArray* pScratch, Mat &pMat);
 
+        // function that gets input parameters
         asynStatus getRequiredParams(double* inputs);
 
-        asynStatus processImage(int visionMode, Mat &inputImg);
+        // function that writes output parameters
+        asynStatus setOutputParams(double* outputs);
+
+        // Function that calls the appropriate helper library function
+        asynStatus processImage(Mat &inputImg);
         
 };
 

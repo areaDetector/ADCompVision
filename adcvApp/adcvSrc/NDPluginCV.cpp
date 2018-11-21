@@ -35,15 +35,9 @@
 //some basic namespaces
 using namespace std;
 using namespace cv;
+
+// name of the plugin
 static const char *pluginName="NDPluginCV";
-
-/*
-
-TODO
-
-* Rewrite the process image funciton to simply call a function from the helper lib
-
-*/
 
 
 /**
@@ -57,7 +51,7 @@ TODO
  * @return: appropriate frame format based on dtype and color mode
  */
 ADCVFrameFormat_t NDPluginCV::getCurrentImageFormat(NDDataType_t dataType, NDColorMode_t colorMode){
-    static const char* functionName = "getCurrentImageFormat";
+    const char* functionName = "getCurrentImageFormat";
     if(colorMode==NDColorModeMono){
         switch(dataType){
             case NDUInt8:
@@ -112,7 +106,7 @@ ADCVFrameFormat_t NDPluginCV::getCurrentImageFormat(NDDataType_t dataType, NDCol
  * @return: status      -> asynSuccess if data Type identified, otherwise asynError
  */
 asynStatus NDPluginCV::getDataTypeFromMat(ADCVFrameFormat_t matFormat, NDDataType_t* pdataType){
-    static const char* functionName = "getDataTypeFromMat";
+    const char* functionName = "getDataTypeFromMat";
     asynStatus status = asynSuccess;
     if(matFormat == ADCV_UnsupportedFormat){
         asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Unsupported Image format\n", pluginName, functionName);
@@ -140,7 +134,7 @@ asynStatus NDPluginCV::getDataTypeFromMat(ADCVFrameFormat_t matFormat, NDDataTyp
  * @return: status      -> asynSuccess if color mode identified, otherwise asynError
  */
 asynStatus NDPluginCV::getColorModeFromMat(ADCVFrameFormat_t matFormat, NDColorMode_t* pcolorMode){
-    static const char* functionName = "getDataTypeFromMat";
+    const char* functionName = "getDataTypeFromMat";
     asynStatus status = asynSuccess;
     if(matFormat == ADCV_UnsupportedFormat){
         asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Unsupported Image format\n", pluginName, functionName);
@@ -173,7 +167,7 @@ asynStatus NDPluginCV::getColorModeFromMat(ADCVFrameFormat_t matFormat, NDColorM
  * 
  */
 asynStatus NDPluginCV::ndArray2Mat(NDArray* pArray, Mat &pMat, NDDataType_t dataType, NDColorMode_t colorMode){
-    static const char* functionName = "ndArray2Mat";
+    const char* functionName = "ndArray2Mat";
     asynStatus status = asynSuccess;
     NDArrayInfo arrayInfo;
     //first get the matrix color format
@@ -205,7 +199,7 @@ asynStatus NDPluginCV::ndArray2Mat(NDArray* pArray, Mat &pMat, NDDataType_t data
  * @params: pMat -> pointer to opencv Mat object after processing
  */
 asynStatus NDPluginCV::mat2NDArray(NDArray* pScratch, Mat &pMat){
-    static const char* functionName = "mat2NDArray";
+    const char* functionName = "mat2NDArray";
     asynStatus status;
     int ndims;
     NDDataType_t dataType;
@@ -258,7 +252,7 @@ asynStatus NDPluginCV::mat2NDArray(NDArray* pScratch, Mat &pMat){
  * Basic function used to assign input PV pointers into an array for easier iteration
  */
 void NDPluginCV::assignInputs(){
-    static const char* functionName = "assignInputs";
+    const char* functionName = "assignInputs";
     inputPVs[0] = NDPluginCVInput1;
     inputPVs[1] = NDPluginCVInput2;
     inputPVs[2] = NDPluginCVInput3;
@@ -277,7 +271,7 @@ void NDPluginCV::assignInputs(){
  * Basic function used to assign output PV pointers into an array for easier iteration
  */
 void NDPluginCV::assignOutputs(){
-    static const char* functionName = "assignOutputs";
+    const char* functionName = "assignOutputs";
     outputPVs[0] = NDPluginCVOutput1;
     outputPVs[1] = NDPluginCVOutput2;
     outputPVs[2] = NDPluginCVOutput3;
@@ -299,7 +293,7 @@ void NDPluginCV::assignOutputs(){
  * @return: asynStatus
  */
 asynStatus NDPluginCV::getRequiredParams(double* inputs){
-    static const char* functionName = "getRequiredParams";
+    const char* functionName = "getRequiredParams";
     asynStatus status = asynSuccess;
     int i;
     for(i=0; i<NUM_INPUTS; i++){
@@ -313,6 +307,23 @@ asynStatus NDPluginCV::getRequiredParams(double* inputs){
 }
 
 
+
+asynStatus NDPluginCV::setOutputParams(double* outputs){
+    const char* functionName = "setOutputParams";
+    asynStatus status = asynSuccess;
+    int i;
+    for(i=0; i<NUM_OUTPUTS; i++){
+        status = setDoubleParam(outputPVs[i], *(outputs+i));
+        if(status == asynError){
+            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error reading back parameter values\n", pluginName, functionName);
+            return status;
+        }  
+    }
+    callParamCallbacks();
+    return status;
+}
+
+
 /*
  * Function calls the aproppriate image processing function. These functions can be
  * found in the helper .cpp file. To select the appropriate mode, it simply detects
@@ -320,13 +331,12 @@ asynStatus NDPluginCV::getRequiredParams(double* inputs){
  * this value, and calls the appropriate function, replacing the arguments in the call
  * with PV values, which can also be set by the user.
  * 
- * @params: visionMode  -> value in CompVisionFunction_RBV PV
  * @params: inputImg    -> pointer to mat to be processed
  * @params: outputImg   -> pointer to output of image processing
  * @return: status      -> asynSuccess if success, asynError if OpenCV exception thrown
  */
-asynStatus NDPluginCV::processImage(int visionMode, Mat &inputImg){
-    static const char* functionName = "processImage";
+asynStatus NDPluginCV::processImage(Mat &inputImg){
+    const char* functionName = "processImage";
     int visionFunction1, visionFunction2, visionFunction3;
     asynStatus status = asynSuccess;
     ADCVStatus_t libStatus;
@@ -342,17 +352,18 @@ asynStatus NDPluginCV::processImage(int visionMode, Mat &inputImg){
 
     if((ADCVFunction_t) visionFunction1 != ADCV_NoFunction){
         status = getRequiredParams(inputs);
-        if(status == asynError){
-            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Not all required parameters are valid\n", pluginName, functionName);
-        }
-        libStatus = cvHelper->processImage(inputImg, (ADCVFunction_t) visionFunction1, inputs, outputs);
-        if(libStatus == cvHelperError){
-            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error processing image in library\n", pluginName, functionName);
-            status  = asynError;
+        if(status != asynError){
+            libStatus = cvHelper->processImage(inputImg, (ADCVFunction_t) visionFunction1, inputs, outputs);
+            if(libStatus == cvHelperError){
+                asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error processing image in library\n", pluginName, functionName);
+                status  = asynError;
+            }
+            status = setOutputParams(outputs);
         }
     }
     return status;
 }
+
 
 /*
  * Function that overrides the process callbacks function in the base NDPluginDriver
@@ -364,7 +375,7 @@ asynStatus NDPluginCV::processImage(int visionMode, Mat &inputImg){
  * @return: void
  */
 void NDPluginCV::processCallbacks(NDArray *pArray){
-    static const char* functionName = "processCallbacks";
+    const char* functionName = "processCallbacks";
     asynStatus status;
     // temp array so we don't overwrite the pArray passed to us from the camera
     NDArray* pScratch;
@@ -382,24 +393,31 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
     }
     else{
         //test to see if copying function works
-        imshow("Test image", inputImage);
-        waitKey(1);
+        //imshow("Test image", inputImage);
+        //waitKey(1);
 
         NDPluginDriver::beginProcessCallbacks(pArray);
 
         // do the computations on multiple threads
         this->unlock();
 
-
+        status = processImage(inputImage);
+        if(status == asynError){
+            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error Processing image\n", pluginName, functionName);
+        }
 
         this->lock();
+
+        status = mat2NDArray(pScratch, inputImage);
+        if(status == asynError){
+            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error copying from Mat to NDArray\n", pluginName, functionName);
+        }
 
         callParamCallbacks();
         doCallbacksGenericPointer(pScratch, NDArrayData, 0);
         pScratch->release();
     }
 }
-
 
 
 /**
@@ -428,9 +446,11 @@ NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallback
 		    asynInt32ArrayMask | asynFloat64ArrayMask | asynGenericPointerMask,
             ASYN_MULTIDEVICE, 1, priority, stackSize, 1)
 {
+    const char* functionName = "NDPluginCV";
     char versionString[25];
 
-    //create function params (3)
+    //create function params (3) 
+    //more may need to be added, I'm not sure how many values an mbbo record supports
     createParam(NDPluginCVFunction1String,          asynParamInt32,     &NDPluginCVFunction1);
     createParam(NDPluginCVFunction2String,          asynParamInt32,     &NDPluginCVFunction2);
     createParam(NDPluginCVFunction3String,          asynParamInt32,     &NDPluginCVFunction3);
@@ -459,13 +479,14 @@ NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallback
     createParam(NDPluginCVOutput9String,            asynParamFloat64,   &NDPluginCVOutput9);
     createParam(NDPluginCVOutput10String,           asynParamFloat64,   &NDPluginCVOutput10);
 
+    // assigns inputs and outputs to arrays to simplify iteration
     assignInputs();
     assignOutputs();
 
     //create the remaining params
     createParam(NDPluginCVOutputDescriptionString,  asynParamOctet, &NDPluginCVOutputDescription);
 
-    setStringParam(NDPluginDriverPluginType, "NDPluginCV");
+    setStringParam(NDPluginDriverPluginType, functionName);
     epicsSnprintf(versionString, sizeof(versionString), "%d.%d.%d", NDPluginCV_VERSION, NDPluginCV_REVISION, NDPluginCV_MODIFICATION);
     setStringParam(NDDriverVersion, versionString);
 
@@ -480,6 +501,7 @@ NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallback
 NDPluginCV::~NDPluginCV(){ }
 
 
+/* External function that is called in the IOC shell to create the plugin object */
 extern "C" int NDCVConfigure(const char *portName, int queueSize, int blockingCallbacks, const char *NDArrayPort, 
     int NDArrayAddr, int maxBuffers, size_t maxMemory, int priority, int stackSize){
 	
@@ -490,6 +512,7 @@ extern "C" int NDCVConfigure(const char *portName, int queueSize, int blockingCa
     // starts the plugin
     return pPlugin->start();
 }
+
 
 /* IOC shell argument initialization here */
 static const iocshArg initArg0 = { "portName",iocshArgString};
@@ -523,10 +546,12 @@ static void initCallFunc(const iocshArgBuf *args){
 			args[6].ival, args[7].ival, args[8].ival);
 }
 
+
 /* Registration of NDPluginCV for PV autosaving and into the IOC shell command set*/
 extern "C" void NDCVRegister(void){
 	iocshRegister(&initFuncDef, initCallFunc);
 }
+
 
 extern "C" {
 	epicsExportRegistrar(NDCVRegister);
