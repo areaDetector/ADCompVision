@@ -56,6 +56,16 @@ void NDPluginCVHelper::print_cv_error(Exception &e, const char* functionName){
 //------------- Template for OpenCV function wrapper -------------------
 
 /*
+**
+ * WRAPPER  ->  YOURFUNCTIONNAME
+ * YOUR_FUNCTION_DESCRIPTION
+ *
+ * @inCount     -> n
+ * @inFormat    -> [Param1 (Int), Param2 (Double) ...]
+ *
+ * @outCount    -> n
+ * @outFormat   -> [Param1 (Int), Param2 (Double) ...]
+ *
 ADCVStatus_t NDPluginCVHelper::YOURFUNCTION(Mat &img, double* inputs, double* outputs){
     const char* functionName = "YOURFUNCTION";
     ADCVStatus_t status = cvHelperSuccess;
