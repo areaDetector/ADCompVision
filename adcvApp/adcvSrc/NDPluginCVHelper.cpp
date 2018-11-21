@@ -62,7 +62,7 @@ void NDPluginCVHelper::print_cv_error(Exception &e, const char* functionName){
  * @outCount     -> TODO
  * @outFormat    -> TODO
  */
-ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat* img, double* inputs, double* outputs){
+ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat &img, double* inputs, double* outputs){
     const char* functionName = "canny_edge_detection";
     ADCVStatus_t status = cvHelperSuccess;
     int threshVal = inputs[0];
@@ -92,7 +92,7 @@ ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat* img, double* inputs, do
  * @outCount     -> TODO
  * @outFormat    -> TODO
  */
-ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat* img, double* inputs, double* outputs){
+ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat &img, double* inputs, double* outputs){
     const char* functionName = "laplacian_edge_detection";
     int blurDegree = inputs[0];
     ADCVStatus_t status = cvHelperSuccess;
@@ -123,14 +123,14 @@ ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat* img, double* inputs
  * @outCount    -> TODO
  * @outFormat   -> TODO
  */
-ADCVStatus_t NDPluginCVHelper::threshold_image(Mat* img, double* inputs, double* outputs){
+ADCVStatus_t NDPluginCVHelper::threshold_image(Mat &img, double* inputs, double* outputs){
     const char* functionName = "threshold_image";
     ADCVStatus_t status = cvHelperSuccess;
     int threshVal = inputs[0];
     int threshMax = inputs[1];
     int threshType = inputs[2];
     try{
-        threshold(*img, *img, threshVal, threshMax, threshType);
+        threshold(img, img, threshVal, threshMax, threshType);
     }catch(Exception &e){
         status = cvHelperError;
         print_cv_error(e, functionName);
@@ -139,20 +139,20 @@ ADCVStatus_t NDPluginCVHelper::threshold_image(Mat* img, double* inputs, double*
 }
 
 
-ADCVStatus_t NDPluginCVHelper::find_centroids(Mat* img, double* inputs, double* outputs){
+ADCVStatus_t NDPluginCVHelper::find_centroids(Mat &img, double* inputs, double* outputs){
     static const char* functionName = "find_centroids";
     ADCVStatus_t status = cvHelperSuccess;
     int blurDegree = inputs[0];
     int thresholdVal = inputs[1];
     try{
-        GaussianBlur(*img, *img, Size(blurDegree, blurDegree), 0);
-        threshold(*img, *img, thresholdVal, 255, THRESH_BINARY);
+        GaussianBlur(img, img, Size(blurDegree, blurDegree), 0);
+        threshold(img, img, thresholdVal, 255, THRESH_BINARY);
         vector<vector<Point>> contours;
         vector<Vec4i> heirarchy;
 
-        findContours(*img, contours, heirarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0,0));
+        findContours(img, contours, heirarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0,0));
         vector<Moments> contour_moments(contours.size());
-        int i, j, k;
+        int i, j, k, l;
         for(i = 0; i < contours.size(); i++){
             contour_moments[i] = moments(contours[i], false);
         }
@@ -169,6 +169,10 @@ ADCVStatus_t NDPluginCVHelper::find_centroids(Mat* img, double* inputs, double* 
             }
 
             if(k == NUM_OUTPUTS) break;
+        }
+        for(l = 0; l< contours.size(); i++){
+            drawContours(img, contours, l, Scalar(0,255,0), 2, 8, heirarchy, 0, Point());
+            circle(img, contour_centroids[l], 3, Scalar(255,0,0), -1, 8, 0);
         }
 
     } catch(Exception &e){
@@ -238,7 +242,7 @@ Mat NDPluginCVHelper::centroid_finder(Mat &img, int roiX, int roiY, int roiWidth
  * @params: outputs     -> array for outputs of functions
  * @return: status      -> check if library function completed successfully
  */
-ADCVStatus_t NDPluginCVHelper::processImage(Mat* image, ADCVFunction_t function, double* inputs, double* outputs){
+ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function, double* inputs, double* outputs){
     const char* functionName = "processImage";
     ADCVStatus_t status;
 

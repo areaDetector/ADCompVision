@@ -50,18 +50,18 @@ class NDPluginCVHelper {
         //function that will print information about an opencv error
         void print_cv_error(Exception &e, const char* functionName);
 
-        ADCVStatus_t canny_edge_detection(Mat* img, double* inputs, double* outputs);
+        ADCVStatus_t canny_edge_detection(Mat &img, double* inputs, double* outputs);
 
-        ADCVStatus_t laplacian_edge_detection(Mat* img, double* inputs, double* outputs);
+        ADCVStatus_t laplacian_edge_detection(Mat &img, double* inputs, double* outputs);
 
-        ADCVStatus_t threshold_image(Mat* img, double* inputs, double* outputs);
+        ADCVStatus_t threshold_image(Mat &img, double* inputs, double* outputs);
 
-        ADCVStatus_t find_centroids(Mat* img, double* inputs, double* outputs);
+        ADCVStatus_t find_centroids(Mat &img, double* inputs, double* outputs);
 
-        ADCVStatus_t processImage(Mat* image, ADCVFunction_t function, double* inputs, double* outputs);
+        ADCVStatus_t processImage(Mat &image, ADCVFunction_t function, double* inputs, double* outputs);
 
         //function that will find contours and the centroids of them in a given ROI (NOTE: DEPRACATED)
-        Mat centroid_finder(Mat &img, int roiX, int roiY, int roiWidth, int roiHeight, int blurDegree, int threshVal);
+        Mat centroid_finder(Mat& img, int roiX, int roiY, int roiWidth, int roiHeight, int blurDegree, int threshVal);
 
     protected:
 

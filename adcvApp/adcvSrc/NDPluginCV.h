@@ -153,12 +153,12 @@ class NDPluginCV : public NDPluginDriver{
         void assignOutputs();
 
         //function definitions
-        asynStatus ndArray2Mat(NDArray* pArray, Mat* pMat, NDDataType_t dataType, NDColorMode_t colorMode);
-        asynStatus mat2NDArray(NDArray* pScratch, Mat* pMat);
+        asynStatus ndArray2Mat(NDArray* pArray, Mat &pMat, NDDataType_t dataType, NDColorMode_t colorMode);
+        asynStatus mat2NDArray(NDArray* pScratch, Mat &pMat);
 
         asynStatus getRequiredParams(double* inputs);
 
-        asynStatus processImage(int visionMode, Mat* inputImg);
+        asynStatus processImage(int visionMode, Mat &inputImg);
         
 };
 

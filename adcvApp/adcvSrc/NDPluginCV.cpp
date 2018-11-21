@@ -172,7 +172,7 @@ asynStatus NDPluginCV::getColorModeFromMat(ADCVFrameFormat_t matFormat, NDColorM
  * @params: colorMode   -> color mode of current array
  * 
  */
-asynStatus NDPluginCV::ndArray2Mat(NDArray* pArray, Mat* pMat, NDDataType_t dataType, NDColorMode_t colorMode){
+asynStatus NDPluginCV::ndArray2Mat(NDArray* pArray, Mat &pMat, NDDataType_t dataType, NDColorMode_t colorMode){
     static const char* functionName = "ndArray2Mat";
     asynStatus status = asynSuccess;
     NDArrayInfo arrayInfo;
@@ -187,10 +187,10 @@ asynStatus NDPluginCV::ndArray2Mat(NDArray* pArray, Mat* pMat, NDDataType_t data
         //otherwise generate an OpenCV mat of the appropriate size and insert the data
         pArray->getInfo(&arrayInfo);
         //set value at pointer
-        *pMat = Mat(arrayInfo.ySize, arrayInfo.xSize, matFormat, pArray->pData);
+        pMat = Mat(arrayInfo.ySize, arrayInfo.xSize, matFormat, pArray->pData);
         if(colorMode == NDColorModeRGB1){
             //if it is color convert to BGR openCV functions use bgr as default
-            cvtColor(*pMat, *pMat, COLOR_RGB2BGR);
+            cvtColor(pMat, pMat, COLOR_RGB2BGR);
         }
     }
     return status;
@@ -204,14 +204,14 @@ asynStatus NDPluginCV::ndArray2Mat(NDArray* pArray, Mat* pMat, NDDataType_t data
  * @params: pScratch -> pointer to a blank temporary NDArray
  * @params: pMat -> pointer to opencv Mat object after processing
  */
-asynStatus NDPluginCV::mat2NDArray(NDArray* pScratch, Mat* pMat){
+asynStatus NDPluginCV::mat2NDArray(NDArray* pScratch, Mat &pMat){
     static const char* functionName = "mat2NDArray";
     asynStatus status;
     int ndims;
     NDDataType_t dataType;
     NDColorMode_t colorMode;
-    Size matSize = pMat->size();
-    ADCVFrameFormat_t matFormat = (ADCVFrameFormat_t) pMat->depth();
+    Size matSize = pMat.size();
+    ADCVFrameFormat_t matFormat = (ADCVFrameFormat_t) pMat.depth();
     status = getDataTypeFromMat(matFormat, &dataType);
     if(status == asynError) return status;
     status = getColorModeFromMat(matFormat, &colorMode);
@@ -224,7 +224,7 @@ asynStatus NDPluginCV::mat2NDArray(NDArray* pScratch, Mat* pMat){
     }
     size_t dims[ndims];
     if(ndims == 3){
-        dims[0] = pMat->channels();
+        dims[0] = pMat.channels();
         dims[1] = matSize.width;
         dims[2] = matSize.height;
     }
@@ -239,10 +239,10 @@ asynStatus NDPluginCV::mat2NDArray(NDArray* pScratch, Mat* pMat){
         status = asynError;
     }
     else{
-        unsigned char* dataStart = pMat->data;
+        unsigned char* dataStart = pMat.data;
         // This way of finding the number of bytes in the mat must be used in case of possible limitations on the 
         // number of bytes allowed by the system in a row of the image
-        int dataSize = pMat->step[0] * pMat->rows;
+        int dataSize = pMat.step[0] * pMat.rows;
         //copy image into NDArray
         memcpy(pScratch->pData, dataStart, dataSize);
         pScratch->pAttributeList->add("ColorMode", "Color Mode", NDAttrInt32, &colorMode);
@@ -325,7 +325,7 @@ asynStatus NDPluginCV::getRequiredParams(double* inputs){
  * @params: outputImg   -> pointer to output of image processing
  * @return: status      -> asynSuccess if success, asynError if OpenCV exception thrown
  */
-asynStatus NDPluginCV::processImage(int visionMode, Mat* inputImg){
+asynStatus NDPluginCV::processImage(int visionMode, Mat &inputImg){
     static const char* functionName = "processImage";
     int visionFunction1, visionFunction2, visionFunction3;
     asynStatus status = asynSuccess;
