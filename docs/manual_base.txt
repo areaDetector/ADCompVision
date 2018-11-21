@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>ADCompVision</title>
+  <meta content="text/html; charset=ISO-8859-1" http-equiv="Content-Type" />
+</head>
+<body>
+  <div style="text-align: center">
+    <h1 style="text-align: center">
+      ADCompVision area detector plugin Input/output manual/guide</h1>
+    <h2>
+      November 21, 2018</h2>
+    <h2>
+      Jakub Wlodek</h2>
+    <h2>
+      Brookhaven National Laboratory</h2>
+  </div>
+  <p>
+    &nbsp;</p>
+  <h2 id="Introduction">
+    Introduction</h2>
+  <p>
+    This is a manual that documents the input and output types of each WRAPPER function supported by ADCompVision
+  </p>
+  <h2 id="Wrapper_params">
+    Wrapper function inputs/outputs</h2>
+  <p>
+    Below is a table that details the inputs and outputs used by each function, along with descriptions for each function
+  </p>
+  <table border="1" cellpadding="2" cellspacing="2" style="text-align: left">
+    <tbody>
+      <tr>
+        <td align="center" colspan="7">
+          <b>Input/Output values for each ADCompVision Function</b>
+        </td>
+      </tr>
+      <tr>
+        <th>
+          Function Name</th>
+        <th>
+          Number of input values</th>
+        <th>
+          Input value format</th>
+        <th>
+          Number of output values</th>
+        <th>
+          Output value format</th>
+    </tr>

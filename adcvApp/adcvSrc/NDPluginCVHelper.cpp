@@ -66,7 +66,10 @@ ADCVStatus_t NDPluginCVHelper::YOURFUNCTION(Mat &img, double* inputs, double* ou
     .
 
     try{
-        // Process your image here. Do not make copies, simply pass img as the input and output of theOpenCV calls
+        // Process your image here
+        // Don't make copies, pass img, img as input and output to OpenCV.
+        // Set output values with output[n] = value. cast non-double values to double
+        // If you need more inputs or outputs, add more PVs following previous examples.
     }catch(Exception &e){
         print_cv_error(e, functionName);
         status = cvHelperError;
@@ -79,7 +82,7 @@ ADCVStatus_t NDPluginCVHelper::YOURFUNCTION(Mat &img, double* inputs, double* ou
 
 
 /**
- * WRAPPER      -> canny_edge_detection
+ * WRAPPER      -> Canny Edge Detector
  * Function for canny-based edge detection
  * 
  * @inCount     -> 3
@@ -111,7 +114,7 @@ ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat &img, double* inputs, do
 
 
 /**
- * WRAPPER      -> laplacian_edge_detection
+ * WRAPPER      -> Laplacian Edge Detector
  * Function for laplacian-based edge detection
  * 
  * @inCount     -> 1
@@ -143,7 +146,7 @@ ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat &img, double* inputs
 
 
 /**
- * WRAPPER      -> threshold_image
+ * WRAPPER      -> Threshold Image
  * Function that thresholds an image based on a certain pixel value
  * 
  * @inCount     -> 3
@@ -169,7 +172,7 @@ ADCVStatus_t NDPluginCVHelper::threshold_image(Mat &img, double* inputs, double*
 
 
 /**
- * WRAPPER      -> find_centroids
+ * WRAPPER      -> Find Object Centroids
  * Function for finding centroids of objects in an image. Useful for alignment of objects
  * First, blur the object based on a certain blur degree (kernel size). Then threshold the image
  * based on a certain threshold value. Then find contours in the image using the findContours()
@@ -179,7 +182,7 @@ ADCVStatus_t NDPluginCVHelper::threshold_image(Mat &img, double* inputs, double*
  * @inCount     -> 2
  * @inFormat    -> [Blur Degree (Int), Threshold Value (Int)]
  * 
- * @outCount    -> ?
+ * @outCount    -> 2-10
  * @outFormat   -> [CentroidX (Double), CentroidY (Double) ... ]
  */
 ADCVStatus_t NDPluginCVHelper::find_centroids(Mat &img, double* inputs, double* outputs){

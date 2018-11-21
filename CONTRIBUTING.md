@@ -4,7 +4,7 @@
 Some pointers:  
 * OpenCV uses Mat objects for images. They are written as a 'smart-pointer' class, meaning that they are passed
 by-reference by default. Because of this, make sure to pass the image into the function with (Mat &img).
-* The plugin works by calling functions in a helper library. Eventually, a 'custom-function' option will be added so that a custom use case can be easily added and supported.
+* The plugin works by calling functions in a helper library. If you wish to add an additional function for a more specific use case that the plugin does not support, follow the steps below.
 
 # Adding a new CV function
 
@@ -27,6 +27,16 @@ ADCVStatus_t YOURFUNCTION(Mat &img, double* inputs, double* outputs);
 in the 'public' portion of the class declaration. You may follow the standard set by the other functions.   
 Next, in the NDPluginCVHelper.cpp file, add your new function definition. it should take the following form:
 ```
+/**
+ * WRAPPER  ->  YOURFUNCTIONNAME
+ * YOUR_FUNCTION_DESCRIPTION
+ *
+ * @inCount     -> n
+ * @inFormat    -> [Param1 (Int), Param2 (Double) ...]
+ *
+ * @outCount    -> n
+ * @outFormat   -> [Param1 (Int), Param2 (Double) ...]
+ */
 ADCVStatus_t NDPluginCVHelper::YOURFUNCTION(Mat &img, double* inputs, double* outputs){
     const char* functionName = "YOURFUNCTION";
     ADCVStatus_t status = cvHelperSuccess;
@@ -49,6 +59,11 @@ ADCVStatus_t NDPluginCVHelper::YOURFUNCTION(Mat &img, double* inputs, double* ou
     return status;
 }
 ```
+**NOTE** The commenting standard for these helper functions should be followed strictly, as it will allow for the provided python script to generate a manual for operation easily. Once you add the function and write the comment above it appropriately, you may run the createIOmanual.py script in the docs/ directory with:
+```
+python3 createIOmanual.py
+```
+This will create a manual describing the inputs and outputs of each of the functions including your new custom function along with a description of each function as provided in the comments.  
 Finally, you need to edit the 'processImage' function in NDPluginCVHelper.cpp. In the switch statement, add a case as follows:
 
 ```
