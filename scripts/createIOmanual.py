@@ -19,8 +19,8 @@ def remove_whitespace(line):
 
 # Function that writes base html to the manual
 def write_manual_top():
-    manual_file = open("../manual.html", "w+")
-    manual_top = open("../manual_base.txt", "r+")
+    manual_file = open("../docs/manual.html", "w+")
+    manual_top = open("../docs/manual_base.txt", "r+")
     line = manual_top.readline()
     while line:
         manual_file.write(line)
@@ -31,7 +31,7 @@ def write_manual_top():
 
 # Function that writes the closing statements to the table
 def write_close_table():
-    manual_file = open("../manual.html", "a")
+    manual_file = open("../docs/manual.html", "a")
     manual_file.write("\n</tbody>\n")
     manual_file.write("</table>\n")
     manual_file.close()
@@ -39,7 +39,7 @@ def write_close_table():
 
 #function that closes out the html
 def write_manual_bottom():
-    manual_file = open("../manual.html", "a")
+    manual_file = open("../docs/manual.html", "a")
     manual_file.write("\n</body>\n")
     manual_file.write("</html>\n")
     manual_file.close()
@@ -50,6 +50,7 @@ def write_manual_bottom():
 def parse_comments_table():
     helper_file = open("../adcvApp/adcvSrc/NDPluginCVHelper.cpp", "r+")
 
+    example_function = 0
     functions = []
     functionCounter = 0
 
@@ -58,18 +59,22 @@ def parse_comments_table():
         if "WRAPPER" in line:
             function = []
             line_nowhitespace = remove_whitespace(line)
-            function.append(line_nowhitespace.split("->")[1])
-            functions.append(function)
-            functionCounter = functionCounter + 1
-        elif "@inCount" in line:
+            if line_nowhitespace.split("->")[1] != "YOURFUNCTIONNAME\n":
+                function.append(line_nowhitespace.split("->")[1])
+                functions.append(function)
+                functionCounter = functionCounter + 1
+                example_function = 0
+            else:
+                example_function = 1
+        elif "@inCount" in line and example_function != 1:
             line_nowhitespace = remove_whitespace(line)
             functions[functionCounter-1].append(line_nowhitespace.split("->")[1])
-        elif "@inFormat" in line:
+        elif "@inFormat" in line and example_function != 1:
             functions[functionCounter-1].append(line.split("->")[1][1:])
-        elif "@outCount" in line:
+        elif "@outCount" in line and example_function != 1:
             line_nowhitespace = remove_whitespace(line)
             functions[functionCounter-1].append(line_nowhitespace.split("->")[1])
-        elif "@outFormat" in line:
+        elif "@outFormat" in line and example_function != 1:
             functions[functionCounter-1].append(line.split("->")[1][1:])
         line = helper_file.readline()
     return functions
@@ -87,21 +92,22 @@ def parse_comments_descriptions():
         if "WRAPPER" in line:
             function = []
             line_nowhitespace = remove_whitespace(line)
-            function.append(line_nowhitespace.split("->")[1])
-            description = ""
-            line = helper_file.readline()
-            while "@inCount" not in line and line:
-                description = description + line[2:]
+            if line_nowhitespace.split("->")[1] != "YOURFUNCTIONNAME\n":
+                function.append(line_nowhitespace.split("->")[1])
+                description = ""
                 line = helper_file.readline()
-            function.append(description)
-            functions.append(function)
+                while "@inCount" not in line and line:
+                    description = description + line[2:]
+                    line = helper_file.readline()
+                function.append(description)
+                functions.append(function)
         line = helper_file.readline()
     return functions
             
 
 # Function that generates the table of I/O for html
 def generate_html_table(functions):
-    manual = open("../manual.html", "a")
+    manual = open("../docs/manual.html", "a")
     for function in functions:
         manual.write("<tr>\n")
         for item in function:
@@ -111,7 +117,7 @@ def generate_html_table(functions):
 
 # Function that generates function descriptions from comments into HTML
 def generate_html_descriptions(functions):
-    manual = open("../manual.html","a")
+    manual = open("../docs/manual.html", "a")
     manual.write("<h2>Function descriptions</h2>\n")
     for function in functions:
         manual.write("<h3>{}</h3>".format(function[0]))
@@ -120,8 +126,8 @@ def generate_html_descriptions(functions):
 
 # Main function
 def create_manual():
-    if os.path.exists("../manual.html"):
-        os.remove("../manual.html")
+    if os.path.exists("../docs/manual.html"):
+        os.remove("../docs/manual.html")
     
     print("Writing base of manual")
     write_manual_top()
