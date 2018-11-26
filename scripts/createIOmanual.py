@@ -19,8 +19,8 @@ def remove_whitespace(line):
 
 # Function that writes base html to the manual
 def write_manual_top():
-    manual_file = open("manual.html", "w+")
-    manual_top = open("manual_base.txt", "r+")
+    manual_file = open("../manual.html", "w+")
+    manual_top = open("../manual_base.txt", "r+")
     line = manual_top.readline()
     while line:
         manual_file.write(line)
@@ -31,7 +31,7 @@ def write_manual_top():
 
 # Function that writes the closing statements to the table
 def write_close_table():
-    manual_file = open("manual.html", "a")
+    manual_file = open("../manual.html", "a")
     manual_file.write("\n</tbody>\n")
     manual_file.write("</table>\n")
     manual_file.close()
@@ -39,7 +39,7 @@ def write_close_table():
 
 #function that closes out the html
 def write_manual_bottom():
-    manual_file = open("manual.html", "a")
+    manual_file = open("../manual.html", "a")
     manual_file.write("\n</body>\n")
     manual_file.write("</html>\n")
     manual_file.close()
@@ -101,7 +101,7 @@ def parse_comments_descriptions():
 
 # Function that generates the table of I/O for html
 def generate_html_table(functions):
-    manual = open("manual.html", "a")
+    manual = open("../manual.html", "a")
     for function in functions:
         manual.write("<tr>\n")
         for item in function:
@@ -111,7 +111,7 @@ def generate_html_table(functions):
 
 # Function that generates function descriptions from comments into HTML
 def generate_html_descriptions(functions):
-    manual = open("manual.html","a")
+    manual = open("../manual.html","a")
     manual.write("<h2>Function descriptions</h2>\n")
     for function in functions:
         manual.write("<h3>{}</h3>".format(function[0]))
@@ -120,8 +120,8 @@ def generate_html_descriptions(functions):
 
 # Main function
 def create_manual():
-    if os.path.exists("manual.html"):
-        os.remove("manual.html")
+    if os.path.exists("../manual.html"):
+        os.remove("../manual.html")
     
     print("Writing base of manual")
     write_manual_top()
