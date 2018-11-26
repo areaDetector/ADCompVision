@@ -33,6 +33,7 @@ typedef enum {
     ADCV_NoFunction         = 0,
     ADCV_EdgeDetectionCanny = 1,
     ADCV_Threshold          = 2,
+    ADCV_GaussianBlur       = 3,
 } ADCVFunction_t;
 
 typedef enum {
@@ -57,6 +58,8 @@ class NDPluginCVHelper {
         ADCVStatus_t threshold_image(Mat &img, double* inputs, double* outputs);
 
         ADCVStatus_t find_centroids(Mat &img, double* inputs, double* outputs);
+
+        ADCVStatus_t gaussian_blur(Mat &img, double* inputs, double* outputs);
 
         ADCVStatus_t processImage(Mat &image, ADCVFunction_t function, double* inputs, double* outputs);
 

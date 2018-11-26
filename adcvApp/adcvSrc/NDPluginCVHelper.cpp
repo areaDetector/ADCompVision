@@ -239,6 +239,31 @@ ADCVStatus_t NDPluginCVHelper::find_centroids(Mat &img, double* inputs, double* 
 }
 
 
+/**
+ * WRAPPER  ->  gaussian_blur
+ * Blurs image based on a gaussian kernel
+ *
+ * @inCount     -> 1
+ * @inFormat    -> [blurDegree (Int)]
+ *
+ * @outCount    -> TODO
+ * @outFormat   -> [Param1 (Int), Param2 (Double) ...]
+ */
+ADCVStatus_t NDPluginCVHelper::gaussian_blur(Mat &img, double* inputs, double* outputs){
+    const char* functionName = "gaussian_blur";
+    ADCVStatus_t status = cvHelperSuccess;
+    int blurDegree = inputs[0];
+
+    try{
+        GaussianBlur(img, img, Size(blurDegree, blurDegree), 0, 0, 4);
+    }catch(Exception &e){
+        print_cv_error(e, functionName);
+        status = cvHelperError;
+    }
+    return status;
+}
+
+
 //------------------------ End of OpenCV wrapper functions -------------------------------------------------
 
 
@@ -262,6 +287,9 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
             break;
         case ADCV_Threshold:
             status = threshold_image(image, inputs, outputs);
+            break;
+        case ADCV_GaussianBlur:
+            status = gaussian_blur(image, inputs, outputs);
             break;
         default:
             status = cvHelperError;

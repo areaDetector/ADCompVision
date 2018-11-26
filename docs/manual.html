@@ -47,6 +47,18 @@
         <th>
           Output value format</th>
     </tr><tr>
+<th>YOURFUNCTIONNAME
+</th>
+<th>n
+</th>
+<th>[Param1 (Int), Param2 (Double) ...]
+</th>
+<th>n
+</th>
+<th>[Param1 (Int), Param2 (Double) ...]
+</th>
+</tr>
+<tr>
 <th>CannyEdgeDetector
 </th>
 <th>3
@@ -94,11 +106,26 @@
 <th>[CentroidX (Double), CentroidY (Double) ... ]
 </th>
 </tr>
+<tr>
+<th>gaussian_blur
+</th>
+<th>1
+</th>
+<th>[blurDegree (Int)]
+</th>
+<th>TODO
+</th>
+<th>[Param1 (Int), Param2 (Double) ...]
+</th>
+</tr>
 
 </tbody>
 </table>
 <h2>Function descriptions</h2>
-<h3>CannyEdgeDetector
+<h3>YOURFUNCTIONNAME
+</h3><p> YOUR_FUNCTION_DESCRIPTION
+
+</p><h3>CannyEdgeDetector
 </h3><p> Function for canny-based edge detection
  
 </p><h3>LaplacianEdgeDetector
@@ -114,6 +141,9 @@
  function. Then get the centroids from the contour objects. Draw the contours and centroids on 
  the image. Set the first 5 centroid coordinates to the output values.
  
+</p><h3>gaussian_blur
+</h3><p> Blurs image based on a gaussian kernel
+
 </p>
 </body>
 </html>
