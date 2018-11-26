@@ -27,6 +27,23 @@ using namespace std;
 #define NUM_INPUTS                  10
 #define NUM_OUTPUTS                 10
 
+/*
+//Input Descriptions
+char* ADCV_NoFunctionInputs           =    "No Inputs";
+char* ADCV_EdgeDetectionCannyInputs   =    "[Threshold value (Int), Threshold ratio (Int), Blur degree (Int)]";
+char* ADCV_ThresholdInputs            =    "[Threshhold Value (Int), Max Pixel Value (Int), Threshold Type (Int)]";
+char* ADCV_GaussianBlurInputs         =    "[Blur degree (Int)]";
+char* ADCV_LaplacianInputs            =    "[Blur degree (Int)]";
+char* ADCV_CentroidFinderInputs       =    "[Blur Degree (Int), Threshold Value (Int)]";
+
+//Output Descriptions
+char* ADCV_NoFunctionOutputs          =    "TODO";
+char* ADCV_EdgeDetectionCannyOutputs  =    "TODO";
+char* ADCV_ThresholdOutputs           =    "TODO";
+char* ADCV_GaussianBlurOutputs        =    "TODO";
+char* ADCV_LaplacianOutputs           =    "TODO";
+char* ADCV_CentroidFinderOutputs      =    "[CentroidX (Double), CentroidY (Double) ... ]";
+*/
 
 // Some basic flag types
 typedef enum {
@@ -34,6 +51,8 @@ typedef enum {
     ADCV_EdgeDetectionCanny = 1,
     ADCV_Threshold          = 2,
     ADCV_GaussianBlur       = 3,
+    ADCV_Laplacian          = 4,
+    ADCV_CentroidFinder     = 5,
 } ADCVFunction_t;
 
 typedef enum {
@@ -50,6 +69,10 @@ class NDPluginCVHelper {
 
         //function that will print information about an opencv error
         void print_cv_error(Exception &e, const char* functionName);
+
+        string get_input_description(ADCVFunction_t function);
+
+        string get_output_description(ADCVFunction_t function);
 
         ADCVStatus_t canny_edge_detection(Mat &img, double* inputs, double* outputs);
 

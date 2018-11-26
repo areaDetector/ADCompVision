@@ -463,16 +463,3 @@ record(ai, "$(P)$(R)Output10_RBV")
 
 #------------------Description of values in output PVs--------------------------
 
-record(stringout, "$(P)$(R)CVOutputDescription")
-{
-    field(PINI, "YES")
-    field(DTYP, "asynOctet")
-    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_DESCRIPTION")
-}
-
-record(stringin, "$(P)$(R)CVOutputDescription_RBV")
-{
-    field(DTYP, "asynOctet")
-    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_DESCRIPTION")
-    field(SCAN, "I/O Intr")
-}

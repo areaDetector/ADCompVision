@@ -35,7 +35,65 @@ const char* libraryName = "NDPluginCVHelper";
  */
 void NDPluginCVHelper::print_cv_error(Exception &e, const char* functionName){
     //cout << "OpenCV error: " << e.err << " code: " << e.code << " file: " << e.file << endl;
-    printf("OpenCV Error in function %s: %s code: %d file: %s\n", functionName, e.err, e.code, e.file);
+    printf("OpenCV Error in function %s: %s code: %d file: %s\n", functionName, e.err.c_str(), e.code, e.file.c_str());
+}
+
+
+/**
+ * Function that is used to get a description of the inputs for the given function
+ * 
+ * @params: function -> type of opencv function
+ * @return: string describing the inputs 
+ */
+string NDPluginCVHelper::get_input_description(ADCVFunction_t function){
+    const char* functionName = "get_input_description";
+    switch(function){
+        case ADCV_NoFunction:
+            return "No Inputs";
+        case ADCV_EdgeDetectionCanny:
+            return "[Threshold value (Int), Threshold ratio (Int), Blur degree (Int)]";
+        case ADCV_Threshold:
+            return "[Threshhold Value (Int), Max Pixel Value (Int), Threshold Type (Int)]";
+        case ADCV_GaussianBlur:
+            return "[Blur degree (Int)]";
+        case ADCV_Laplacian:
+            return "[Blur degree (Int)]";
+        case ADCV_CentroidFinder:
+            return "ADCV_CentroidFinderInputs";
+        default:
+            printf("%s::%s Error, selected function does not have a specified input description\n", libraryName, functionName);
+            break;
+    }
+    return "Selected function does not have a specified input desc.";
+}
+
+
+/**
+ * Function that is used to get a description of the outputs for the given function
+ * 
+ * @params: function -> type of opencv function
+ * @return: string describing the outputs 
+ */
+string NDPluginCVHelper::get_output_description(ADCVFunction_t function){
+    const char* functionName = "get_output_description";
+        switch(function){
+        case ADCV_NoFunction:
+            return "TODO";
+        case ADCV_EdgeDetectionCanny:
+            return "TODO";
+        case ADCV_Threshold:
+            return "TODO";
+        case ADCV_GaussianBlur:
+            return "TODO";
+        case ADCV_Laplacian:
+            return "TODO";
+        case ADCV_CentroidFinder:
+            return "[CentroidX (Double), CentroidY (Double) ... ]";
+        default:
+            printf("%s::%s Error, selected function does not have a specified output description\n", libraryName, functionName);
+            break;
+    }
+    return "Selected function does not have a specified output desc.";
 }
 
 /*
@@ -109,11 +167,6 @@ ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat &img, double* inputs, do
     int blurDegree = inputs[2];
     try{
         blur(img, img, Size(blurDegree, blurDegree));
-    }catch(Exception &e){
-        print_cv_error(e, functionName);
-        return cvHelperError;
-    }
-    try{
         Canny(img, img, threshVal, (threshVal*threshRatio));
     }catch(Exception &e){
         print_cv_error(e, functionName);
@@ -139,11 +192,6 @@ ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat &img, double* inputs
     ADCVStatus_t status = cvHelperSuccess;
     try{
         GaussianBlur(img, img, Size(blurDegree, blurDegree),1, 0, BORDER_DEFAULT);
-    }catch(Exception &e){
-        print_cv_error(e, functionName);
-        return cvHelperError;
-    }
-    try{
         int depth = img.depth();
         Laplacian(img, img, depth);
         convertScaleAbs(img, img);
@@ -208,7 +256,7 @@ ADCVStatus_t NDPluginCVHelper::find_centroids(Mat &img, double* inputs, double* 
 
         findContours(img, contours, heirarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0,0));
         vector<Moments> contour_moments(contours.size());
-        int i, j, k, l;
+        size_t i, j, k, l;
         for(i = 0; i < contours.size(); i++){
             contour_moments[i] = moments(contours[i], false);
         }
@@ -218,10 +266,10 @@ ADCVStatus_t NDPluginCVHelper::find_centroids(Mat &img, double* inputs, double* 
         }
         for(k = 0; k < contour_centroids.size(); k++){
             if(k%2==0){
-                outputs[k] == contour_centroids[k/2].x;
+                outputs[k] = contour_centroids[k/2].x;
             }
             else{
-                outputs[k] == contour_centroids[k/2].y;
+                outputs[k] = contour_centroids[k/2].y;
             }
 
             if(k == NUM_OUTPUTS) break;
@@ -255,7 +303,7 @@ ADCVStatus_t NDPluginCVHelper::gaussian_blur(Mat &img, double* inputs, double* o
     int blurDegree = inputs[0];
 
     try{
-        GaussianBlur(img, img, Size(blurDegree, blurDegree), 0, 0, 4);
+        GaussianBlur(img, img, Size(blurDegree, blurDegree), 1, 0, BORDER_DEFAULT);
     }catch(Exception &e){
         print_cv_error(e, functionName);
         status = cvHelperError;
@@ -290,6 +338,12 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
             break;
         case ADCV_GaussianBlur:
             status = gaussian_blur(image, inputs, outputs);
+            break;
+        case ADCV_CentroidFinder:
+            status = find_centroids(image, inputs, outputs);
+            break;
+        case ADCV_Laplacian:
+            status = laplacian_edge_detection(image, inputs, outputs);
             break;
         default:
             status = cvHelperError;

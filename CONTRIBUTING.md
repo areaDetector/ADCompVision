@@ -64,6 +64,19 @@ ADCVStatus_t NDPluginCVHelper::YOURFUNCTION(Mat &img, double* inputs, double* ou
 python3 createIOmanual.py
 ```
 This will create a manual describing the inputs and outputs of each of the functions including your new custom function along with a description of each function as provided in the comments.  
+In order for the input and output description you provide to be visible in CSS, a few additional steps are required. First, you need to go back to the NDPluginCVHelper.h file and add definitions as follows:
+```
+char* ADCV_YOURFUNCTIONInputs  =   "INPUT DESCRIPTION";
+char* ADCV_YOURFUNCTIONOutputs =   "OUTPUT DESCRIPTION";
+```
+Once you have done this, enter the NDPluginCVHelper.cpp file and edit the 'get_input_description' and 'get_output_description' functions by adding an additional switch case for your funciton:
+```
+case ADCV_YOURFUNCTION:
+    return ADCV_YOURFUNCTIONInput;
+
+case ADCV_YOURFUNCTION:
+    return ADCV_YOURFUNCTIONOutput;
+```
 Finally, you need to edit the 'processImage' function in NDPluginCVHelper.cpp. In the switch statement, add a case as follows:
 
 ```
