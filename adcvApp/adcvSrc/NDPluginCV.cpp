@@ -206,7 +206,7 @@ asynStatus NDPluginCV::mat2NDArray(NDArray* pScratch, Mat &pMat, NDDataType_t da
     pScratch->getInfo(&arrayInfo);
     // This way of finding the number of bytes in the mat must be used in case of possible limitations on the 
     // number of bytes allowed by the system in a row of the image
-    int dataSize = pMat.step[0] * pMat.rows;
+    size_t dataSize = pMat.step[0] * pMat.rows;
     if(dataSize != arrayInfo.totalBytes){
         asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error converting from mat to NDArray\n", pluginName, functionName);
         return asynError;

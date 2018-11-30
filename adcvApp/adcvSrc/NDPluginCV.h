@@ -27,7 +27,7 @@ using namespace cv;
 //version numbers
 #define NDPluginCV_VERSION          0
 #define NDPluginCV_REVISION         0
-#define NDPluginCV_MODIFICATION     4
+#define NDPluginCV_MODIFICATION     6
 
 /* definitions of parameters */
 
