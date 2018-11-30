@@ -337,7 +337,7 @@ asynStatus NDPluginCV::setOutputParams(double* outputs){
  */
 asynStatus NDPluginCV::processImage(Mat &inputImg){
     const char* functionName = "processImage";
-    int visionFunction1, visionFunction2, visionFunction3;
+    int functionSet1, functionSet2, functionSet3;
     asynStatus status = asynSuccess;
     ADCVStatus_t libStatus;
 
@@ -346,14 +346,29 @@ asynStatus NDPluginCV::processImage(Mat &inputImg){
     double* outputs = (double*) calloc(1, NUM_OUTPUTS*sizeof(double));
 
     // get the three functions
-    getIntegerParam(NDPluginCVFunction1, &visionFunction1);
-    getIntegerParam(NDPluginCVFunction2, &visionFunction2);
-    getIntegerParam(NDPluginCVFunction3, &visionFunction3);
+    getIntegerParam(NDPluginCVFunction1, &functionSet1);
+    getIntegerParam(NDPluginCVFunction2, &functionSet2);
+    getIntegerParam(NDPluginCVFunction3, &functionSet3);
 
-    if((ADCVFunction_t) visionFunction1 != ADCV_NoFunction){
+    ADCVFunction_t visionFunction;
+
+    if(functionSet1 != 0){
+        visionFunction = cvHelper->get_function_from_pv(functionSet1, 1);
+    }
+    else if(functionSet2 != 0){
+        visionFunction = cvHelper->get_function_from_pv(functionSet2, 2);
+    }
+    else if(functionSet3 != 0){
+        visionFunction = cvHelper->get_function_from_pv(functionSet3, 3);
+    }
+    else{
+        visionFunction = ADCV_NoFunction;
+    }
+
+    if(visionFunction != ADCV_NoFunction){
         status = getRequiredParams(inputs);
         if(status != asynError){
-            libStatus = cvHelper->processImage(inputImg, (ADCVFunction_t) visionFunction1, inputs, outputs);
+            libStatus = cvHelper->processImage(inputImg, visionFunction, inputs, outputs);
             if(libStatus == cvHelperError){
                 asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error processing image in library\n", pluginName, functionName);
                 status  = asynError;
@@ -362,6 +377,56 @@ asynStatus NDPluginCV::processImage(Mat &inputImg){
         }
     }
     return status;
+}
+
+/* ------------------ Overwrites of NDPlugin Driver Functions -------------------------- */
+
+
+/**
+ * Function that overwrites the NDPluginDriver function. This function is called when an integer PV is
+ * changed in EPICS
+ * 
+ * @params: pasynUser       -> the thread/user that made the PV change
+ * @params: value           -> the value assigned to the PV
+ * @return: status          -> success or failure
+ */
+asynStatus NDPluginCV::writeInt32(asynUser* pasynUser, epicsInt32 value){
+    const char* functionName = "writeInt32";
+    int function = pasynUser->reason;
+    asynStatus status = asynSuccess;
+
+    status = setIntegerParam(function, value);
+
+    if(function == NDPluginCVFunction1){
+        setIntegerParam(NDPluginCVFunction2, 0);
+        setIntegerParam(NDPluginCVFunction3, 0);
+        setStringParam(NDPluginCVInputDescription, cvHelper->get_input_description(value, 1));
+        setStringParam(NDPluginCVOutputDescription, cvHelper->get_output_description(value, 1));
+    }
+    else if(function == NDPluginCVFunction2){
+        setIntegerParam(NDPluginCVFunction1, 0);
+        setIntegerParam(NDPluginCVFunction3, 0);
+        setStringParam(NDPluginCVInputDescription, cvHelper->get_input_description(value, 2));
+        setStringParam(NDPluginCVOutputDescription, cvHelper->get_output_description(value, 2));
+    }
+    else if(function == NDPluginCVFunction3){
+        setIntegerParam(NDPluginCVFunction1, 0);
+        setIntegerParam(NDPluginCVFunction2, 0);
+        setStringParam(NDPluginCVInputDescription, cvHelper->get_input_description(value, 3));
+        setStringParam(NDPluginCVOutputDescription, cvHelper->get_output_description(value, 3));
+    }
+    else if(function < NDCV_FIRST_PARAM){
+        //make sure to call base class for remaining PVs
+        status = NDPluginDriver::writeInt32(pasynUser, value);
+    }
+
+    callParamCallbacks();
+    if(status){
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s ERROR status=%d, function=%d, value=%d\n", pluginName, functionName, status, function, value);
+        return asynError;
+    }
+    else asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s function=%d value=%d\n", pluginName, functionName, function, value);
+    return asynSuccess;
 }
 
 
@@ -478,6 +543,9 @@ NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallback
     createParam(NDPluginCVOutput8String,            asynParamFloat64,   &NDPluginCVOutput8);
     createParam(NDPluginCVOutput9String,            asynParamFloat64,   &NDPluginCVOutput9);
     createParam(NDPluginCVOutput10String,           asynParamFloat64,   &NDPluginCVOutput10);
+
+    createParam(NDPluginCVInputDescriptionString,   asynParamOctet,     &NDPluginCVInputDescription);
+    createParam(NDPluginCVOutputDescriptionString,  asynParamOctet,     &NDPluginCVOutputDescription);
 
     // assigns inputs and outputs to arrays to simplify iteration
     assignInputs();

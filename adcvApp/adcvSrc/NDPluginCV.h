@@ -62,7 +62,8 @@ using namespace cv;
 
 
 // Other records
-#define NDPluginCVOutputDescriptionString       "NDCV_DESCRIPTION"  //asynOctet
+#define NDPluginCVInputDescriptionString        "NDCV_IN_DESCRIPTION"   //asynOctet
+#define NDPluginCVOutputDescriptionString       "NDCV_OUT_DESCRIPTION"  //asynOctet
 
 
 /**
@@ -104,15 +105,21 @@ class NDPluginCV : public NDPluginDriver{
         // Process callbacks that will accept arrays from driver
         void processCallbacks(NDArray* pArray);
 
+        //virtual functions that overwrite PluginDriver functions
+        virtual asynStatus writeInt32(asynUser* pasynUser, epicsInt32 value);
+        virtual asynStatus writeFloat64(asynUser* pasynUser, epicsFloat64 value);
+
         // Data type conversion functions (in public because I am working on unit tests)
         ADCVFrameFormat_t getCurrentImageFormat(NDDataType_t dataType, NDColorMode_t colorMode);
         asynStatus getDataTypeFromMat(ADCVFrameFormat_t matFormat, NDDataType_t* pdataType);
         asynStatus getColorModeFromMat(ADCVFrameFormat_t matFormat, NDColorMode_t* pcolorMode);
 
+
     protected:
 
         //database values for function selectors
         int NDPluginCVFunction1;
+        #define NDCV_FIRST_PARAM NDPluginCVFunction1
         int NDPluginCVFunction2;
         int NDPluginCVFunction3;
 
@@ -141,7 +148,9 @@ class NDPluginCV : public NDPluginDriver{
         int NDPluginCVOutput10;
 
         // Other db values
+        int NDPluginCVInputDescription;
         int NDPluginCVOutputDescription;
+        #define NDCV_LAST_PARAM NDPluginCVOutputDescription
 
         // Helper library object. Will be created at constructor invocation
 	    NDPluginCVHelper* cvHelper;
@@ -170,6 +179,8 @@ class NDPluginCV : public NDPluginDriver{
         asynStatus processImage(Mat &inputImg);
         
 };
+
+#define NUM_CV_PARAMS ((int)(&ADUVC_LAST_PARAM - &ADUVC_FIRST_PARAM + 1))
 
 #endif
 

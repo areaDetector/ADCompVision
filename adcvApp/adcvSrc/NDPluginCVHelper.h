@@ -27,23 +27,28 @@ using namespace std;
 #define NUM_INPUTS                  10
 #define NUM_OUTPUTS                 10
 
-/*
-//Input Descriptions
-char* ADCV_NoFunctionInputs           =    "No Inputs";
-char* ADCV_EdgeDetectionCannyInputs   =    "[Threshold value (Int), Threshold ratio (Int), Blur degree (Int)]";
-char* ADCV_ThresholdInputs            =    "[Threshhold Value (Int), Max Pixel Value (Int), Threshold Type (Int)]";
-char* ADCV_GaussianBlurInputs         =    "[Blur degree (Int)]";
-char* ADCV_LaplacianInputs            =    "[Blur degree (Int)]";
-char* ADCV_CentroidFinderInputs       =    "[Blur Degree (Int), Threshold Value (Int)]";
+/* 
+ * Number of functions in each set of CV functions
+ * These numbers are used for finding offsets to find I/O descriptions.
+ * 
+ * For Example, the first non-empty function of set 2 would have value 1 from the PV,
+ * but would be function number N_FUNC_1 + PV val
+ * The I/O descriptions would be taken from the array using this value
+ * 
+ */ 
+#define N_FUNC_1                    5
+#define N_FUNC_2                    2
+#define N_FUNC_3                    1
 
-//Output Descriptions
-char* ADCV_NoFunctionOutputs          =    "TODO";
-char* ADCV_EdgeDetectionCannyOutputs  =    "TODO";
-char* ADCV_ThresholdOutputs           =    "TODO";
-char* ADCV_GaussianBlurOutputs        =    "TODO";
-char* ADCV_LaplacianOutputs           =    "TODO";
-char* ADCV_CentroidFinderOutputs      =    "[CentroidX (Double), CentroidY (Double) ... ]";
-*/
+// Total Number of CV functions
+#define NUM_FUNCTIONS               N_FUNC_1 + N_FUNC_2 + N_FUNC_3
+
+string input_descriptions[NUM_FUNCTIONS] = {"No Inputs", "[Threshold value (Int), Threshold ratio (Int), Blur degree (Int)]",
+                               "[Threshhold Value (Int), Max Pixel Value (Int), Threshold Type (Int)]", "[Blur degree (Int)]",
+                               "[Blur degree (Int)]", "[Blur Degree (Int), Threshold Value (Int)]"};
+
+
+string output_descriptions[NUM_FUNCTIONS] = {"TODO", "TODO", "TODO", "TODO", "TODO", "[CentroidX (Double), CentroidY (Double) ... ]"};
 
 // Some basic flag types
 typedef enum {
@@ -70,9 +75,11 @@ class NDPluginCVHelper {
         //function that will print information about an opencv error
         void print_cv_error(Exception &e, const char* functionName);
 
-        string get_input_description(ADCVFunction_t function);
+        string get_input_description(int pvValue, int functionSet);
 
-        string get_output_description(ADCVFunction_t function);
+        string get_output_description(int pvValue, int functionSet);
+
+        ADCVFunction_t get_function_from_pv(int pvValue, int functionSet);
 
         ADCVStatus_t canny_edge_detection(Mat &img, double* inputs, double* outputs);
 

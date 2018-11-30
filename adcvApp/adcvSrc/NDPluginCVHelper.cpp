@@ -40,61 +40,69 @@ void NDPluginCVHelper::print_cv_error(Exception &e, const char* functionName){
 
 
 /**
- * Function that is used to get a description of the inputs for the given function
+ * Function that takes PV value from the plugin driver, and converts it into the ADCVFunction_t 
+ * enum type. This is used to decide which function the plugin is to perform as well
+ * as to compute Input/Output descriptions
  * 
- * @params: function -> type of opencv function
- * @return: string describing the inputs 
+ * @params: pvValue         -> value of the PV when it is changed
+ * @params: functionSet     -> the set from which the function set came from. currently (1-3)
+ * @return: function        -> returns the function as an ADCVFunction_t enum
  */
-string NDPluginCVHelper::get_input_description(ADCVFunction_t function){
-    const char* functionName = "get_input_description";
-    switch(function){
-        case ADCV_NoFunction:
-            return "No Inputs";
-        case ADCV_EdgeDetectionCanny:
-            return "[Threshold value (Int), Threshold ratio (Int), Blur degree (Int)]";
-        case ADCV_Threshold:
-            return "[Threshhold Value (Int), Max Pixel Value (Int), Threshold Type (Int)]";
-        case ADCV_GaussianBlur:
-            return "[Blur degree (Int)]";
-        case ADCV_Laplacian:
-            return "[Blur degree (Int)]";
-        case ADCV_CentroidFinder:
-            return "ADCV_CentroidFinderInputs";
-        default:
-            printf("%s::%s Error, selected function does not have a specified input description\n", libraryName, functionName);
-            break;
+ADCVFunction_t get_function_from_pv(int pvValue, int functionSet){
+    const char* functionName = "get_function_from_pv";
+    if(functionSet == 1){
+        return (ADCVFunction_t) pvValue;
     }
-    return "Selected function does not have a specified input desc.";
+    if(functionSet == 2){
+        return (ADCVFunction_t) (N_FUNC_1 + pvValue);
+    }
+    if(functionSet == 3){
+        return (ADCVFunction_t) (N_FUNC_1 + N_FUNC_2 - 1 +pvValue);
+    }
+    printf("%s::%s ERROR: Couldn't find correct function val\n", libraryName, functionName);
+    return (ADCVFunction_t) 0;
 }
 
 
 /**
- * Function that is used to get a description of the outputs for the given function
+ * Function that gets a description of the input values necessary for using the selected function
  * 
- * @params: function -> type of opencv function
- * @return: string describing the outputs 
+ * @params: pvValue         -> value of the PV when it is changed
+ * @params: functionSet     -> the set from which the function set came from. currently (1-3)
+ * @return: description     -> description of the inputs
  */
-string NDPluginCVHelper::get_output_description(ADCVFunction_t function){
-    const char* functionName = "get_output_description";
-        switch(function){
-        case ADCV_NoFunction:
-            return "TODO";
-        case ADCV_EdgeDetectionCanny:
-            return "TODO";
-        case ADCV_Threshold:
-            return "TODO";
-        case ADCV_GaussianBlur:
-            return "TODO";
-        case ADCV_Laplacian:
-            return "TODO";
-        case ADCV_CentroidFinder:
-            return "[CentroidX (Double), CentroidY (Double) ... ]";
-        default:
-            printf("%s::%s Error, selected function does not have a specified output description\n", libraryName, functionName);
-            break;
+string get_input_description(int pvValue, int functionSet){
+    const char* functionName = "get_input_description";
+    ADCVFunction_t function = get_function_from_pv(pvValue, functionSet);
+    if(function == ADCV_NoFunction){
+        printf("%s::%s No function selected\n", libraryName, functionName);
+        return input_descriptions[function];
     }
-    return "Selected function does not have a specified output desc.";
+    else{
+        return input_descriptions[function];
+    }
 }
+
+
+/**
+ * Function that gets a description of the ouput values for the selected function
+ * 
+ * @params: pvValue         -> value of the PV when it is changed
+ * @params: functionSet     -> the set from which the function set came from. currently (1-3)
+ * @return: description     -> description of the outputs
+ */
+string get_output_description(int pvValue, int functionSet){
+    const char* functionName = "get_output_description";
+    ADCVFunction_t function = get_function_from_pv(pvValue, functionSet);
+    if(function == ADCV_NoFunction){
+        printf("%s::%s No function selected\n", libraryName, functionName);
+        return output_descriptions[function];
+    }
+    else{
+        return output_descriptions[function];
+    }
+}
+
 
 /*
 #############################################################################
