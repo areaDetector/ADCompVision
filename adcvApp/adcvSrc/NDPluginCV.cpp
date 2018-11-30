@@ -202,9 +202,15 @@ asynStatus NDPluginCV::mat2NDArray(NDArray* pScratch, Mat &pMat, NDDataType_t da
     const char* functionName = "mat2NDArray";
     asynStatus status;
     unsigned char* dataStart = pMat.data;
+    NDArrayInfo arrayInfo;
+    pScratch->getInfo(&arrayInfo);
     // This way of finding the number of bytes in the mat must be used in case of possible limitations on the 
     // number of bytes allowed by the system in a row of the image
     int dataSize = pMat.step[0] * pMat.rows;
+    if(dataSize != arrayInfo.totalBytes){
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error converting from mat to NDArray\n", pluginName, functionName);
+        return asynError;
+    }
     //copy image into NDArray
     memcpy(pScratch->pData, dataStart, dataSize);
     pScratch->pAttributeList->add("ColorMode", "Color Mode", NDAttrInt32, &colorMode);
@@ -274,7 +280,12 @@ asynStatus NDPluginCV::getRequiredParams(double* inputs){
 }
 
 
-
+/**
+ * Function that pulls the ouptu values from the PVs and puts them into an array
+ * 
+ * @params: inputs -> a pointer that is populated by the values stored in the input PVs.
+ * @return: asynStatus
+ */
 asynStatus NDPluginCV::setOutputParams(double* outputs){
     const char* functionName = "setOutputParams";
     asynStatus status = asynSuccess;

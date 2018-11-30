@@ -27,6 +27,13 @@ using namespace std;
 
 const char* libraryName = "NDPluginCVHelper";
 
+string input_descriptions[NUM_FUNCTIONS] = {"No Inputs", "[Threshold value (Int), Threshold ratio (Int), Blur degree (Int)]",
+                               "[Threshhold Value (Int), Max Pixel Value (Int), Threshold Type (Int)]", "[Blur degree (Int)]",
+                               "[Blur degree (Int)]", "[Blur Degree (Int), Threshold Value (Int)]"};
+
+
+string output_descriptions[NUM_FUNCTIONS] = {"TODO", "TODO", "TODO", "TODO", "TODO", "[CentroidX (Double), CentroidY (Double) ... ]"};
+
 /**
  * Simple function that prints OpenCV error information.
  * Used in try/catch blocks
