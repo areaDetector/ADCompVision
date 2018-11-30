@@ -198,52 +198,19 @@ asynStatus NDPluginCV::ndArray2Mat(NDArray* pArray, Mat &pMat, NDDataType_t data
  * @params: pScratch -> pointer to a blank temporary NDArray
  * @params: pMat -> pointer to opencv Mat object after processing
  */
-asynStatus NDPluginCV::mat2NDArray(NDArray* pScratch, Mat &pMat){
+asynStatus NDPluginCV::mat2NDArray(NDArray* pScratch, Mat &pMat, NDDataType_t dataType, NDColorMode_t colorMode){
     const char* functionName = "mat2NDArray";
     asynStatus status;
-    int ndims;
-    NDDataType_t dataType;
-    NDColorMode_t colorMode;
-    Size matSize = pMat.size();
-    ADCVFrameFormat_t matFormat = (ADCVFrameFormat_t) pMat.depth();
-    status = getDataTypeFromMat(matFormat, &dataType);
-    if(status == asynError) return status;
-    status = getColorModeFromMat(matFormat, &colorMode);
-    if(status == asynError) return status;
-    if(colorMode == NDColorModeMono){
-        ndims = 2;
-    }
-    else{
-        ndims = 3;
-    }
-    size_t dims[ndims];
-    if(ndims == 3){
-        dims[0] = pMat.channels();
-        dims[1] = matSize.width;
-        dims[2] = matSize.height;
-    }
-    else{
-        dims[0] = matSize.width;
-        dims[1] = matSize.height;
-    }
-    pScratch = pNDArrayPool->alloc(ndims, dims, dataType, 0, NULL);
-    if(pScratch == NULL){
-        pScratch->release();
-        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Unable to allocate temp frame\n", pluginName, functionName);
-        status = asynError;
-    }
-    else{
-        unsigned char* dataStart = pMat.data;
-        // This way of finding the number of bytes in the mat must be used in case of possible limitations on the 
-        // number of bytes allowed by the system in a row of the image
-        int dataSize = pMat.step[0] * pMat.rows;
-        //copy image into NDArray
-        memcpy(pScratch->pData, dataStart, dataSize);
-        pScratch->pAttributeList->add("ColorMode", "Color Mode", NDAttrInt32, &colorMode);
-        pScratch->pAttributeList->add("DataType", "Data Type", NDAttrInt32, &dataType);
-        getAttributes(pScratch->pAttributeList);
-        status = asynSuccess;
-    }
+    unsigned char* dataStart = pMat.data;
+    // This way of finding the number of bytes in the mat must be used in case of possible limitations on the 
+    // number of bytes allowed by the system in a row of the image
+    int dataSize = pMat.step[0] * pMat.rows;
+    //copy image into NDArray
+    memcpy(pScratch->pData, dataStart, dataSize);
+    pScratch->pAttributeList->add("ColorMode", "Color Mode", NDAttrInt32, &colorMode);
+    pScratch->pAttributeList->add("DataType", "Data Type", NDAttrInt32, &dataType);
+    getAttributes(pScratch->pAttributeList);
+    status = asynSuccess;
     return status;
 }
 
@@ -442,17 +409,22 @@ asynStatus NDPluginCV::writeInt32(asynUser* pasynUser, epicsInt32 value){
 void NDPluginCV::processCallbacks(NDArray *pArray){
     const char* functionName = "processCallbacks";
     asynStatus status;
+
     // temp array so we don't overwrite the pArray passed to us from the camera
     NDArray* pScratch;
     int dataType;
     int colorMode;
     getIntegerParam(NDDataType, &dataType);
     getIntegerParam(NDColorMode, &colorMode);
+
     //opencv mat for input
-    Mat inputImage;
+    Mat img;
+    NDDataType_t finalDataType;
+    NDColorMode_t finalColorMode;
+
     // copy the pArray into the mat
-    status = ndArray2Mat(pArray, inputImage, (NDDataType_t) dataType, (NDColorMode_t) colorMode);
-    
+    status = ndArray2Mat(pArray, img, (NDDataType_t) dataType, (NDColorMode_t) colorMode);
+
     if(status == asynError){
         asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error copying from NDArray to Mat\n", pluginName, functionName);
     }
@@ -466,18 +438,52 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
         // do the computations on multiple threads
         this->unlock();
 
-        status = processImage(inputImage);
+        // Function that calls on helper library
+        status = processImage(img);
+
         if(status == asynError){
             asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error Processing image\n", pluginName, functionName);
         }
 
         this->lock();
 
-        status = mat2NDArray(pScratch, inputImage);
+        // prepare the output NDArray pScratch
+        int ndims;
+        Size matSize = img.size();
+        ADCVFrameFormat_t matFormat = (ADCVFrameFormat_t) img.depth();
+        status = getDataTypeFromMat(matFormat, &finalDataType);
+        status = getColorModeFromMat(matFormat, &finalColorMode);
+        if(colorMode == NDColorModeMono){
+            ndims = 2;
+        }
+        else{
+            ndims = 3;
+        }
+        size_t dims[ndims];
+        if(ndims == 3){
+            dims[0] = img.channels();
+            dims[1] = matSize.width;
+            dims[2] = matSize.height;
+        }
+        else{
+            dims[0] = matSize.width;
+            dims[1] = matSize.height;
+        }
+        pScratch = pNDArrayPool->alloc(ndims, dims, finalDataType, 0, NULL);
+        if(pScratch == NULL){
+            pScratch->release();
+            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Unable to allocate temp frame\n", pluginName, functionName);
+            status = asynError;
+        }
+
+        // copy from the output to the pScratch array
+        status = mat2NDArray(pScratch, img, finalDataType, finalColorMode);
+
         if(status == asynError){
             asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error copying from Mat to NDArray\n", pluginName, functionName);
         }
 
+        // refresh the PV values, and push the output image to NDArrayData. then release the memory for pScratch
         callParamCallbacks();
         doCallbacksGenericPointer(pScratch, NDArrayData, 0);
         pScratch->release();
