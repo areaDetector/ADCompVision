@@ -486,6 +486,7 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
         // refresh the PV values, and push the output image to NDArrayData. then release the memory for pScratch
         callParamCallbacks();
         doCallbacksGenericPointer(pScratch, NDArrayData, 0);
+        img.release();
         pScratch->release();
     }
 }
