@@ -25,10 +25,14 @@ record(mbbo, "$(P)$(R)CompVisionFunction1")
     field(OUT, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FUNCTION1")
     field(ZRST, "None")
     field(ZRVL, "0")
-    field(ONST, "Canny Edge Detection")
+    field(ONST, "Gaussian Blur")
     field(ONVL, "1")
     field(TWST, "Threshold")
     field(TWVL, "2")
+    field(THST, "Laplacian")
+    field(THVL, "3")
+    field("FRST", "Canny Edge Detection")
+    field("FRVL", "4")
     field(VAL, "0")
     info(autosaveFields, "VAL")
 }
@@ -39,10 +43,14 @@ record(mbbi, "$(P)$(R)CompVisionFunction1_RBV")
     field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FUNCTION1")
     field(ZRST, "None")
     field(ZRVL, "0")
-    field(ONST, "Canny Edge Detection")
+    field(ONST, "Gaussian Blur")
     field(ONVL, "1")
     field(TWST, "Threshold")
     field(TWVL, "2")
+    field(THST, "Laplacian")
+    field(THVL, "3")
+    field("FRST", "Canny Edge Detection")
+    field("FRVL", "4")
     field(VAL, "0")
     field(SCAN, "I/O Intr")
 }
@@ -56,10 +64,8 @@ record(mbbo, "$(P)$(R)CompVisionFunction2")
     field(OUT, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FUNCTION2")
     field(ZRST, "None")
     field(ZRVL, "0")
-    field(ONST, "Canny Edge Detection")
+    field(ONST, "Centroid Identification")
     field(ONVL, "1")
-    field(TWST, "Threshold")
-    field(TWVL, "2")
     field(VAL, "0")
     info(autosaveFields, "VAL")
 }
@@ -70,10 +76,6 @@ record(mbbi, "$(P)$(R)CompVisionFunction2_RBV")
     field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FUNCTION2")
     field(ZRST, "None")
     field(ZRVL, "0")
-    field(ONST, "Canny Edge Detection")
-    field(ONVL, "1")
-    field(TWST, "Threshold")
-    field(TWVL, "2")
     field(VAL, "0")
     field(SCAN, "I/O Intr")
 }
@@ -466,4 +468,32 @@ record(ai, "$(P)$(R)Output10_RBV")
 #################################################################
 
 #------------------Description of values in output PVs--------------------------
+
+record(stringout, "$(P)$(R)InputDescription"){
+    field(PINI, "YES")
+	field(DTYP, "asynOctetRead")
+	field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_IN_DESCRIPTION")
+    field(VAL, "CV Inputs")
+}
+
+record(stringin, "$(P)$(R)InputDescription_RBV"){
+	field(DTYP, "asynOctetRead")
+	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_IN_DESCRIPTION")
+    field(VAL, "CV Inputs")
+	field(SCAN, "I/O Intr")
+}
+
+record(stringout, "$(P)$(R)OutputDescription"){
+    field(PINI, "YES")
+	field(DTYP, "asynOctetRead")
+	field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_OUT_DESCRIPTION")
+    field(VAL, "CV Outputs")
+}
+
+record(stringin, "$(P)$(R)OutputDescription_RBV"){
+	field(DTYP, "asynOctetRead")
+	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_OUT_DESCRIPTION")
+    field(VAL, "CV Outputs")
+	field(SCAN, "I/O Intr")
+}
 
