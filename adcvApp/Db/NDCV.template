@@ -8,6 +8,10 @@
 # Last modified: November 18, 2018
 
 
+# include the base driver template file
+include "NDPluginBase.template"
+
+
 #########################################################################
 # Function selection PVs. Multiple functions selected will chain them.  #
 #########################################################################
