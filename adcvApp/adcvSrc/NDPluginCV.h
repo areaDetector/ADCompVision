@@ -107,7 +107,7 @@ class NDPluginCV : public NDPluginDriver{
 
         //virtual functions that overwrite PluginDriver functions
         virtual asynStatus writeInt32(asynUser* pasynUser, epicsInt32 value);
-        virtual asynStatus writeFloat64(asynUser* pasynUser, epicsFloat64 value);
+        //virtual asynStatus writeFloat64(asynUser* pasynUser, epicsFloat64 value);
 
         // Data type conversion functions (in public because I am working on unit tests)
         ADCVFrameFormat_t getCurrentImageFormat(NDDataType_t dataType, NDColorMode_t colorMode);

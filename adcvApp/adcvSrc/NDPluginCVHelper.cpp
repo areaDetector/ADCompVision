@@ -27,12 +27,12 @@ using namespace std;
 
 const char* libraryName = "NDPluginCVHelper";
 
-string input_descriptions[NUM_FUNCTIONS] = {"No Inputs", "[Threshold value (Int), Threshold ratio (Int), Blur degree (Int)]",
+const char* input_descriptions[NUM_FUNCTIONS] = {"No Inputs", "[Threshold value (Int), Threshold ratio (Int), Blur degree (Int)]",
                                "[Threshhold Value (Int), Max Pixel Value (Int), Threshold Type (Int)]", "[Blur degree (Int)]",
                                "[Blur degree (Int)]", "[Blur Degree (Int), Threshold Value (Int)]"};
 
 
-string output_descriptions[NUM_FUNCTIONS] = {"TODO", "TODO", "TODO", "TODO", "TODO", "[CentroidX (Double), CentroidY (Double) ... ]"};
+const char* output_descriptions[NUM_FUNCTIONS] = {"TODO", "TODO", "TODO", "TODO", "TODO", "[CentroidX (Double), CentroidY (Double) ... ]"};
 
 /**
  * Simple function that prints OpenCV error information.
@@ -55,7 +55,7 @@ void NDPluginCVHelper::print_cv_error(Exception &e, const char* functionName){
  * @params: functionSet     -> the set from which the function set came from. currently (1-3)
  * @return: function        -> returns the function as an ADCVFunction_t enum
  */
-ADCVFunction_t get_function_from_pv(int pvValue, int functionSet){
+ADCVFunction_t NDPluginCVHelper::get_function_from_pv(int pvValue, int functionSet){
     const char* functionName = "get_function_from_pv";
     if(functionSet == 1){
         return (ADCVFunction_t) pvValue;
@@ -67,8 +67,9 @@ ADCVFunction_t get_function_from_pv(int pvValue, int functionSet){
         return (ADCVFunction_t) (N_FUNC_1 + N_FUNC_2 - 1 +pvValue);
     }
     printf("%s::%s ERROR: Couldn't find correct function val\n", libraryName, functionName);
-    return (ADCVFunction_t) 0;
+    return ADCV_NoFunction;
 }
+
 
 
 /**
@@ -78,7 +79,7 @@ ADCVFunction_t get_function_from_pv(int pvValue, int functionSet){
  * @params: functionSet     -> the set from which the function set came from. currently (1-3)
  * @return: description     -> description of the inputs
  */
-string get_input_description(int pvValue, int functionSet){
+const char* NDPluginCVHelper::get_input_description(int pvValue, int functionSet){
     const char* functionName = "get_input_description";
     ADCVFunction_t function = get_function_from_pv(pvValue, functionSet);
     if(function == ADCV_NoFunction){
@@ -98,7 +99,7 @@ string get_input_description(int pvValue, int functionSet){
  * @params: functionSet     -> the set from which the function set came from. currently (1-3)
  * @return: description     -> description of the outputs
  */
-string get_output_description(int pvValue, int functionSet){
+const char* NDPluginCVHelper::get_output_description(int pvValue, int functionSet){
     const char* functionName = "get_output_description";
     ADCVFunction_t function = get_function_from_pv(pvValue, functionSet);
     if(function == ADCV_NoFunction){
@@ -109,6 +110,7 @@ string get_output_description(int pvValue, int functionSet){
         return output_descriptions[function];
     }
 }
+
 
 
 /*
