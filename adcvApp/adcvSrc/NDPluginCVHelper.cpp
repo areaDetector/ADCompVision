@@ -235,15 +235,17 @@ ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat &img, double* inputs
 ADCVStatus_t NDPluginCVHelper::threshold_image(Mat &img, double* inputs, double* outputs){
     const char* functionName = "threshold_image";
     ADCVStatus_t status = cvHelperSuccess;
-    imwrite("/home/jwlodek/Documents/test.jpg", img);
+    
     if(img.channels()!=2){
         cvtColor(img, img, COLOR_BGR2GRAY);
     }
+    imwrite("/home/jwlodek/Documents/testGray.jpg", img);
     int threshVal = (int) inputs[0];
     int threshMax = (int) inputs[1];
     printf("%s::%s Recieving thresh val %d, thresh max %d, image size %d\n", libraryName, functionName, threshVal, threshMax, img.channels());
     try{
         threshold(img, img, threshVal, threshMax, THRESH_BINARY);
+        imwrite("/home/jwlodek/Documents/testThresh.jpg", img);
     }catch(Exception &e){
         status = cvHelperError;
         print_cv_error(e, functionName);

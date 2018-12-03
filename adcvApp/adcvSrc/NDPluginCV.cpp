@@ -206,6 +206,7 @@ asynStatus NDPluginCV::ndArray2Mat(NDArray* pArray, Mat &pMat, NDDataType_t data
 asynStatus NDPluginCV::mat2NDArray(NDArray* pScratch, Mat &pMat, NDDataType_t dataType, NDColorMode_t colorMode){
     const char* functionName = "mat2NDArray";
     asynStatus status;
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s converting into pscratch\n", pluginName, functionName);
     unsigned char* dataStart = pMat.data;
     NDArrayInfo arrayInfo;
     pScratch->getInfo(&arrayInfo);
@@ -302,6 +303,7 @@ asynStatus NDPluginCV::setOutputParams(double* outputs){
             return status;
         }  
     }
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Could it be output params\n", pluginName, functionName);
     callParamCallbacks();
     return status;
 }
@@ -360,6 +362,9 @@ asynStatus NDPluginCV::processImage(Mat &inputImg){
                 status = setOutputParams(outputs);
             }
         }
+    }
+    else{
+        status = asynError;
     }
     return status;
 }
@@ -462,51 +467,56 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
 
         if(status == asynError){
             asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error Processing image\n", pluginName, functionName);
-        }
-
-        this->lock();
-
-        // prepare the output NDArray pScratch
-        int ndims;
-        Size matSize = img.size();
-        ADCVFrameFormat_t matFormat = (ADCVFrameFormat_t) img.depth();
-        status = getDataTypeFromMat(matFormat, &finalDataType);
-        status = getColorModeFromMat(matFormat, &finalColorMode);
-        if(arrayInfo.colorMode == NDColorModeMono){
-            ndims = 2;
+            img.release();
         }
         else{
-            ndims = 3;
-        }
-        size_t dims[ndims];
-        if(ndims == 3){
-            dims[0] = img.channels();
-            dims[1] = matSize.width;
-            dims[2] = matSize.height;
-        }
-        else{
-            dims[0] = matSize.width;
-            dims[1] = matSize.height;
-        }
-        pScratch = pNDArrayPool->alloc(ndims, dims, finalDataType, 0, NULL);
-        if(pScratch == NULL){
+
+            this->lock();
+            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Could it be the lock\n", pluginName, functionName);
+            // prepare the output NDArray pScratch
+            int ndims;
+            Size matSize = img.size();
+            ADCVFrameFormat_t matFormat = (ADCVFrameFormat_t) img.depth();
+            status = getDataTypeFromMat(matFormat, &finalDataType);
+            status = getColorModeFromMat(matFormat, &finalColorMode);
+            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Could it be getting color modes\n", pluginName, functionName);
+            if(finalColorMode == NDColorModeMono){
+                ndims = 2;
+            }
+            else{
+                ndims = 3;
+            }
+            size_t dims[ndims];
+            if(ndims == 3){
+                dims[0] = img.channels();
+                dims[1] = matSize.width;
+                dims[2] = matSize.height;
+            }
+            else{
+                dims[0] = matSize.width;
+                dims[1] = matSize.height;
+            }
+            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Could it be creating pScratch\n", pluginName, functionName);
+            pScratch = pNDArrayPool->alloc(ndims, dims, finalDataType, 0, NULL);
+            if(pScratch == NULL){
+                //pScratch->release();
+                asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Unable to allocate temp frame\n", pluginName, functionName);
+                status = asynError;
+            }
+
+            // copy from the output to the pScratch array
+            status = mat2NDArray(pScratch, img, finalDataType, finalColorMode);
+
+            if(status == asynError){
+                asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error copying from Mat to NDArray\n", pluginName, functionName);
+            }
+
+            // refresh the PV values, and push the output image to NDArrayData. then release the memory for pScratch
+            callParamCallbacks();
+            doCallbacksGenericPointer(pScratch, NDArrayData, 0);
+            img.release();
             pScratch->release();
-            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Unable to allocate temp frame\n", pluginName, functionName);
-            status = asynError;
         }
-
-        // copy from the output to the pScratch array
-        status = mat2NDArray(pScratch, img, finalDataType, finalColorMode);
-
-        if(status == asynError){
-            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error copying from Mat to NDArray\n", pluginName, functionName);
-        }
-
-        // refresh the PV values, and push the output image to NDArrayData. then release the memory for pScratch
-        callParamCallbacks();
-        doCallbacksGenericPointer(pScratch, NDArrayData, 0);
-        img.release();
-        pScratch->release();
     }
 }
 
