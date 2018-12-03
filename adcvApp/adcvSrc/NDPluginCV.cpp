@@ -53,8 +53,10 @@ static const char *pluginName="NDPluginCV";
 ADCVFrameFormat_t NDPluginCV::getCurrentImageFormat(NDDataType_t dataType, NDColorMode_t colorMode){
     const char* functionName = "getCurrentImageFormat";
     if(colorMode==NDColorModeMono){
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s color mode mono\n", pluginName, functionName);
         switch(dataType){
             case NDUInt8:
+                asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s mono 8\n", pluginName, functionName);
                 return ADCV_Mono_U8;
             case NDInt8:
                 return ADCV_Mono_S8;
@@ -74,8 +76,10 @@ ADCVFrameFormat_t NDPluginCV::getCurrentImageFormat(NDDataType_t dataType, NDCol
         }
     }
     else if(colorMode == NDColorModeRGB1){
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s color mode rgb\n", pluginName, functionName);
         switch(dataType){
             case NDUInt8:
+                asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s data type 8bit\n", pluginName, functionName);
                 return ADCV_RGB_U8;
             case NDInt8:
                 return ADCV_RGB_S8;
@@ -172,6 +176,7 @@ asynStatus NDPluginCV::ndArray2Mat(NDArray* pArray, Mat &pMat, NDDataType_t data
     NDArrayInfo arrayInfo;
     //first get the matrix color format
     ADCVFrameFormat_t matFormat = getCurrentImageFormat(dataType, colorMode);
+    
     if(matFormat == ADCV_UnsupportedFormat){
         //if unsupported print error message
         asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Unsupported image format\n", pluginName, functionName);
@@ -351,7 +356,9 @@ asynStatus NDPluginCV::processImage(Mat &inputImg){
                 asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error processing image in library\n", pluginName, functionName);
                 status  = asynError;
             }
-            status = setOutputParams(outputs);
+            else{
+                status = setOutputParams(outputs);
+            }
         }
     }
     return status;
@@ -378,20 +385,20 @@ asynStatus NDPluginCV::writeInt32(asynUser* pasynUser, epicsInt32 value){
     if(function == NDPluginCVFunction1){
         setIntegerParam(NDPluginCVFunction2, 0);
         setIntegerParam(NDPluginCVFunction3, 0);
-        setStringParam(NDPluginCVInputDescription, cvHelper->get_input_description(value, 1));
-        setStringParam(NDPluginCVOutputDescription, cvHelper->get_output_description(value, 1));
+        //setStringParam(NDPluginCVInputDescription, cvHelper->get_input_description(value, 1));
+        //setStringParam(NDPluginCVOutputDescription, cvHelper->get_output_description(value, 1));
     }
     else if(function == NDPluginCVFunction2){
         setIntegerParam(NDPluginCVFunction1, 0);
         setIntegerParam(NDPluginCVFunction3, 0);
-        setStringParam(NDPluginCVInputDescription, cvHelper->get_input_description(value, 2));
-        setStringParam(NDPluginCVOutputDescription, cvHelper->get_output_description(value, 2));
+        //setStringParam(NDPluginCVInputDescription, cvHelper->get_input_description(value, 2));
+        //setStringParam(NDPluginCVOutputDescription, cvHelper->get_output_description(value, 2));
     }
     else if(function == NDPluginCVFunction3){
         setIntegerParam(NDPluginCVFunction1, 0);
         setIntegerParam(NDPluginCVFunction2, 0);
-        setStringParam(NDPluginCVInputDescription, cvHelper->get_input_description(value, 3));
-        setStringParam(NDPluginCVOutputDescription, cvHelper->get_output_description(value, 3));
+        //setStringParam(NDPluginCVInputDescription, cvHelper->get_input_description(value, 3));
+        //setStringParam(NDPluginCVOutputDescription, cvHelper->get_output_description(value, 3));
     }
     else if(function < NDCV_FIRST_PARAM){
         //make sure to call base class for remaining PVs
@@ -420,13 +427,14 @@ asynStatus NDPluginCV::writeInt32(asynUser* pasynUser, epicsInt32 value){
 void NDPluginCV::processCallbacks(NDArray *pArray){
     const char* functionName = "processCallbacks";
     asynStatus status;
-
+    NDArrayInfo arrayInfo;
     // temp array so we don't overwrite the pArray passed to us from the camera
     NDArray* pScratch;
-    int dataType;
-    int colorMode;
-    getIntegerParam(NDDataType, &dataType);
-    getIntegerParam(NDColorMode, &colorMode);
+
+    pArray->getInfo(&arrayInfo);
+
+    setIntegerParam(NDDataType, pArray->dataType);
+    setIntegerParam(NDColorMode, arrayInfo.colorMode);
 
     //opencv mat for input
     Mat img;
@@ -434,7 +442,7 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
     NDColorMode_t finalColorMode;
 
     // copy the pArray into the mat
-    status = ndArray2Mat(pArray, img, (NDDataType_t) dataType, (NDColorMode_t) colorMode);
+    status = ndArray2Mat(pArray, img, pArray->dataType, arrayInfo.colorMode);
 
     if(status == asynError){
         asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error copying from NDArray to Mat\n", pluginName, functionName);
@@ -464,7 +472,7 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
         ADCVFrameFormat_t matFormat = (ADCVFrameFormat_t) img.depth();
         status = getDataTypeFromMat(matFormat, &finalDataType);
         status = getColorModeFromMat(matFormat, &finalColorMode);
-        if(colorMode == NDColorModeMono){
+        if(arrayInfo.colorMode == NDColorModeMono){
             ndims = 2;
         }
         else{

@@ -21,6 +21,8 @@
 
 //OpenCV is used for image manipulation
 #include <opencv2/opencv.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/core.hpp>
 
 using namespace cv;
 using namespace std;
@@ -225,7 +227,7 @@ ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat &img, double* inputs
  * Function that thresholds an image based on a certain pixel value
  * 
  * @inCount     -> 3
- * @inFormat    -> [Threshhold Value (Int), Max Pixel Value (Int), Threshold Type (Int)]
+ * @inFormat    -> [Threshhold Value (Int), Max Pixel Value (Int)]
  * 
  * @outCount    -> TODO
  * @outFormat   -> TODO
@@ -233,11 +235,15 @@ ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat &img, double* inputs
 ADCVStatus_t NDPluginCVHelper::threshold_image(Mat &img, double* inputs, double* outputs){
     const char* functionName = "threshold_image";
     ADCVStatus_t status = cvHelperSuccess;
+    imwrite("/home/jwlodek/Documents/test.jpg", img);
+    if(img.channels()!=2){
+        cvtColor(img, img, COLOR_BGR2GRAY);
+    }
     int threshVal = (int) inputs[0];
     int threshMax = (int) inputs[1];
-    int threshType = (int) inputs[2];
+    printf("%s::%s Recieving thresh val %d, thresh max %d, image size %d\n", libraryName, functionName, threshVal, threshMax, img.channels());
     try{
-        threshold(img, img, threshVal, threshMax, threshType);
+        threshold(img, img, threshVal, threshMax, THRESH_BINARY);
     }catch(Exception &e){
         status = cvHelperError;
         print_cv_error(e, functionName);
