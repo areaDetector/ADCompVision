@@ -8,7 +8,8 @@ by-reference by default. Because of this, make sure to pass the image into the f
 
 # Adding a new CV function
 
-To add a new CV function there are several files you will need to edit. First, in the NDCV.template file, find the records that store the CV functions. You will need to add your function to one of these PVs. Follow the rules for EPICS multi-bit-binary-outputs/inputs to add your function to the PV.   
+To add a new CV function there are several files you will need to edit. First, in the NDCV.template file, find the record titled "CompVisionFunction3", and add your function to its output and input records.  
+Next, in the NDPluginCVHelper.h file, change the N_FUNC_3 value to take into account the new number of functions in the CompVisionFunction3 PV.  
 Next, you will need to edit the NDPluginCVHelper.cpp and NDPluginCVHelper.h files. In NDPluginCVHelper.h, find the definition of ADCVFunction_t and add:
 ```
 // Some basic flag types
@@ -64,18 +65,10 @@ ADCVStatus_t NDPluginCVHelper::YOURFUNCTION(Mat &img, double* inputs, double* ou
 python3 createIOmanual.py
 ```
 This will create a manual describing the inputs and outputs of each of the functions including your new custom function along with a description of each function as provided in the comments.  
-In order for the input and output description you provide to be visible in CSS, a few additional steps are required. First, you need to go back to the NDPluginCVHelper.h file and add definitions as follows:
+In order for the input and output description you provide to be visible in CSS, a few additional steps are required. First, you need to open the NDPluginCVHelper.cpp file and add definitions to the input and output descriptions string arrays:
 ```
-char* ADCV_YOURFUNCTIONInputs  =   "INPUT DESCRIPTION";
-char* ADCV_YOURFUNCTIONOutputs =   "OUTPUT DESCRIPTION";
-```
-Once you have done this, enter the NDPluginCVHelper.cpp file and edit the 'get_input_description' and 'get_output_description' functions by adding an additional switch case for your funciton:
-```
-case ADCV_YOURFUNCTION:
-    return ADCV_YOURFUNCTIONInput;
-
-case ADCV_YOURFUNCTION:
-    return ADCV_YOURFUNCTIONOutput;
+string inputDescriptions[NUM_FUNCTIONS]  = [....  "INPUT DESCRIPTION"];
+string outputDescriptions[NUM_FUNCTIONS]  = [....  "OUTPUT DESCRIPTION"];
 ```
 Finally, you need to edit the 'processImage' function in NDPluginCVHelper.cpp. In the switch statement, add a case as follows:
 
