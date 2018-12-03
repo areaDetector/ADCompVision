@@ -386,24 +386,25 @@ asynStatus NDPluginCV::writeInt32(asynUser* pasynUser, epicsInt32 value){
     asynStatus status = asynSuccess;
 
     status = setIntegerParam(function, value);
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s function=%d value=%d\n", pluginName, functionName, function, value);
 
-    if(function == NDPluginCVFunction1){
+    if(function == NDPluginCVFunction1 && value != 0){
         setIntegerParam(NDPluginCVFunction2, 0);
         setIntegerParam(NDPluginCVFunction3, 0);
-        //setStringParam(NDPluginCVInputDescription, cvHelper->get_input_description(value, 1));
-        //setStringParam(NDPluginCVOutputDescription, cvHelper->get_output_description(value, 1));
+        setStringParam(NDPluginCVInputDescription, cvHelper->get_input_description(value, 1));
+        setStringParam(NDPluginCVOutputDescription, cvHelper->get_output_description(value, 1));
     }
-    else if(function == NDPluginCVFunction2){
+    else if(function == NDPluginCVFunction2 && value != 0){
         setIntegerParam(NDPluginCVFunction1, 0);
         setIntegerParam(NDPluginCVFunction3, 0);
-        //setStringParam(NDPluginCVInputDescription, cvHelper->get_input_description(value, 2));
-        //setStringParam(NDPluginCVOutputDescription, cvHelper->get_output_description(value, 2));
+        setStringParam(NDPluginCVInputDescription, cvHelper->get_input_description(value, 2));
+        setStringParam(NDPluginCVOutputDescription, cvHelper->get_output_description(value, 2));
     }
-    else if(function == NDPluginCVFunction3){
+    else if(function == NDPluginCVFunction3 && value != 0){
         setIntegerParam(NDPluginCVFunction1, 0);
         setIntegerParam(NDPluginCVFunction2, 0);
-        //setStringParam(NDPluginCVInputDescription, cvHelper->get_input_description(value, 3));
-        //setStringParam(NDPluginCVOutputDescription, cvHelper->get_output_description(value, 3));
+        setStringParam(NDPluginCVInputDescription, cvHelper->get_input_description(value, 3));
+        setStringParam(NDPluginCVOutputDescription, cvHelper->get_output_description(value, 3));
     }
     else if(function < NDCV_FIRST_PARAM){
         //make sure to call base class for remaining PVs
