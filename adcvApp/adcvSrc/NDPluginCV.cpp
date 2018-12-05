@@ -215,14 +215,16 @@ asynStatus NDPluginCV::mat2NDArray(NDArray* pScratch, Mat &pMat, NDDataType_t da
     size_t dataSize = pMat.step[0] * pMat.rows;
     if(dataSize != arrayInfo.totalBytes){
         asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error converting from mat to NDArray\n", pluginName, functionName);
-        return asynError;
+        status = asynError;
     }
-    //copy image into NDArray
-    memcpy(pScratch->pData, dataStart, dataSize);
-    pScratch->pAttributeList->add("ColorMode", "Color Mode", NDAttrInt32, &colorMode);
-    pScratch->pAttributeList->add("DataType", "Data Type", NDAttrInt32, &dataType);
-    getAttributes(pScratch->pAttributeList);
-    status = asynSuccess;
+    else{
+        //copy image into NDArray
+        memcpy((unsigned char*) pScratch->pData, dataStart, arrayInfo.totalBytes);
+        pScratch->pAttributeList->add("ColorMode", "Color Mode", NDAttrInt32, &colorMode);
+        pScratch->pAttributeList->add("DataType", "Data Type", NDAttrInt32, &dataType);
+        getAttributes(pScratch->pAttributeList);
+        status = asynSuccess;
+    }
     return status;
 }
 
@@ -465,14 +467,14 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
 
         // Function that calls on helper library
         status = processImage(img);
+        
+        this->lock();
 
         if(status == asynError){
             asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error Processing image\n", pluginName, functionName);
             img.release();
         }
         else{
-
-            this->lock();
             asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Could it be the lock\n", pluginName, functionName);
             // prepare the output NDArray pScratch
             int ndims;
@@ -480,7 +482,6 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
             ADCVFrameFormat_t matFormat = (ADCVFrameFormat_t) img.depth();
             status = getDataTypeFromMat(matFormat, &finalDataType);
             status = getColorModeFromMat(matFormat, &finalColorMode);
-            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Could it be getting color modes\n", pluginName, functionName);
             if(finalColorMode == NDColorModeMono){
                 ndims = 2;
             }
@@ -497,7 +498,6 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
                 dims[0] = matSize.width;
                 dims[1] = matSize.height;
             }
-            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Could it be creating pScratch\n", pluginName, functionName);
             pScratch = pNDArrayPool->alloc(ndims, dims, finalDataType, 0, NULL);
             if(pScratch == NULL){
                 //pScratch->release();
