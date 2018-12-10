@@ -469,28 +469,28 @@ record(ai, "$(P)$(R)Output10_RBV")
 
 #------------------Description of values in output PVs--------------------------
 
-record(stringout, "$(P)$(R)InputDescription"){
+record(waveform, "$(P)$(R)InputDescription"){
     field(PINI, "YES")
 	field(DTYP, "asynOctetRead")
 	field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_IN_DESCRIPTION")
     field(VAL, "CV Inputs")
 }
 
-record(stringin, "$(P)$(R)InputDescription_RBV"){
+record(waveform, "$(P)$(R)InputDescription_RBV"){
 	field(DTYP, "asynOctetRead")
 	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_IN_DESCRIPTION")
     field(VAL, "CV Inputs")
 	field(SCAN, "I/O Intr")
 }
 
-record(stringout, "$(P)$(R)OutputDescription"){
+record(waveform, "$(P)$(R)OutputDescription"){
     field(PINI, "YES")
 	field(DTYP, "asynOctetRead")
 	field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_OUT_DESCRIPTION")
     field(VAL, "CV Outputs")
 }
 
-record(stringin, "$(P)$(R)OutputDescription_RBV"){
+record(waveform, "$(P)$(R)OutputDescription_RBV"){
 	field(DTYP, "asynOctetRead")
 	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_OUT_DESCRIPTION")
     field(VAL, "CV Outputs")
