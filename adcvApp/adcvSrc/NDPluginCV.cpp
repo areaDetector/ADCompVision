@@ -443,11 +443,9 @@ asynStatus NDPluginCV::updateFunctionDescriptions(ADCVFunction_t function){
         for(k = 0; k< NUM_INPUTS; k++){
             setStringParam(inputDescPVs[k], inputDesc[k]);
         }
-        free(inputDesc);
         for(l = 0; l< NUM_INPUTS; l++){
             setStringParam(outputDescPVs[l], outputDesc[l]);
         }
-        free(outputDesc);
         setStringParam(NDPluginCVFunctionDescription, description);
         return asynSuccess;
 

@@ -332,7 +332,7 @@ ADCVStatus_t NDPluginCVHelper::get_threshold_description(string* inputDesc, stri
     inputDesc[1] = "Max Pixel Value (Int)";
     *description = "Will create binary image with cutoff at Threshold Val";
     populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
-    return cvHelperSuccess;
+    return status;
 }
 
 
