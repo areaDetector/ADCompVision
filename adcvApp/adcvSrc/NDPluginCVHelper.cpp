@@ -137,9 +137,15 @@ ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat &img, double* inputs, do
     int threshVal = inputs[0];
     int threshRatio = inputs[1];
     int blurDegree = inputs[2];
+    int kernelSize = inputs[3];
+    if(img.channels()!=2){
+        cvtColor(img, img, COLOR_BGR2GRAY);
+    }
     try{
         blur(img, img, Size(blurDegree, blurDegree));
-        Canny(img, img, threshVal, (threshVal*threshRatio));
+        Canny(img, img, threshVal, (threshVal*threshRatio), kernelSize);
+        printf("just finished processing canny\n");
+        imwrite("/home/jwlodek/Documents/cannyTest.jpg", img);
     }catch(Exception &e){
         print_cv_error(e, functionName);
         return cvHelperError;
@@ -391,11 +397,12 @@ ADCVStatus_t NDPluginCVHelper::get_laplacian_description(string* inputDesc, stri
  */
 ADCVStatus_t NDPluginCVHelper::get_canny_edge_description(string* inputDesc, string* outputDesc, string* description){
     ADCVStatus_t status = cvHelperSuccess;
-    int numInput = 3;
+    int numInput = 4;
     int numOutput = 0;
-    inputDesc[0] = "Threshold Value (Int)";
-    inputDesc[1] = "Threshold ratio (Int)";
-    inputDesc[2] = "Blur Degree (Int)";
+    inputDesc[0] = "Threshold Value (Int) Ex. 100";
+    inputDesc[1] = "Threshold ratio (Int) Ex. 3";
+    inputDesc[2] = "Blur Degree (Int) Ex. 3";
+    inputDesc[3] = "Kernel Size (Int) Ex. 3";
     *description = "Edge detection using the 'Canny' function. First blurs the image, then thresholds, then runs the canny algorithm.";
     populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
     return status;
