@@ -438,14 +438,21 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
  * @return: cvHelperSuccess if function desc defined, otherwise cvHelperError
  */
 ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, char** inputDesc, char** outputDesc, char* description){
-    const char* functionName;
+    const char* functionName = "getFunctionDescription";
     ADCVStatus_t status;
 
     switch(function){
         case ADCV_Threshold:
-            
-
+            status = get_threshold_description(inputDesc, outputDesc, description);
+            break;
+        default:
+            status = cvHelperError;
+            break;
     }
+    if(status == cvHelperError){
+        printf("%s::%s Error, Function does not support I/O descriptions\n", libraryName, functionName);
+    }
+    return status;
 
 }
 
