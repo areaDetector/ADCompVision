@@ -118,7 +118,6 @@ asynStatus NDPluginCV::getDataTypeFromMat(ADCVDataFormat_t matFormat, NDDataType
         status = asynError;
     }
     else{
-        printf("data type %d\n", matFormat);
         if(matFormat == ADCV_U8) *pdataType = NDUInt8;
         else if(matFormat == ADCV_S8) *pdataType = NDInt8;
         else if(matFormat == ADCV_U16) *pdataType = NDUInt16;
@@ -147,7 +146,6 @@ asynStatus NDPluginCV::getColorModeFromMat(ADCVColorFormat_t matFormat, NDColorM
         status = asynError;
     }
     else{
-        printf(" Color mode %d\n", matFormat);
         if(matFormat == ADCV_Mono) *pcolorMode = NDColorModeMono;
         else if(matFormat == ADCV_RGB) *pcolorMode = NDColorModeRGB1;
         else status = asynError;
@@ -223,6 +221,10 @@ asynStatus NDPluginCV::mat2NDArray(NDArray* pScratch, Mat &pMat, NDDataType_t da
         pScratch->pAttributeList->add("ColorMode", "Color Mode", NDAttrInt32, &colorMode);
         pScratch->pAttributeList->add("DataType", "Data Type", NDAttrInt32, &dataType);
         getAttributes(pScratch->pAttributeList);
+        callParamCallbacks();
+        doCallbacksGenericPointer(pScratch, NDArrayData, 0);
+        pMat.release();
+        pScratch->release();
         status = asynSuccess;
     }
     return status;
@@ -507,11 +509,6 @@ asynStatus NDPluginCV::writeInt32(asynUser* pasynUser, epicsInt32 value){
 void NDPluginCV::processCallbacks(NDArray *pArray){
     const char* functionName = "processCallbacks";
 
-    if(firstFrame == 0){
-        firstFrame = 1;
-        return;
-    }
-
     asynStatus status;
     NDArrayInfo arrayInfo;
     // temp array so we don't overwrite the pArray passed to us from the camera
@@ -593,9 +590,6 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
 
             // refresh the PV values, and push the output image to NDArrayData. then release the memory for pScratch
             callParamCallbacks();
-            doCallbacksGenericPointer(pScratch, NDArrayData, 0);
-            img.release();
-            pScratch->release();
         }
     }
 }

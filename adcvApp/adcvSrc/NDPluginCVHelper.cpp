@@ -162,6 +162,9 @@ ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat &img, double* inputs
     const char* functionName = "laplacian_edge_detection";
     int blurDegree = inputs[0];
     ADCVStatus_t status = cvHelperSuccess;
+    if(img.channels()!=2){
+        cvtColor(img, img, COLOR_BGR2GRAY);
+    }
     try{
         GaussianBlur(img, img, Size(blurDegree, blurDegree),1, 0, BORDER_DEFAULT);
         int depth = img.depth();
@@ -360,6 +363,46 @@ ADCVStatus_t NDPluginCVHelper::get_gaussian_blur_description(string* inputDesc, 
 
 
 /**
+ * Function that sets the I/O descriptions for Laplacian
+ * 
+ * @params[out]: inputDesc      -> array of input descriptions
+ * @params[out]: outputDesc     -> array of output descriptions
+ * @params[out]: description    -> overall function usage description
+ * @return: void
+ */
+ADCVStatus_t NDPluginCVHelper::get_laplacian_description(string* inputDesc, string* outputDesc, string* description){
+    ADCVStatus_t status = cvHelperSuccess;
+    int numInput = 1;
+    int numOutput = 0;
+    inputDesc[0] = "Blur Degree (Int)";
+    *description = "Edge detection using a combination of a Gaussian Blur kernel and a Laplacian kernel";
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    return status;
+}
+
+
+/**
+ * Function that sets the I/O descriptions for Laplacian
+ * 
+ * @params[out]: inputDesc      -> array of input descriptions
+ * @params[out]: outputDesc     -> array of output descriptions
+ * @params[out]: description    -> overall function usage description
+ * @return: void
+ */
+ADCVStatus_t NDPluginCVHelper::get_canny_edge_description(string* inputDesc, string* outputDesc, string* description){
+    ADCVStatus_t status = cvHelperSuccess;
+    int numInput = 3;
+    int numOutput = 0;
+    inputDesc[0] = "Threshold Value (Int)";
+    inputDesc[1] = "Threshold ratio (Int)";
+    inputDesc[2] = "Blur Degree (Int)";
+    *description = "Edge detection using the 'Canny' function. First blurs the image, then thresholds, then runs the canny algorithm.";
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    return status;
+}
+
+
+/**
  * Function that sets default I/O descriptions
  * 
  * @params[out]: inputDesc      -> array of input descriptions
@@ -443,6 +486,12 @@ ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, s
             break;
         case ADCV_GaussianBlur:
             status = get_gaussian_blur_description(inputDesc, outputDesc, description);
+            break;
+        case ADCV_Laplacian:
+            status = get_laplacian_description(inputDesc, outputDesc, description);
+            break;
+        case ADCV_EdgeDetectionCanny:
+            status = get_canny_edge_description(inputDesc, outputDesc, description);
             break;
         default:
             status = get_default_description(inputDesc, outputDesc, description);

@@ -86,6 +86,8 @@ class NDPluginCVHelper {
 
         ADCVStatus_t get_threshold_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_gaussian_blur_description(string* inputDesc, string* outputDesc, string* description);
+        ADCVStatus_t get_laplacian_description(string* inputDesc, string* outputDesc, string* description);
+        ADCVStatus_t get_canny_edge_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_default_description(string* inputDesc, string* outputDesc, string* description);
 
         // Function called from the Plugin itself

@@ -227,8 +227,6 @@ class NDPluginCV : public NDPluginDriver{
 
     private:
 
-        int firstFrame = 0;
-
         // arrays that will make it easier for iterating over the inputs and outputs
         int inputPVs[NUM_INPUTS];
         int outputPVs[NUM_OUTPUTS];
