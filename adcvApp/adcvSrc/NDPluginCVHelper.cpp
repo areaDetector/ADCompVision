@@ -128,8 +128,8 @@ ADCVStatus_t NDPluginCVHelper::YOURFUNCTION(Mat &img, double* inputs, double* ou
  * @inCount     -> 3
  * @inFormat    -> [Threshold value (Int), Threshold ratio (Int), Blur degree (Int)]
  *
- * @outCount    -> TODO
- * @outFormat   -> TODO
+ * @outCount    -> 8
+ * @outFormat   -> [Horizontal Center, Horizontal Size, Vertical Center, Vertical Size, Top Pixel, Bottom Pixel, Left Pixel, Right Pixel]
  */
 ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat &img, double* inputs, double* outputs){
     const char* functionName = "canny_edge_detection";
@@ -144,8 +144,55 @@ ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat &img, double* inputs, do
     try{
         blur(img, img, Size(blurDegree, blurDegree));
         Canny(img, img, threshVal, (threshVal*threshRatio), kernelSize);
-        printf("just finished processing canny\n");
-        imwrite("/home/jwlodek/Documents/cannyTest.jpg", img);
+        // set output params
+        Size imSize = img.size();
+        int i;
+        int j = imSize.height/2;
+        unsigned char* outData = (unsigned char *)img.data;
+        // find top pixel
+        for( i=0; (unsigned int)i<imSize.height; i++) {
+            if( *(outData + i*imSize.height + j) != 0) {
+                outputs[4] = i;
+                break;
+            }
+            outputs[4] = -1;
+        }
+        // Maybe find the bottom pixel
+        for( i=imSize.height - 1; i>=0; i--) {
+            if( *(outData + i*imSize.height + j) != 0) {
+                outputs[5] = i;
+                break;
+            }
+            outputs[5] = -1;
+        }
+        if(outputs[4] != -1 && outputs[5] != -1 && outputs[4] != outputs[5]){
+            outputs[2] = (outputs[4]+outputs[5])/2.0;
+            outputs[3] = (outputs[5] - outputs[4]);
+        }
+        else{ outputs[2] = -1; outputs[3] = -1; }
+        i = imSize.height;
+        // find left
+        for( j=0; (unsigned int)j<imSize.width; j++) {
+            if( *(outData + i*imSize.height + j) != 0) {
+                outputs[6] = j;
+                break;
+            }
+            outputs[6] = -1;
+        }
+        // Maybe find the right pixel
+        for( j=imSize.width - 1; j>=0; j--) {
+            if( *(outData + i*imSize.height + j) != 0) {
+                outputs[7] = j;
+                break;
+            }
+            outputs[7] = -1;
+        }
+        if(outputs[6] != -1 && outputs[7] != -1 && outputs[6] != outputs[7]){
+            outputs[0] = (outputs[6] + outputs[7])/2.0;
+            outputs[1] = (outputs[7] - outputs[6]);
+        }
+        else{ outputs[0] = -1; outputs[1] = -1; }
+
     }catch(Exception &e){
         print_cv_error(e, functionName);
         return cvHelperError;
@@ -403,6 +450,14 @@ ADCVStatus_t NDPluginCVHelper::get_canny_edge_description(string* inputDesc, str
     inputDesc[1] = "Threshold ratio (Int) Ex. 3";
     inputDesc[2] = "Blur Degree (Int) Ex. 3";
     inputDesc[3] = "Kernel Size (Int) Ex. 3";
+    outputDesc[0] = "Horizontal Center";
+    outputDesc[1] = "Horizontal Size";
+    outputDesc[2] = "Vertical Center";
+    outputDesc[3] = "Vertical Size";
+    outputDesc[4] = "Top Pixel";
+    outputDesc[5] = "Bottom Pixel";
+    outputDesc[6] = "Left Pixel";
+    outputDesc[7] = "Right Pixel";
     *description = "Edge detection using the 'Canny' function. First blurs the image, then thresholds, then runs the canny algorithm.";
     populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
     return status;
