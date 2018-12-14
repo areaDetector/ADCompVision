@@ -161,6 +161,9 @@ class NDPluginCV : public NDPluginDriver{
         int inputPVs[NUM_INPUTS];
         int outputPVs[NUM_OUTPUTS];
 
+        int inputDescPVs[NUM_INPUTS];
+        int outputDescPVs[NUM_OUTPUTS];
+
         //functions that assing the PV indexes to arrays
         void assignInputs();
         void assignOutputs();
@@ -176,6 +179,7 @@ class NDPluginCV : public NDPluginDriver{
         asynStatus setOutputParams(double* outputs);
 
         // Function that calls the appropriate helper library function
+        asynStatus updateFunctionDescriptions(ADCVFunction_t function);
         asynStatus processImage(Mat &inputImg);
         
 };

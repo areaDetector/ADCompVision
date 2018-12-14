@@ -29,12 +29,6 @@ using namespace std;
 
 const char* libraryName = "NDPluginCVHelper";
 
-const char* input_descriptions[NUM_FUNCTIONS] = {"No Inputs", "[Threshold value (Int), Threshold ratio (Int), Blur degree (Int)]",
-                               "[Threshhold Value (Int), Max Pixel Value (Int), Threshold Type (Int)]", "[Blur degree (Int)]",
-                               "[Blur degree (Int)]", "[Blur Degree (Int), Threshold Value (Int)]"};
-
-
-const char* output_descriptions[NUM_FUNCTIONS] = {"TODO", "TODO", "TODO", "TODO", "TODO", "[CentroidX (Double), CentroidY (Double) ... ]"};
 
 /**
  * Simple function that prints OpenCV error information.
@@ -70,47 +64,6 @@ ADCVFunction_t NDPluginCVHelper::get_function_from_pv(int pvValue, int functionS
     }
     printf("%s::%s ERROR: Couldn't find correct function val\n", libraryName, functionName);
     return ADCV_NoFunction;
-}
-
-
-
-/**
- * Function that gets a description of the input values necessary for using the selected function
- * 
- * @params: pvValue         -> value of the PV when it is changed
- * @params: functionSet     -> the set from which the function set came from. currently (1-3)
- * @return: description     -> description of the inputs
- */
-const char* NDPluginCVHelper::get_input_description(int pvValue, int functionSet){
-    const char* functionName = "get_input_description";
-    ADCVFunction_t function = get_function_from_pv(pvValue, functionSet);
-    if(function == ADCV_NoFunction){
-        printf("%s::%s No function selected\n", libraryName, functionName);
-        return input_descriptions[function];
-    }
-    else{
-        return input_descriptions[function];
-    }
-}
-
-
-/**
- * Function that gets a description of the ouput values for the selected function
- * 
- * @params: pvValue         -> value of the PV when it is changed
- * @params: functionSet     -> the set from which the function set came from. currently (1-3)
- * @return: description     -> description of the outputs
- */
-const char* NDPluginCVHelper::get_output_description(int pvValue, int functionSet){
-    const char* functionName = "get_output_description";
-    ADCVFunction_t function = get_function_from_pv(pvValue, functionSet);
-    if(function == ADCV_NoFunction){
-        printf("%s::%s No function selected\n", libraryName, functionName);
-        return output_descriptions[function];
-    }
-    else{
-        return output_descriptions[function];
-    }
 }
 
 

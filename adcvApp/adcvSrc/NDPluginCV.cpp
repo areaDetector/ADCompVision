@@ -371,6 +371,44 @@ asynStatus NDPluginCV::processImage(Mat &inputImg){
     return status;
 }
 
+
+asynStatus NDPluginCV::updateFunctionDescriptions(ADCVFunction_t function){
+    const char* functionName = "updateFunctionDescriptions";
+    ADCVStatus_t status;
+    char** inputDesc = (char**) malloc(NUM_INPUTS*sizeof(char*));
+    char** outputDesc = (char**) malloc(NUM_OUTPUTS*sizeof(char*));
+    char* description = (char*) malloc(256);
+    int i, j;
+    for(i = 0; i< NUM_INPUTS; i++){
+        inputDesc[i] = (char*) malloc(256);
+    }
+    for(j = 0; j< NUM_OUTPUTS; j++){
+        outputDesc[j] = (char*) malloc(256);
+    }
+    status = cvHelper->getFunctionDescription(function, inputDesc, outputDesc, description);
+    if(status == cvHelperError){
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error getting function description\n", pluginName, functionName);
+        return asynError;
+    }
+    else{
+        int k, l;
+        for(k = 0; k< NUM_INPUTS; k++){
+            setStringParam(inputDescPVs[k], inputDesc[k]);
+            free(inputDesc[k]);
+        }
+        free(inputDesc);
+        for(l = 0; l< NUM_INPUTS; l++){
+            setStringParam(outputDescPVs[l], outputDesc[l]);
+            free(outputDesc[k]);
+        }
+        free(outputDesc);
+        setStringParam(NDPluginCVFunctionDescription, description);
+        free(description);
+        return asynSuccess;
+
+    }
+}
+
 /* ------------------ Overwrites of NDPlugin Driver Functions -------------------------- */
 
 
@@ -393,20 +431,22 @@ asynStatus NDPluginCV::writeInt32(asynUser* pasynUser, epicsInt32 value){
     if(function == NDPluginCVFunction1 && value != 0){
         setIntegerParam(NDPluginCVFunction2, 0);
         setIntegerParam(NDPluginCVFunction3, 0);
-        setStringParam(NDPluginCVInputDescription, cvHelper->get_input_description(value, 1));
-        setStringParam(NDPluginCVOutputDescription, cvHelper->get_output_description(value, 1));
+        ADCVFunction_t function = cvHelper->get_function_from_pv(value, 1);
+        updateFunctionDescriptions(function);
     }
     else if(function == NDPluginCVFunction2 && value != 0){
         setIntegerParam(NDPluginCVFunction1, 0);
         setIntegerParam(NDPluginCVFunction3, 0);
-        setStringParam(NDPluginCVInputDescription, cvHelper->get_input_description(value, 2));
-        setStringParam(NDPluginCVOutputDescription, cvHelper->get_output_description(value, 2));
+        ADCVFunction_t function = cvHelper->get_function_from_pv(value, 2);
+        updateFunctionDescriptions(function);
+
     }
     else if(function == NDPluginCVFunction3 && value != 0){
         setIntegerParam(NDPluginCVFunction1, 0);
         setIntegerParam(NDPluginCVFunction2, 0);
-        setStringParam(NDPluginCVInputDescription, cvHelper->get_input_description(value, 3));
-        setStringParam(NDPluginCVOutputDescription, cvHelper->get_output_description(value, 3));
+        ADCVFunction_t function = cvHelper->get_function_from_pv(value, 3);
+        updateFunctionDescriptions(function);
+
     }
     else if(function < NDCV_FIRST_PARAM){
         //make sure to call base class for remaining PVs

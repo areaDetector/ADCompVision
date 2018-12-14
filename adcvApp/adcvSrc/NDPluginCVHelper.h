@@ -73,10 +73,6 @@ class NDPluginCVHelper {
 
         // gets function from PV values
         ADCVFunction_t get_function_from_pv(int pvValue, int functionSet);
-
-        // IO descriptions
-        const char* get_input_description(int pvValue, int functionSet);
-        const char* get_output_description(int pvValue, int functionSet);
  
         // OpenCV Wrapper functions
         ADCVStatus_t canny_edge_detection(Mat &img, double* inputs, double* outputs);
