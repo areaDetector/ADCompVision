@@ -430,17 +430,10 @@ asynStatus NDPluginCV::processImage(Mat &inputImg){
 asynStatus NDPluginCV::updateFunctionDescriptions(ADCVFunction_t function){
     const char* functionName = "updateFunctionDescriptions";
     ADCVStatus_t status;
-    char** inputDesc = (char**) malloc(NUM_INPUTS*sizeof(char*));
-    char** outputDesc = (char**) malloc(NUM_OUTPUTS*sizeof(char*));
-    char* description = (char*) malloc(256);
-    int i, j;
-    for(i = 0; i< NUM_INPUTS; i++){
-        inputDesc[i] = (char*) malloc(256);
-    }
-    for(j = 0; j< NUM_OUTPUTS; j++){
-        outputDesc[j] = (char*) malloc(256);
-    }
-    status = cvHelper->getFunctionDescription(function, inputDesc, outputDesc, description);
+    string inputDesc[NUM_INPUTS];
+    string outputDesc[NUM_OUTPUTS];
+    string description;
+    status = cvHelper->getFunctionDescription(function, inputDesc, outputDesc, &description);
     if(status == cvHelperError){
         asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error getting function description\n", pluginName, functionName);
         return asynError;
@@ -449,16 +442,13 @@ asynStatus NDPluginCV::updateFunctionDescriptions(ADCVFunction_t function){
         int k, l;
         for(k = 0; k< NUM_INPUTS; k++){
             setStringParam(inputDescPVs[k], inputDesc[k]);
-            free(inputDesc[k]);
         }
         free(inputDesc);
         for(l = 0; l< NUM_INPUTS; l++){
             setStringParam(outputDescPVs[l], outputDesc[l]);
-            free(outputDesc[k]);
         }
         free(outputDesc);
         setStringParam(NDPluginCVFunctionDescription, description);
-        free(description);
         return asynSuccess;
 
     }

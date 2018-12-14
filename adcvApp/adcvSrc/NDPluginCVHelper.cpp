@@ -305,7 +305,7 @@ ADCVStatus_t NDPluginCVHelper::gaussian_blur(Mat &img, double* inputs, double* o
  * @params[in]:  nOut           -> number of outputs
  * @return: void
  */
-void NDPluginCVHelper::populate_remaining_descriptions(char** inputDesc, char** outputDesc, int nIn, int nOut){
+void NDPluginCVHelper::populate_remaining_descriptions(string* inputDesc, string* outputDesc, int nIn, int nOut){
     int i, j;
     for(i = nIn; i< NUM_INPUTS; i++){
         inputDesc[i] = "Not Used";
@@ -324,13 +324,13 @@ void NDPluginCVHelper::populate_remaining_descriptions(char** inputDesc, char** 
  * @params[out]: description    -> overall function usage description
  * @return: void
  */
-ADCVStatus_t NDPluginCVHelper::get_threshold_description(char** inputDesc, char** outputDesc, char* description){
+ADCVStatus_t NDPluginCVHelper::get_threshold_description(string* inputDesc, string* outputDesc, string* description){
     ADCVStatus_t status = cvHelperSuccess;
     int numInput = 2;
     int numOutput = 0;
     inputDesc[0] = "Threshold Value (Int)";
     inputDesc[1] = "Max Pixel Value (Int)";
-    description = "Will create binary image with cutoff at Threshold Val";
+    *description = "Will create binary image with cutoff at Threshold Val";
     populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
     return cvHelperSuccess;
 }
@@ -390,7 +390,7 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
  * @params[out]: description    -> Description of the function
  * @return: cvHelperSuccess if function desc defined, otherwise cvHelperError
  */
-ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, char** inputDesc, char** outputDesc, char* description){
+ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, string* inputDesc, string* outputDesc, string* description){
     const char* functionName = "getFunctionDescription";
     ADCVStatus_t status;
 

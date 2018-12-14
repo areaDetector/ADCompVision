@@ -82,13 +82,13 @@ class NDPluginCVHelper {
         ADCVStatus_t gaussian_blur(Mat &img, double* inputs, double* outputs);
 
         // IO descriptions
-        void populate_remaining_descriptions(char** inputDesc, char** outputDesc, int nIn, int nOut);
+        void populate_remaining_descriptions(string* inputDesc, string* outputDesc, int nIn, int nOut);
 
-        ADCVStatus_t get_threshold_description(char** inputDesc, char** outputDesc, char* description);
+        ADCVStatus_t get_threshold_description(string* inputDesc, string* outputDesc, string* description);
 
         // Function called from the Plugin itself
         ADCVStatus_t processImage(Mat &image, ADCVFunction_t function, double* inputs, double* outputs);
-        ADCVStatus_t getFunctionDescription(ADCVFunction_t function, char** inputDesc, char** outputDesc, char* description);
+        ADCVStatus_t getFunctionDescription(ADCVFunction_t function, string* inputDesc, string* outputDesc, string* description);
 
     protected:
 
