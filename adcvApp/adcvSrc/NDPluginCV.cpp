@@ -40,6 +40,11 @@ using namespace cv;
 static const char *pluginName="NDPluginCV";
 
 
+//----------------------------------------------------------------------------
+//-------------------- Data Type Conversion Functions ------------------------
+//----------------------------------------------------------------------------
+
+
 /**
  * Function that takes an NDDataType and an NDColorMode and returns an ADCVFrameFormat
  * The Frame Format type corresponds to the OpenCV data types. To see the mappings from 
@@ -161,6 +166,11 @@ asynStatus NDPluginCV::getColorModeFromMat(ADCVFrameFormat_t matFormat, NDColorM
 }
 
 
+//----------------------------------------------------------------------------
+//---------------- Conversion to/from Mat and NDArray ------------------------
+//----------------------------------------------------------------------------
+
+
 /**
  * Function that will take a pointer to an NDArray, and converts it into
  * an OpenCV "Mat" image object
@@ -228,6 +238,9 @@ asynStatus NDPluginCV::mat2NDArray(NDArray* pScratch, Mat &pMat, NDDataType_t da
     return status;
 }
 
+//----------------------------------------------------------------------------
+//-------------------- Input and Output Management ---------------------------
+//----------------------------------------------------------------------------
 
 /**
  * Basic function used to assign input PV pointers into an array for easier iteration
@@ -307,7 +320,7 @@ void NDPluginCV::assignOutputDescriptions(){
 /**
  * Function that pulls the input values from the PVs and puts them into an array
  * 
- * @params: inputs -> a pointer that is populated by the values stored in the input PVs.
+ * @params[out]: inputs -> a pointer that is populated by the values stored in the input PVs.
  * @return: asynStatus
  */
 asynStatus NDPluginCV::getRequiredParams(double* inputs){
@@ -328,7 +341,7 @@ asynStatus NDPluginCV::getRequiredParams(double* inputs){
 /**
  * Function that pulls the ouptu values from the PVs and puts them into an array
  * 
- * @params: inputs -> a pointer that is populated by the values stored in the input PVs.
+ * @params[in]: outputs -> a pointer to the outputs that are pushed to PVs
  * @return: asynStatus
  */
 asynStatus NDPluginCV::setOutputParams(double* outputs){
@@ -346,6 +359,11 @@ asynStatus NDPluginCV::setOutputParams(double* outputs){
     callParamCallbacks();
     return status;
 }
+
+
+//----------------------------------------------------------------------------
+//---------------- Functions that call CVHelper library ----------------------
+//----------------------------------------------------------------------------
 
 
 /*
@@ -446,7 +464,10 @@ asynStatus NDPluginCV::updateFunctionDescriptions(ADCVFunction_t function){
     }
 }
 
-/* ------------------ Overwrites of NDPlugin Driver Functions -------------------------- */
+
+//----------------------------------------------------------------------------
+//---------------- Overwrites of NDPluginDriver Functions --------------------
+//----------------------------------------------------------------------------
 
 
 /**
@@ -599,6 +620,11 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
 }
 
 
+//----------------------------------------------------------------------------
+//---------------- Constructor/Destructor for NDPluginCV ---------------------
+//----------------------------------------------------------------------------
+
+
 /**
  * Constructor for NDPluginCV. Most parameters are passed on to the superclass
  * NDPluginDriver constructor. Next, PV parameters are initialized, and then the
@@ -630,43 +656,66 @@ NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallback
 
     //create function params (3) 
     //more may need to be added, I'm not sure how many values an mbbo record supports
-    createParam(NDPluginCVFunction1String,          asynParamInt32,     &NDPluginCVFunction1);
-    createParam(NDPluginCVFunction2String,          asynParamInt32,     &NDPluginCVFunction2);
-    createParam(NDPluginCVFunction3String,          asynParamInt32,     &NDPluginCVFunction3);
+    createParam(NDPluginCVFunction1String,                      asynParamInt32,     &NDPluginCVFunction1);
+    createParam(NDPluginCVFunction2String,                      asynParamInt32,     &NDPluginCVFunction2);
+    createParam(NDPluginCVFunction3String,                      asynParamInt32,     &NDPluginCVFunction3);
 
     //create the input params (10)
-    createParam(NDPluginCVInput1String,             asynParamFloat64,   &NDPluginCVInput1);
-    createParam(NDPluginCVInput2String,             asynParamFloat64,   &NDPluginCVInput2);
-    createParam(NDPluginCVInput3String,             asynParamFloat64,   &NDPluginCVInput3);
-    createParam(NDPluginCVInput4String,             asynParamFloat64,   &NDPluginCVInput4);
-    createParam(NDPluginCVInput5String,             asynParamFloat64,   &NDPluginCVInput5);
-    createParam(NDPluginCVInput6String,             asynParamFloat64,   &NDPluginCVInput6);
-    createParam(NDPluginCVInput7String,             asynParamFloat64,   &NDPluginCVInput7);
-    createParam(NDPluginCVInput8String,             asynParamFloat64,   &NDPluginCVInput8);
-    createParam(NDPluginCVInput9String,             asynParamFloat64,   &NDPluginCVInput9);
-    createParam(NDPluginCVInput10String,            asynParamFloat64,   &NDPluginCVInput10);
+    createParam(NDPluginCVInput1String,                         asynParamFloat64,   &NDPluginCVInput1);
+    createParam(NDPluginCVInput2String,                         asynParamFloat64,   &NDPluginCVInput2);
+    createParam(NDPluginCVInput3String,                         asynParamFloat64,   &NDPluginCVInput3);
+    createParam(NDPluginCVInput4String,                         asynParamFloat64,   &NDPluginCVInput4);
+    createParam(NDPluginCVInput5String,                         asynParamFloat64,   &NDPluginCVInput5);
+    createParam(NDPluginCVInput6String,                         asynParamFloat64,   &NDPluginCVInput6);
+    createParam(NDPluginCVInput7String,                         asynParamFloat64,   &NDPluginCVInput7);
+    createParam(NDPluginCVInput8String,                         asynParamFloat64,   &NDPluginCVInput8);
+    createParam(NDPluginCVInput9String,                         asynParamFloat64,   &NDPluginCVInput9);
+    createParam(NDPluginCVInput10String,                        asynParamFloat64,   &NDPluginCVInput10);
+
+    //create the input description params (10)
+    createParam(NDPluginCVInput1DescriptionString,              asynParamOctet,     &NDPluginCVInput1Description);
+    createParam(NDPluginCVInput2DescriptionString,              asynParamOctet,     &NDPluginCVInput2Description);
+    createParam(NDPluginCVInput3DescriptionString,              asynParamOctet,     &NDPluginCVInput3Description);
+    createParam(NDPluginCVInput4DescriptionString,              asynParamOctet,     &NDPluginCVInput4Description);
+    createParam(NDPluginCVInput5DescriptionString,              asynParamOctet,     &NDPluginCVInput5Description);
+    createParam(NDPluginCVInput6DescriptionString,              asynParamOctet,     &NDPluginCVInput6Description);
+    createParam(NDPluginCVInput7DescriptionString,              asynParamOctet,     &NDPluginCVInput7Description);
+    createParam(NDPluginCVInput8DescriptionString,              asynParamOctet,     &NDPluginCVInput8Description);
+    createParam(NDPluginCVInput9DescriptionString,              asynParamOctet,     &NDPluginCVInput9Description);
+    createParam(NDPluginCVInput10DescriptionString,             asynParamOctet,     &NDPluginCVInput10Description);
 
     //create the float output params (3)
-    createParam(NDPluginCVOutput1String,            asynParamFloat64,   &NDPluginCVOutput1);
-    createParam(NDPluginCVOutput2String,            asynParamFloat64,   &NDPluginCVOutput2);
-    createParam(NDPluginCVOutput3String,            asynParamFloat64,   &NDPluginCVOutput3);
-    createParam(NDPluginCVOutput4String,            asynParamFloat64,   &NDPluginCVOutput4);
-    createParam(NDPluginCVOutput5String,            asynParamFloat64,   &NDPluginCVOutput5);
-    createParam(NDPluginCVOutput6String,            asynParamFloat64,   &NDPluginCVOutput6);
-    createParam(NDPluginCVOutput7String,            asynParamFloat64,   &NDPluginCVOutput7);
-    createParam(NDPluginCVOutput8String,            asynParamFloat64,   &NDPluginCVOutput8);
-    createParam(NDPluginCVOutput9String,            asynParamFloat64,   &NDPluginCVOutput9);
-    createParam(NDPluginCVOutput10String,           asynParamFloat64,   &NDPluginCVOutput10);
+    createParam(NDPluginCVOutput1String,                        asynParamFloat64,   &NDPluginCVOutput1);
+    createParam(NDPluginCVOutput2String,                        asynParamFloat64,   &NDPluginCVOutput2);
+    createParam(NDPluginCVOutput3String,                        asynParamFloat64,   &NDPluginCVOutput3);
+    createParam(NDPluginCVOutput4String,                        asynParamFloat64,   &NDPluginCVOutput4);
+    createParam(NDPluginCVOutput5String,                        asynParamFloat64,   &NDPluginCVOutput5);
+    createParam(NDPluginCVOutput6String,                        asynParamFloat64,   &NDPluginCVOutput6);
+    createParam(NDPluginCVOutput7String,                        asynParamFloat64,   &NDPluginCVOutput7);
+    createParam(NDPluginCVOutput8String,                        asynParamFloat64,   &NDPluginCVOutput8);
+    createParam(NDPluginCVOutput9String,                        asynParamFloat64,   &NDPluginCVOutput9);
+    createParam(NDPluginCVOutput10String,                       asynParamFloat64,   &NDPluginCVOutput10);
 
-    createParam(NDPluginCVInputDescriptionString,   asynParamOctet,     &NDPluginCVInputDescription);
-    createParam(NDPluginCVOutputDescriptionString,  asynParamOctet,     &NDPluginCVOutputDescription);
+    //create the output description params (3)
+    createParam(NDPluginCVOutput1DescriptionString,             asynParamOctet,     &NDPluginCVOutput1Description);
+    createParam(NDPluginCVOutput2DescriptionString,             asynParamOctet,     &NDPluginCVOutput2Description);
+    createParam(NDPluginCVOutput3DescriptionString,             asynParamOctet,     &NDPluginCVOutput3Description);
+    createParam(NDPluginCVOutput4DescriptionString,             asynParamOctet,     &NDPluginCVOutput4Description);
+    createParam(NDPluginCVOutput5DescriptionString,             asynParamOctet,     &NDPluginCVOutput5Description);
+    createParam(NDPluginCVOutput6DescriptionString,             asynParamOctet,     &NDPluginCVOutput6Description);
+    createParam(NDPluginCVOutput7DescriptionString,             asynParamOctet,     &NDPluginCVOutput7Description);
+    createParam(NDPluginCVOutput8DescriptionString,             asynParamOctet,     &NDPluginCVOutput8Description);
+    createParam(NDPluginCVOutput9DescriptionString,             asynParamOctet,     &NDPluginCVOutput9Description);
+    createParam(NDPluginCVOutput10DescriptionString,            asynParamOctet,     &NDPluginCVOutput10Description);
+
+    createParam(NDPluginCVFunctionDescriptionString,            asynParamOctet,     &NDPluginCVFunctionDescription);
+
 
     // assigns inputs and outputs to arrays to simplify iteration
     assignInputs();
     assignOutputs();
-
-    //create the remaining params
-    createParam(NDPluginCVOutputDescriptionString,  asynParamOctet, &NDPluginCVOutputDescription);
+    assignInputDescriptions();
+    assignOutputDescriptions();
 
     setStringParam(NDPluginDriverPluginType, functionName);
     epicsSnprintf(versionString, sizeof(versionString), "%d.%d.%d", NDPluginCV_VERSION, NDPluginCV_REVISION, NDPluginCV_MODIFICATION);
