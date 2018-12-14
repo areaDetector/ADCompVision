@@ -266,6 +266,43 @@ void NDPluginCV::assignOutputs(){
     asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Finished assigning output values\n", pluginName, functionName);
 }
 
+/**
+ * Basic function used to assign input Description PV pointers into an array for easier iteration
+ */
+void NDPluginCV::assignInputDescriptions(){
+    const char* functionName = "assignInputDescriptions";
+    inputDescPVs[0] = NDPluginCVInput1Description;
+    inputDescPVs[1] = NDPluginCVInput2Description;
+    inputDescPVs[2] = NDPluginCVInput3Description;
+    inputDescPVs[3] = NDPluginCVInput4Description;
+    inputDescPVs[4] = NDPluginCVInput5Description;
+    inputDescPVs[5] = NDPluginCVInput6Description;
+    inputDescPVs[6] = NDPluginCVInput7Description;
+    inputDescPVs[7] = NDPluginCVInput8Description;
+    inputDescPVs[8] = NDPluginCVInput9Description;
+    inputDescPVs[9] = NDPluginCVInput10Description;
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Finished assigning input desc values\n", pluginName, functionName);
+}
+
+
+/**
+ * Basic function used to assign output Description PV pointers into an array for easier iteration
+ */
+void NDPluginCV::assignOutputDescriptions(){
+    const char* functionName = "assignOutputDescriptions";
+    outputDescPVs[0] = NDPluginCVOutput1Description;
+    outputDescPVs[1] = NDPluginCVOutput2Description;
+    outputDescPVs[2] = NDPluginCVOutput3Description;
+    outputDescPVs[3] = NDPluginCVOutput4Description;
+    outputDescPVs[4] = NDPluginCVOutput5Description;
+    outputDescPVs[5] = NDPluginCVOutput6Description;
+    outputDescPVs[6] = NDPluginCVOutput7Description;
+    outputDescPVs[7] = NDPluginCVOutput8Description;
+    outputDescPVs[8] = NDPluginCVOutput9Description;
+    outputDescPVs[9] = NDPluginCVOutput10;
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Finished assigning output desc values\n", pluginName, functionName);
+}
+
 
 /**
  * Function that pulls the input values from the PVs and puts them into an array
