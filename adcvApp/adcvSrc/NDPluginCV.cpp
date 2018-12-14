@@ -118,6 +118,7 @@ asynStatus NDPluginCV::getDataTypeFromMat(ADCVDataFormat_t matFormat, NDDataType
         status = asynError;
     }
     else{
+        printf("data type %d\n", matFormat);
         if(matFormat == ADCV_U8) *pdataType = NDUInt8;
         else if(matFormat == ADCV_S8) *pdataType = NDInt8;
         else if(matFormat == ADCV_U16) *pdataType = NDUInt16;
@@ -146,6 +147,7 @@ asynStatus NDPluginCV::getColorModeFromMat(ADCVColorFormat_t matFormat, NDColorM
         status = asynError;
     }
     else{
+        printf(" Color mode %d\n", matFormat);
         if(matFormat == ADCV_Mono) *pcolorMode = NDColorModeMono;
         else if(matFormat == ADCV_RGB) *pcolorMode = NDColorModeRGB1;
         else status = asynError;

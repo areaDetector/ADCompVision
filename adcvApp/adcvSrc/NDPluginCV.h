@@ -130,7 +130,7 @@ typedef enum {
  * Color mode of mat, gotten with channels() function
  */
 typedef enum {
-    ADCV_Mono       = 2,
+    ADCV_Mono       = 1,
     ADCV_RGB        = 3,
     ADCV_UnsupportedColor,
 } ADCVColorFormat_t;
