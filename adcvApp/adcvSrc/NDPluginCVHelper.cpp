@@ -192,13 +192,13 @@ ADCVStatus_t NDPluginCVHelper::threshold_image(Mat &img, double* inputs, double*
     if(img.channels()!=2){
         cvtColor(img, img, COLOR_BGR2GRAY);
     }
-    imwrite("/home/jwlodek/Documents/testGray.jpg", img);
+    //imwrite("/home/jwlodek/Documents/testGray.jpg", img);
     int threshVal = (int) inputs[0];
     int threshMax = (int) inputs[1];
-    printf("%s::%s Recieving thresh val %d, thresh max %d, image size %d\n", libraryName, functionName, threshVal, threshMax, img.channels());
+    //printf("%s::%s Recieving thresh val %d, thresh max %d, image size %d\n", libraryName, functionName, threshVal, threshMax, img.channels());
     try{
         threshold(img, img, threshVal, threshMax, THRESH_BINARY);
-        imwrite("/home/jwlodek/Documents/testThresh.jpg", img);
+        //imwrite("/home/jwlodek/Documents/testThresh.jpg", img);
     }catch(Exception &e){
         status = cvHelperError;
         print_cv_error(e, functionName);
@@ -279,9 +279,13 @@ ADCVStatus_t NDPluginCVHelper::gaussian_blur(Mat &img, double* inputs, double* o
     const char* functionName = "gaussian_blur";
     ADCVStatus_t status = cvHelperSuccess;
     int blurDegree = inputs[0];
-
+    //imwrite("/home/jwlodek/Documents/testinp.jpg", img);
     try{
+        if(img.channels() == 3){
+            cvtColor(img, img, COLOR_RGB2BGR);
+        }
         GaussianBlur(img, img, Size(blurDegree, blurDegree), 1, 0, BORDER_DEFAULT);
+        //imwrite("/home/jwlodek/Documents/testgaussian.jpg", img);
     }catch(Exception &e){
         print_cv_error(e, functionName);
         status = cvHelperError;
@@ -336,6 +340,45 @@ ADCVStatus_t NDPluginCVHelper::get_threshold_description(string* inputDesc, stri
 }
 
 
+/**
+ * Function that sets the I/O descriptions for thresholding
+ * 
+ * @params[out]: inputDesc      -> array of input descriptions
+ * @params[out]: outputDesc     -> array of output descriptions
+ * @params[out]: description    -> overall function usage description
+ * @return: void
+ */
+ADCVStatus_t NDPluginCVHelper::get_gaussian_blur_description(string* inputDesc, string* outputDesc, string* description){
+    ADCVStatus_t status = cvHelperSuccess;
+    int numInput = 1;
+    int numOutput = 0;
+    inputDesc[0] = "Blur Degree (Int)";
+    *description = "Will blur image based on certain kernel blur degree (odd number int)";
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    return status;
+}
+
+
+/**
+ * Function that sets default I/O descriptions
+ * 
+ * @params[out]: inputDesc      -> array of input descriptions
+ * @params[out]: outputDesc     -> array of output descriptions
+ * @params[out]: description    -> overall function usage description
+ * @return: void
+ */
+ADCVStatus_t NDPluginCVHelper::get_default_description(string* inputDesc, string* outputDesc, string* description){
+    ADCVStatus_t status = cvHelperError;
+    int i, j;
+    for(i = 0; i< NUM_INPUTS; i++){
+        inputDesc[i] = "Not Available";
+    }
+    for(j = 0; j< NUM_OUTPUTS; j++){
+        outputDesc[j] = "Not Available";
+    }
+    *description = "None Available";
+    return status;
+}
 
 
 /**
@@ -353,14 +396,14 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
     ADCVStatus_t status;
 
     switch(function){
-        case ADCV_EdgeDetectionCanny:
-            status = canny_edge_detection(image, inputs, outputs);
-            break;
         case ADCV_Threshold:
             status = threshold_image(image, inputs, outputs);
             break;
         case ADCV_GaussianBlur:
             status = gaussian_blur(image, inputs, outputs);
+            break;
+        case ADCV_EdgeDetectionCanny:
+            status = canny_edge_detection(image, inputs, outputs);
             break;
         case ADCV_CentroidFinder:
             status = find_centroids(image, inputs, outputs);
@@ -398,8 +441,11 @@ ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, s
         case ADCV_Threshold:
             status = get_threshold_description(inputDesc, outputDesc, description);
             break;
+        case ADCV_GaussianBlur:
+            status = get_gaussian_blur_description(inputDesc, outputDesc, description);
+            break;
         default:
-            status = cvHelperError;
+            status = get_default_description(inputDesc, outputDesc, description);
             break;
     }
     if(status == cvHelperError){

@@ -47,10 +47,10 @@ using namespace std;
 // Some basic flag types
 typedef enum {
     ADCV_NoFunction         = 0,
-    ADCV_EdgeDetectionCanny = 1,
+    ADCV_GaussianBlur       = 1,
     ADCV_Threshold          = 2,
-    ADCV_GaussianBlur       = 3,
-    ADCV_Laplacian          = 4,
+    ADCV_Laplacian          = 3,
+    ADCV_EdgeDetectionCanny = 4,
     ADCV_CentroidFinder     = 5,
 } ADCVFunction_t;
 
@@ -85,6 +85,8 @@ class NDPluginCVHelper {
         void populate_remaining_descriptions(string* inputDesc, string* outputDesc, int nIn, int nOut);
 
         ADCVStatus_t get_threshold_description(string* inputDesc, string* outputDesc, string* description);
+        ADCVStatus_t get_gaussian_blur_description(string* inputDesc, string* outputDesc, string* description);
+        ADCVStatus_t get_default_description(string* inputDesc, string* outputDesc, string* description);
 
         // Function called from the Plugin itself
         ADCVStatus_t processImage(Mat &image, ADCVFunction_t function, double* inputs, double* outputs);

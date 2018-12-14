@@ -111,6 +111,31 @@ typedef enum {
 } ADCVFrameFormat_t;
 
 
+/**
+ * Typedef for openCV depth of Mat return.
+ * Cant depth + color mode directly
+ */
+typedef enum {
+    ADCV_U8            = CV_8U,          // Unsigned 8
+    ADCV_S8            = CV_8S,          // Signed 8
+    ADCV_U16           = CV_16U,         // Unsigned 16 bit mono
+    ADCV_S16           = CV_16S,         // Signed 16 bit mono
+    ADCV_S32           = CV_32S,         // Signed 32 bit mono
+    ADCV_F32           = CV_32F,         // Float 32 mono
+    ADCV_F64           = CV_64F,         // Float 64 mono
+    ADCV_UnsupportedData = -1,
+} ADCVDataFormat_t;
+
+/**
+ * Color mode of mat, gotten with channels() function
+ */
+typedef enum {
+    ADCV_Mono       = 2,
+    ADCV_RGB        = 3,
+    ADCV_UnsupportedColor,
+} ADCVColorFormat_t;
+
+
 //NDPluginCV class that extends base NDPluginDriver class
 
 class NDPluginCV : public NDPluginDriver{
@@ -133,8 +158,8 @@ class NDPluginCV : public NDPluginDriver{
 
         // Data type conversion functions (in public because I am working on unit tests)
         ADCVFrameFormat_t getCurrentImageFormat(NDDataType_t dataType, NDColorMode_t colorMode);
-        asynStatus getDataTypeFromMat(ADCVFrameFormat_t matFormat, NDDataType_t* pdataType);
-        asynStatus getColorModeFromMat(ADCVFrameFormat_t matFormat, NDColorMode_t* pcolorMode);
+        asynStatus getDataTypeFromMat(ADCVDataFormat_t matFormat, NDDataType_t* pdataType);
+        asynStatus getColorModeFromMat(ADCVColorFormat_t matFormat, NDColorMode_t* pcolorMode);
 
 
     protected:
@@ -201,6 +226,8 @@ class NDPluginCV : public NDPluginDriver{
 	    NDPluginCVHelper* cvHelper;
 
     private:
+
+        int firstFrame = 0;
 
         // arrays that will make it easier for iterating over the inputs and outputs
         int inputPVs[NUM_INPUTS];
