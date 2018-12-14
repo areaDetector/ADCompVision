@@ -339,6 +339,51 @@ ADCVStatus_t NDPluginCVHelper::gaussian_blur(Mat &img, double* inputs, double* o
 
 //------------------------ End of OpenCV wrapper functions -------------------------------------------------
 
+//------------------------ Start of I/O description functions ----------------------------------------------
+
+
+/**
+ * Simple function that populates the remaining I/O descriptions with an unused
+ * tag
+ * 
+ * @params[out]: inputDesc      -> array of input descriptions
+ * @params[out]: outputDesc     -> array of output descriptions
+ * @params[in]:  nIn            -> number of inputs
+ * @params[in]:  nOut           -> number of outputs
+ * @return: void
+ */
+void NDPluginCVHelper::populate_remaining_descriptions(char** inputDesc, char** outputDesc, int nIn, int nOut){
+    int i, j;
+    for(i = nIn; i< NUM_INPUTS; i++){
+        inputDesc[i] = "Not Used";
+    }
+    for(j = nOut; j< NUM_OUTPUTS; j++){
+        outputDesc[j] = "Not Used";
+    }
+}
+
+
+/**
+ * Function that sets the I/O descriptions for thresholding
+ * 
+ * @params[out]: inputDesc      -> array of input descriptions
+ * @params[out]: outputDesc     -> array of output descriptions
+ * @params[out]: description    -> overall function usage description
+ * @return: void
+ */
+ADCVStatus_t NDPluginCVHelper::get_threshold_description(char** inputDesc, char** outputDesc, char* description){
+    ADCVStatus_t status = cvHelperSuccess;
+    int numInput = 2;
+    int numOutput = 0;
+    inputDesc[0] = "Threshold Value (Int)";
+    inputDesc[1] = "Max Pixel Value (Int)";
+    description = "Will create binary image with cutoff at Threshold Val";
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    return cvHelperSuccess;
+}
+
+
+
 
 /**
  * Function that is called from the ADCompVision plugin. It detects which function is being requested, and calls the appropriate
@@ -379,6 +424,29 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
         printf("%s::%s Error in helper library\n", libraryName, functionName);
     }
     return status;
+}
+
+
+/**
+ * This function is called from the ADCompVision plugin. It returns information regarding the input types, output 
+ * types, and the function itself, for display in the U.I.
+ * 
+ * @params[in]:  function       -> function type
+ * @params[out]: inputDesc      -> Array of input descriptions
+ * @params[out]: outputDesc     -> Array of output descriptions
+ * @params[out]: description    -> Description of the function
+ * @return: cvHelperSuccess if function desc defined, otherwise cvHelperError
+ */
+ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, char** inputDesc, char** outputDesc, char* description){
+    const char* functionName;
+    ADCVStatus_t status;
+
+    switch(function){
+        case ADCV_Threshold:
+            
+
+    }
+
 }
 
 

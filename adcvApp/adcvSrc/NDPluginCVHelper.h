@@ -85,8 +85,14 @@ class NDPluginCVHelper {
         ADCVStatus_t find_centroids(Mat &img, double* inputs, double* outputs);
         ADCVStatus_t gaussian_blur(Mat &img, double* inputs, double* outputs);
 
+        // IO descriptions
+        void populate_remaining_descriptions(char** inputDesc, char** outputDesc, int nIn, int nOut);
+
+        ADCVStatus_t get_threshold_description(char** inputDesc, char** outputDesc, char* description);
+
         // Function called from the Plugin itself
         ADCVStatus_t processImage(Mat &image, ADCVFunction_t function, double* inputs, double* outputs);
+        ADCVStatus_t getFunctionDescription(ADCVFunction_t function, char** inputDesc, char** outputDesc, char* description);
 
     protected:
 
