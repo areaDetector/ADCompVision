@@ -32,38 +32,60 @@ using namespace cv;
 /* definitions of parameters */
 
 // CV functions (3)
-#define NDPluginCVFunction1String               "NDCV_FUNCTION1"    //asynInt32
-#define NDPluginCVFunction2String               "NDCV_FUNCTION2"    //asynInt32
-#define NDPluginCVFunction3String               "NDCV_FUNCTION3"    //asynInt32
+#define NDPluginCVFunction1String                   "NDCV_FUNCTION1"            //asynInt32
+#define NDPluginCVFunction2String                   "NDCV_FUNCTION2"            //asynInt32
+#define NDPluginCVFunction3String                   "NDCV_FUNCTION3"            //asynInt32
 
 // Input PVs (10)
-#define NDPluginCVInput1String                  "NDCV_IN1"          //asynFloat64
-#define NDPluginCVInput2String                  "NDCV_IN2"          //asynFloat64
-#define NDPluginCVInput3String                  "NDCV_IN3"          //asynFloat64
-#define NDPluginCVInput4String                  "NDCV_IN4"          //asynFloat64
-#define NDPluginCVInput5String                  "NDCV_IN5"          //asynFloat64
-#define NDPluginCVInput6String                  "NDCV_IN6"          //asynFloat64
-#define NDPluginCVInput7String                  "NDCV_IN7"          //asynFloat64
-#define NDPluginCVInput8String                  "NDCV_IN8"          //asynFloat64
-#define NDPluginCVInput9String                  "NDCV_IN9"          //asynFloat64
-#define NDPluginCVInput10String                 "NDCV_IN10"         //asynFloat64
+#define NDPluginCVInput1String                      "NDCV_IN1"                  //asynFloat64
+#define NDPluginCVInput2String                      "NDCV_IN2"                  //asynFloat64
+#define NDPluginCVInput3String                      "NDCV_IN3"                  //asynFloat64
+#define NDPluginCVInput4String                      "NDCV_IN4"                  //asynFloat64
+#define NDPluginCVInput5String                      "NDCV_IN5"                  //asynFloat64
+#define NDPluginCVInput6String                      "NDCV_IN6"                  //asynFloat64
+#define NDPluginCVInput7String                      "NDCV_IN7"                  //asynFloat64
+#define NDPluginCVInput8String                      "NDCV_IN8"                  //asynFloat64
+#define NDPluginCVInput9String                      "NDCV_IN9"                  //asynFloat64
+#define NDPluginCVInput10String                     "NDCV_IN10"                 //asynFloat64
+
+// Input Description PVs (10)
+#define NDPluginCVInput1DescriptionString           "NDCV_IN_DESCRIPTION1"      //asynParamOctet
+#define NDPluginCVInput2DescriptionString           "NDCV_IN_DESCRIPTION2"      //asynParamOctet
+#define NDPluginCVInput3DescriptionString           "NDCV_IN_DESCRIPTION3"      //asynParamOctet
+#define NDPluginCVInput4DescriptionString           "NDCV_IN_DESCRIPTION4"      //asynParamOctet
+#define NDPluginCVInput5DescriptionString           "NDCV_IN_DESCRIPTION5"      //asynParamOctet
+#define NDPluginCVInput6DescriptionString           "NDCV_IN_DESCRIPTION6"      //asynParamOctet
+#define NDPluginCVInput7DescriptionString           "NDCV_IN_DESCRIPTION7"      //asynParamOctet
+#define NDPluginCVInput8DescriptionString           "NDCV_IN_DESCRIPTION8"      //asynParamOctet
+#define NDPluginCVInput9DescriptionString           "NDCV_IN_DESCRIPTION9"      //asynParamOctet
+#define NDPluginCVInput10DescriptionString          "NDCV_IN_DESCRIPTION10"     //asynParamOctet
 
 // Output PVs (10)
-#define NDPluginCVOutput1String                 "NDCV_OUT1"         //asynFloat64
-#define NDPluginCVOutput2String                 "NDCV_OUT2"         //asynFloat64
-#define NDPluginCVOutput3String                 "NDCV_OUT3"         //asynFloat64
-#define NDPluginCVOutput4String                 "NDCV_OUT4"         //asynFloat64
-#define NDPluginCVOutput5String                 "NDCV_OUT5"         //asynFloat64
-#define NDPluginCVOutput6String                 "NDCV_OUT6"         //asynFloat64
-#define NDPluginCVOutput7String                 "NDCV_OUT7"         //asynFloat64
-#define NDPluginCVOutput8String                 "NDCV_OUT8"         //asynFloat64
-#define NDPluginCVOutput9String                 "NDCV_OUT9"         //asynFloat64
-#define NDPluginCVOutput10String                "NDCV_OUT10"        //asynFloat64
+#define NDPluginCVOutput1String                     "NDCV_OUT1"                 //asynFloat64
+#define NDPluginCVOutput2String                     "NDCV_OUT2"                 //asynFloat64
+#define NDPluginCVOutput3String                     "NDCV_OUT3"                 //asynFloat64
+#define NDPluginCVOutput4String                     "NDCV_OUT4"                 //asynFloat64
+#define NDPluginCVOutput5String                     "NDCV_OUT5"                 //asynFloat64
+#define NDPluginCVOutput6String                     "NDCV_OUT6"                 //asynFloat64
+#define NDPluginCVOutput7String                     "NDCV_OUT7"                 //asynFloat64
+#define NDPluginCVOutput8String                     "NDCV_OUT8"                 //asynFloat64
+#define NDPluginCVOutput9String                     "NDCV_OUT9"                 //asynFloat64
+#define NDPluginCVOutput10String                    "NDCV_OUT10"                //asynFloat64
 
+// Output Description PVs (10)
+#define NDPluginCVOutput1DescriptionString          "NDCV_OUT_DESCRIPTION1"     //asynParamOctet
+#define NDPluginCVOutput2DescriptionString          "NDCV_OUT_DESCRIPTION2"     //asynParamOctet
+#define NDPluginCVOutput3DescriptionString          "NDCV_OUT_DESCRIPTION3"     //asynParamOctet
+#define NDPluginCVOutput4DescriptionString          "NDCV_OUT_DESCRIPTION4"     //asynParamOctet
+#define NDPluginCVOutput5DescriptionString          "NDCV_OUT_DESCRIPTION5"     //asynParamOctet
+#define NDPluginCVOutput6DescriptionString          "NDCV_OUT_DESCRIPTION6"     //asynParamOctet
+#define NDPluginCVOutput7DescriptionString          "NDCV_OUT_DESCRIPTION7"     //asynParamOctet
+#define NDPluginCVOutput8DescriptionString          "NDCV_OUT_DESCRIPTION8"     //asynParamOctet
+#define NDPluginCVOutput9DescriptionString          "NDCV_OUT_DESCRIPTION9"     //asynParamOctet
+#define NDPluginCVOutput10DescriptionString         "NDCV_OUT_DESCRIPTION10"    //asynParamOctet
 
 // Other records
-#define NDPluginCVInputDescriptionString        "NDCV_IN_DESCRIPTION"   //asynOctet
-#define NDPluginCVOutputDescriptionString       "NDCV_OUT_DESCRIPTION"  //asynOctet
+#define NDPluginCVFunctionDescriptionString         "NDCV_FUN_DESCRIPTION"      // asynParamOctet
 
 
 /**
@@ -135,6 +157,18 @@ class NDPluginCV : public NDPluginDriver{
         int NDPluginCVInput9;
         int NDPluginCVInput10;
 
+        // database values for inputs
+        int NDPluginCVInput1Description;
+        int NDPluginCVInput2Description;
+        int NDPluginCVInput3Description;
+        int NDPluginCVInput4Description;
+        int NDPluginCVInput5Description;
+        int NDPluginCVInput6Description;
+        int NDPluginCVInput7Description;
+        int NDPluginCVInput8Description;
+        int NDPluginCVInput9Description;
+        int NDPluginCVInput10Description;
+
         // database values for outputs
         int NDPluginCVOutput1;
         int NDPluginCVOutput2;
@@ -147,10 +181,21 @@ class NDPluginCV : public NDPluginDriver{
         int NDPluginCVOutput9;
         int NDPluginCVOutput10;
 
+        // database values for outputs
+        int NDPluginCVOutput1Description;
+        int NDPluginCVOutput2Description;
+        int NDPluginCVOutput3Description;
+        int NDPluginCVOutput4Description;
+        int NDPluginCVOutput5Description;
+        int NDPluginCVOutput6Description;
+        int NDPluginCVOutput7Description;
+        int NDPluginCVOutput8Description;
+        int NDPluginCVOutput9Description;
+        int NDPluginCVOutput10Description;
+
         // Other db values
-        int NDPluginCVInputDescription;
-        int NDPluginCVOutputDescription;
-        #define NDCV_LAST_PARAM NDPluginCVOutputDescription
+        int NDPluginCVFunctionDescription;
+        #define NDCV_LAST_PARAM NDPluginCVFunctionDescription
 
         // Helper library object. Will be created at constructor invocation
 	    NDPluginCVHelper* cvHelper;
