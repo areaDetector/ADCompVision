@@ -76,6 +76,8 @@ record(mbbi, "$(P)$(R)CompVisionFunction2_RBV")
     field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FUNCTION2")
     field(ZRST, "None")
     field(ZRVL, "0")
+    field(ONST, "Centroid Identification")
+    field(ONVL, "1")
     field(VAL, "0")
     field(SCAN, "I/O Intr")
 }
