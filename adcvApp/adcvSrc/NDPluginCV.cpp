@@ -402,9 +402,9 @@ asynStatus NDPluginCV::processImage(Mat &inputImg){
     asynStatus status = asynSuccess;
     ADCVStatus_t libStatus;
 
-    // init arrays for inputs and outputs
-    double* inputs = (double*) calloc(1, NUM_INPUTS*sizeof(double));
-    double* outputs = (double*) calloc(1, NUM_OUTPUTS*sizeof(double));
+    // init arrays for inputs and outputs Adding some buffer room to maybe fix the reallic errors?
+    double* inputs = (double*) calloc(1, (NUM_INPUTS+10)*sizeof(double));
+    double* outputs = (double*) calloc(1, (NUM_OUTPUTS+10)*sizeof(double));
 
     // get the three functions
     getIntegerParam(NDPluginCVFunction1, &functionSet1);
@@ -442,6 +442,8 @@ asynStatus NDPluginCV::processImage(Mat &inputImg){
     else{
         status = asynError;
     }
+    free(inputs);
+    free(outputs);
     return status;
 }
 
