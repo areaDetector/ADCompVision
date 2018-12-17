@@ -8,6 +8,7 @@
  * Author: Jakub Wlodek
  * Date: June 2018
  *
+ * Copyright (c): Brookhaven National Laboratory 2018
  */
 
 //include some standard libraries
@@ -57,10 +58,10 @@ ADCVFunction_t NDPluginCVHelper::get_function_from_pv(int pvValue, int functionS
         return (ADCVFunction_t) pvValue;
     }
     if(functionSet == 2){
-        return (ADCVFunction_t) (N_FUNC_1 + pvValue);
+        return (ADCVFunction_t) (N_FUNC_1 + pvValue - 1);
     }
     if(functionSet == 3){
-        return (ADCVFunction_t) (N_FUNC_1 + N_FUNC_2 - 1 +pvValue);
+        return (ADCVFunction_t) (N_FUNC_1 + N_FUNC_2 - 1 + pvValue - 1);
     }
     printf("%s::%s ERROR: Couldn't find correct function val\n", libraryName, functionName);
     return ADCV_NoFunction;
@@ -71,7 +72,7 @@ ADCVFunction_t NDPluginCVHelper::get_function_from_pv(int pvValue, int functionS
 /*
 #############################################################################
 #                                                                           #
-# OpenCV wrapper functions. All of these functions will take a Mat* and     #
+# OpenCV wrapper functions. All of these functions will take a Mat and     #
 # pointers for inputs and outputs. Next, it will collect the necessary      #
 # inputs, use the correct openCV function on the Mat image, and place any   #
 # required values in the outputs array. Finally, it returns a status.       #
@@ -138,6 +139,7 @@ ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat &img, double* inputs, do
     int threshRatio = inputs[1];
     int blurDegree = inputs[2];
     int kernelSize = inputs[3];
+    // If image isn't mono, we need to convert it first
     if(img.channels()!=2){
         cvtColor(img, img, COLOR_BGR2GRAY);
     }
@@ -150,14 +152,14 @@ ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat &img, double* inputs, do
         int j = imSize.height/2;
         unsigned char* outData = (unsigned char *)img.data;
         // find top pixel
-        for( i=0; (unsigned int)i<imSize.height; i++) {
+        for( i=0; i<imSize.height; i++) {
             if( *(outData + i*imSize.height + j) != 0) {
                 outputs[4] = i;
                 break;
             }
             outputs[4] = -1;
         }
-        // Maybe find the bottom pixel
+        // find the bottom pixel
         for( i=imSize.height - 1; i>=0; i--) {
             if( *(outData + i*imSize.height + j) != 0) {
                 outputs[5] = i;
@@ -172,14 +174,14 @@ ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat &img, double* inputs, do
         else{ outputs[2] = -1; outputs[3] = -1; }
         i = imSize.height;
         // find left
-        for( j=0; (unsigned int)j<imSize.width; j++) {
+        for( j=0; j<imSize.width; j++) {
             if( *(outData + i*imSize.height + j) != 0) {
                 outputs[6] = j;
                 break;
             }
             outputs[6] = -1;
         }
-        // Maybe find the right pixel
+        // find the right pixel
         for( j=imSize.width - 1; j>=0; j--) {
             if( *(outData + i*imSize.height + j) != 0) {
                 outputs[7] = j;
@@ -248,13 +250,13 @@ ADCVStatus_t NDPluginCVHelper::threshold_image(Mat &img, double* inputs, double*
     if(img.channels()!=2){
         cvtColor(img, img, COLOR_BGR2GRAY);
     }
-    imwrite("/home/jwlodek/Documents/testGray.jpg", img);
+    //imwrite("/home/jwlodek/Documents/testGray.jpg", img);
     int threshVal = (int) inputs[0];
     int threshMax = (int) inputs[1];
-    printf("%s::%s Recieving thresh val %d, thresh max %d, image size %d\n", libraryName, functionName, threshVal, threshMax, img.channels());
+    //printf("%s::%s Recieving thresh val %d, thresh max %d, image size %d\n", libraryName, functionName, threshVal, threshMax, img.channels());
     try{
         threshold(img, img, threshVal, threshMax, THRESH_BINARY);
-        imwrite("/home/jwlodek/Documents/testThresh.jpg", img);
+        //imwrite("/home/jwlodek/Documents/testThresh.jpg", img);
     }catch(Exception &e){
         status = cvHelperError;
         print_cv_error(e, functionName);
@@ -271,8 +273,8 @@ ADCVStatus_t NDPluginCVHelper::threshold_image(Mat &img, double* inputs, double*
  * function. Then get the centroids from the contour objects. Draw the contours and centroids on 
  * the image. Set the first 5 centroid coordinates to the output values.
  * 
- * @inCount     -> 2
- * @inFormat    -> [Blur Degree (Int), Threshold Value (Int)]
+ * @inCount     -> 3
+ * @inFormat    -> [Num Largest Contours (Int), Blur Degree (Int), Threshold Value (Int)]
  * 
  * @outCount    -> 2-10
  * @outFormat   -> [CentroidX (Double), CentroidY (Double) ... ]
@@ -280,39 +282,59 @@ ADCVStatus_t NDPluginCVHelper::threshold_image(Mat &img, double* inputs, double*
 ADCVStatus_t NDPluginCVHelper::find_centroids(Mat &img, double* inputs, double* outputs){
     static const char* functionName = "find_centroids";
     ADCVStatus_t status = cvHelperSuccess;
-    int blurDegree = (int) inputs[0];
-    int thresholdVal = (int) inputs[1];
+    size_t numLargestContours = (size_t) inputs[0];
+    int blurDegree = (int) inputs[1];
+    int thresholdVal = (int) inputs[2];
     try{
+        // first we need to convert to grayscale if necessary
+        if(img.channels()!=2){
+            cvtColor(img, img, COLOR_BGR2GRAY);
+        }
         GaussianBlur(img, img, Size(blurDegree, blurDegree), 0);
         threshold(img, img, thresholdVal, 255, THRESH_BINARY);
         vector<vector<Point>> contours;
+        vector<vector<Point>> largestContours(numLargestContours);
         vector<Vec4i> heirarchy;
 
         findContours(img, contours, heirarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0,0));
-        vector<Moments> contour_moments(contours.size());
+        size_t a, b;
+        for(a = 0; a< numLargestContours; a++){
+            vector<Point> largestContour = contours[0];
+            double largestArea = -1;
+            size_t pos = 0;
+            for(b = 0; b< contours.size(); b++){
+                double area = contourArea(contours[b]);
+                if(area > largestArea){
+                    largestContour = contours[b];
+                    largestArea = area;
+                    pos = b;
+                }
+            }
+            largestContours[a] = largestContour;
+            contours.erase(contours.begin() + pos);
+        }
+        vector<Moments> contour_moments(largestContours.size());
         size_t i, j, k, l;
-        for(i = 0; i < contours.size(); i++){
-            contour_moments[i] = moments(contours[i], false);
+        for(i = 0; i < largestContours.size(); i++){
+            contour_moments[i] = moments(largestContours[i], false);
         }
         vector<Point2f> contour_centroids(contours.size());
-        for(j = 0; j < contours.size(); j++){
-            contour_centroids[i] = Point2f((contour_moments[j].m10/contour_moments[j].m00), (contour_moments[j].m01/contour_moments[j].m00));
+        for(j = 0; j < largestContours.size(); j++){
+            contour_centroids[j] = Point2f((contour_moments[j].m10/contour_moments[j].m00), (contour_moments[j].m01/contour_moments[j].m00));
         }
+        int counter = 0;
         for(k = 0; k < contour_centroids.size(); k++){
-            if(k%2==0){
-                outputs[k] = contour_centroids[k/2].x;
-            }
-            else{
-                outputs[k] = contour_centroids[k/2].y;
-            }
-
-            if(k == NUM_OUTPUTS) break;
+            outputs[counter] = (double) contour_centroids[k].x;
+            outputs[counter+1] = (double) contour_centroids[k].y;
+            counter = counter + 2;
+            if(counter >= NUM_OUTPUTS) break;
         }
-        for(l = 0; l< contours.size(); i++){
-            drawContours(img, contours, l, Scalar(0,255,0), 2, 8, heirarchy, 0, Point());
+        cvtColor(img, img, COLOR_GRAY2BGR);
+        for(l = 0; l< largestContours.size(); l++){
+            if(l == numLargestContours) break;
+            drawContours(img, largestContours, l, Scalar(0, 0, 255), 2, 8, heirarchy, 0, Point());
             circle(img, contour_centroids[l], 3, Scalar(255,0,0), -1, 8, 0);
         }
-
     } catch(Exception &e){
         status = cvHelperError;
         print_cv_error(e, functionName);
@@ -352,7 +374,8 @@ ADCVStatus_t NDPluginCVHelper::gaussian_blur(Mat &img, double* inputs, double* o
 
 //------------------------ End of OpenCV wrapper functions -------------------------------------------------
 
-//------------------------ Start of I/O description functions ----------------------------------------------
+
+//------------------------ Start sof I/O description functions ----------------------------------------------
 
 
 /**
@@ -445,7 +468,7 @@ ADCVStatus_t NDPluginCVHelper::get_laplacian_description(string* inputDesc, stri
 ADCVStatus_t NDPluginCVHelper::get_canny_edge_description(string* inputDesc, string* outputDesc, string* description){
     ADCVStatus_t status = cvHelperSuccess;
     int numInput = 4;
-    int numOutput = 0;
+    int numOutput = 8;
     inputDesc[0] = "Threshold Value (Int) Ex. 100";
     inputDesc[1] = "Threshold ratio (Int) Ex. 3";
     inputDesc[2] = "Blur Degree (Int) Ex. 3";
@@ -459,6 +482,37 @@ ADCVStatus_t NDPluginCVHelper::get_canny_edge_description(string* inputDesc, str
     outputDesc[6] = "Left Pixel";
     outputDesc[7] = "Right Pixel";
     *description = "Edge detection using the 'Canny' function. First blurs the image, then thresholds, then runs the canny algorithm.";
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    return status;
+}
+
+
+/**
+ * Function that sets the I/O descriptions for Centroid identification
+ * 
+ * @params[out]: inputDesc      -> array of input descriptions
+ * @params[out]: outputDesc     -> array of output descriptions
+ * @params[out]: description    -> overall function usage description
+ * @return: void
+ */
+ADCVStatus_t NDPluginCVHelper::get_centroid_finder_description(string* inputDesc, string* outputDesc, string* description){
+    ADCVStatus_t status = cvHelperSuccess;
+    int numInput = 3;
+    int numOutput = 10;
+    inputDesc[0] = "Num Largest Contours (Int 1 - 5)";
+    inputDesc[1] = "Blur degree (Int) Ex. 3";
+    inputDesc[2] = "Threshold Value (Int) Ex. 100";
+    outputDesc[0] = "Centroid 1 X";
+    outputDesc[1] = "Centroid 1 Y";
+    outputDesc[2] = "Centroid 2 X";
+    outputDesc[3] = "Centroid 2 Y";
+    outputDesc[4] = "Centroid 3 X";
+    outputDesc[5] = "Centroid 3 Y";
+    outputDesc[6] = "Centroid 4 X";
+    outputDesc[7] = "Centroid 4 Y";
+    outputDesc[8] = "Centroid 5 X";
+    outputDesc[9] = "Centroid 5 Y";
+    *description = "Centroid computation. Uses thresholding to identify contours in an image and compute centroids. -1 if not found.";
     populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
     return status;
 }
@@ -554,6 +608,9 @@ ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, s
             break;
         case ADCV_EdgeDetectionCanny:
             status = get_canny_edge_description(inputDesc, outputDesc, description);
+            break;
+        case ADCV_CentroidFinder:
+            status = get_centroid_finder_description(inputDesc, outputDesc, description);
             break;
         default:
             status = get_default_description(inputDesc, outputDesc, description);

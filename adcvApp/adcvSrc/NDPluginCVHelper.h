@@ -4,6 +4,7 @@
  * Author: Jakub Wlodek
  *
  * Created: June 2018
+ * Copyright (c): Brookhaven National Laboratory 2018
  *
  */
 
@@ -81,6 +82,7 @@ class NDPluginCVHelper {
         ADCVStatus_t find_centroids(Mat &img, double* inputs, double* outputs);
         ADCVStatus_t gaussian_blur(Mat &img, double* inputs, double* outputs);
 
+
         // IO descriptions
         void populate_remaining_descriptions(string* inputDesc, string* outputDesc, int nIn, int nOut);
 
@@ -88,6 +90,7 @@ class NDPluginCVHelper {
         ADCVStatus_t get_gaussian_blur_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_laplacian_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_canny_edge_description(string* inputDesc, string* outputDesc, string* description);
+        ADCVStatus_t get_centroid_finder_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_default_description(string* inputDesc, string* outputDesc, string* description);
 
         // Function called from the Plugin itself
