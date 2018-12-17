@@ -8,7 +8,7 @@
  * Author: Jakub Wlodek
  *
  * Created: June 2018
- *
+ * Copyright (c): Brookhaven National Laboratory 2018
  */
 
 //include guard to avoid multiple inclusions

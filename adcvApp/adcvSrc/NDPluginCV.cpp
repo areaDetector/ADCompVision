@@ -9,7 +9,7 @@
  * Author: Jakub Wlodek
  *
  * Created: June 23, 2018
- *
+ * Copyright (c): Brookhaven National Laboratory 2018
  */
 
 
@@ -451,6 +451,7 @@ asynStatus NDPluginCV::updateFunctionDescriptions(ADCVFunction_t function){
     string inputDesc[NUM_INPUTS];
     string outputDesc[NUM_OUTPUTS];
     string description;
+    if(function == ADCV_CentroidFinder) printf("Up to here it is correct\n");
     cvHelper->getFunctionDescription(function, inputDesc, outputDesc, &description);
     asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DRIVER, "%s::%s Updating I/O descriptions\n", pluginName, functionName);
     int k, l;
