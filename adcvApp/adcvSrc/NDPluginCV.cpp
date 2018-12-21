@@ -247,8 +247,10 @@ asynStatus NDPluginCV::mat2NDArray(Mat &pMat, NDDataType_t dataType, NDColorMode
             getAttributes(pScratch->pAttributeList);
             callParamCallbacks();
             doCallbacksGenericPointer(pScratch, NDArrayData, 0);
-            pMat.release();
+            //pMat.release();
+            printf("Invalid free after mat release?\n");
             pScratch->release();
+            printf("Invalid free after pscratch release?\n");
             status = asynSuccess;
         }
     }
@@ -403,8 +405,8 @@ asynStatus NDPluginCV::processImage(Mat &inputImg){
     ADCVStatus_t libStatus;
 
     // init arrays for inputs and outputs Adding some buffer room to maybe fix the reallic errors?
-    double* inputs = (double*) calloc(1, (NUM_INPUTS+10)*sizeof(double));
-    double* outputs = (double*) calloc(1, (NUM_OUTPUTS+10)*sizeof(double));
+    double inputs[NUM_INPUTS];
+    double outputs[NUM_OUTPUTS];
 
     // get the three functions
     getIntegerParam(NDPluginCVFunction1, &functionSet1);
@@ -442,8 +444,6 @@ asynStatus NDPluginCV::processImage(Mat &inputImg){
     else{
         status = asynError;
     }
-    free(inputs);
-    free(outputs);
     return status;
 }
 
@@ -564,12 +564,9 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
         NDPluginDriver::beginProcessCallbacks(pArray);
 
         // do the computations on multiple threads
-        this->unlock();
 
         // Function that calls on helper library
         status = processImage(img);
-        
-        this->lock();
 
         if(status == asynError){
             asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error Processing image\n", pluginName, functionName);
@@ -588,9 +585,10 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
                 asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error copying from Mat to NDArray\n", pluginName, functionName);
                 //pScratch->release();
             }
-
+            printf("Got outside of the mat2NDArrayMethod\n");
             // refresh the PV values, and push the output image to NDArrayData. then release the memory for pScratch
             callParamCallbacks();
+            printf("passed the callparamcallbacks\n");
         }
     }
 }

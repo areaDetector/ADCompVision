@@ -147,11 +147,40 @@ ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat &img, double* inputs, do
         blur(img, img, Size(blurDegree, blurDegree));
         Canny(img, img, threshVal, (threshVal*threshRatio), kernelSize);
         // set output params
-        Size imSize = img.size();
-        int i;
-        int j = imSize.height/2;
+        //Size imSize = img.size();
+        int i, j;
+        
         unsigned char* outData = (unsigned char *)img.data;
+        int topPixel = -1;
+        int bottomPixel = 100000;
+        int leftPixel = 100000;
+        int rightPixel = -1;
+        for(j = 0; j< img.cols; j++){
+            for(i = 0; i< img.rows; i++){
+                int newPixel = outData[img.cols * i + j];
+                if(newPixel != 0){
+                    if(j<leftPixel) leftPixel = j;
+                    if(j>rightPixel) rightPixel = j;
+                    if(i<bottomPixel) bottomPixel = i;
+                    if(i>topPixel) topPixel = i;
+                }
+            }
+        }
+        int h_size = rightPixel - leftPixel;
+        int v_size = topPixel - bottomPixel;
+        int h_center = (h_size/2) + leftPixel;
+        int v_center = (v_size/2)+ bottomPixel;
+        outputs[0] = h_center;
+        outputs[1] = h_size;
+        outputs[2] = v_center;
+        outputs[3] = v_size;
+        outputs[4] = topPixel;
+        outputs[5] = bottomPixel;
+        outputs[6] = leftPixel;
+        outputs[7] = rightPixel;
+        /*
         // find top pixel
+        //int j = imSize.height/2;
         for( i=0; i<imSize.height; i++) {
             if( *(outData + i*imSize.height + j) != 0) {
                 outputs[4] = i;
@@ -194,7 +223,7 @@ ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat &img, double* inputs, do
             outputs[1] = (outputs[7] - outputs[6]);
         }
         else{ outputs[0] = -1; outputs[1] = -1; }
-
+        */
     }catch(Exception &e){
         print_cv_error(e, functionName);
         return cvHelperError;
@@ -271,13 +300,15 @@ ADCVStatus_t NDPluginCVHelper::threshold_image(Mat &img, double* inputs, double*
  * First, blur the object based on a certain blur degree (kernel size). Then threshold the image
  * based on a certain threshold value. Then find contours in the image using the findContours()
  * function. Then get the centroids from the contour objects. Draw the contours and centroids on 
- * the image. Set the first 5 centroid coordinates to the output values.
+ * the image. Set the first 5 centroid coordinates to the output values. A size filter can also
+ * be used to remove contours that are too large, removing contours that span the entire size of
+ * the image
  * 
- * @inCount     -> 3
- * @inFormat    -> [Num Largest Contours (Int), Blur Degree (Int), Threshold Value (Int)]
+ * @inCount     -> 5
+ * @inFormat    -> [Num Largest Contours (Int), Blur Degree (Int), Threshold Value (Int), Upper Size Threshold (Int), Lower Size Threshold (Int)]
  * 
  * @outCount    -> 2-10
- * @outFormat   -> [CentroidX (Double), CentroidY (Double) ... ]
+ * @outFormat   -> [CentroidX (Int), CentroidY (Int) ... ]
  */
 ADCVStatus_t NDPluginCVHelper::find_centroids(Mat &img, double* inputs, double* outputs){
     static const char* functionName = "find_centroids";
@@ -285,6 +316,8 @@ ADCVStatus_t NDPluginCVHelper::find_centroids(Mat &img, double* inputs, double* 
     size_t numLargestContours = (size_t) inputs[0];
     int blurDegree = (int) inputs[1];
     int thresholdVal = (int) inputs[2];
+    double upperSizeThreshold = inputs[3];
+    double lowerSizeThreshold = inputs[4];
     try{
         // first we need to convert to grayscale if necessary
         if(img.channels()!=2){
@@ -293,10 +326,13 @@ ADCVStatus_t NDPluginCVHelper::find_centroids(Mat &img, double* inputs, double* 
         GaussianBlur(img, img, Size(blurDegree, blurDegree), 0);
         threshold(img, img, thresholdVal, 255, THRESH_BINARY);
         vector<vector<Point>> contours;
-        vector<vector<Point>> largestContours(numLargestContours);
         vector<Vec4i> heirarchy;
 
         findContours(img, contours, heirarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0,0));
+        if(contours.size() < numLargestContours){
+            numLargestContours = contours.size();
+        }
+        vector<vector<Point>> largestContours(numLargestContours);
         size_t a, b;
         for(a = 0; a< numLargestContours; a++){
             vector<Point> largestContour = contours[0];
@@ -304,13 +340,18 @@ ADCVStatus_t NDPluginCVHelper::find_centroids(Mat &img, double* inputs, double* 
             size_t pos = 0;
             for(b = 0; b< contours.size(); b++){
                 double area = contourArea(contours[b]);
-                if(area > largestArea){
+                if(area > largestArea && area < upperSizeThreshold){
                     largestContour = contours[b];
                     largestArea = area;
                     pos = b;
                 }
             }
+            if(largestArea < lowerSizeThreshold){
+                numLargestContours = a;
+                break;
+            }
             largestContours[a] = largestContour;
+            //printf("largest contours is of size %lf out of %d\n", largestArea, 640*480);
             contours.erase(contours.begin() + pos);
         }
         vector<Moments> contour_moments(largestContours.size());
@@ -497,11 +538,13 @@ ADCVStatus_t NDPluginCVHelper::get_canny_edge_description(string* inputDesc, str
  */
 ADCVStatus_t NDPluginCVHelper::get_centroid_finder_description(string* inputDesc, string* outputDesc, string* description){
     ADCVStatus_t status = cvHelperSuccess;
-    int numInput = 3;
+    int numInput = 5;
     int numOutput = 10;
     inputDesc[0] = "Num Largest Contours (Int 1 - 5)";
     inputDesc[1] = "Blur degree (Int) Ex. 3";
     inputDesc[2] = "Threshold Value (Int) Ex. 100";
+    inputDesc[3] = "Upper Size Threshold Ex. 600*400";
+    inputDesc[4] = "Lower Size Threshold Ex. 400";
     outputDesc[0] = "Centroid 1 X";
     outputDesc[1] = "Centroid 1 Y";
     outputDesc[2] = "Centroid 2 X";
@@ -512,7 +555,7 @@ ADCVStatus_t NDPluginCVHelper::get_centroid_finder_description(string* inputDesc
     outputDesc[7] = "Centroid 4 Y";
     outputDesc[8] = "Centroid 5 X";
     outputDesc[9] = "Centroid 5 Y";
-    *description = "Centroid computation. Uses thresholding to identify contours in an image and compute centroids. -1 if not found.";
+    *description = "Centroid computation. Thresholds, then finds centroid. Thresholds used to remove contours by area";
     populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
     return status;
 }
