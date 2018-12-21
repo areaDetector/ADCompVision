@@ -123,6 +123,102 @@ ADCVStatus_t NDPluginCVHelper::YOURFUNCTION(Mat &img, double* inputs, double* ou
 
 
 /**
+ * WRAPPER  ->  gaussian_blur
+ * Blurs image based on a gaussian kernel. A gaussian kernel is simply a matrix of a set size that
+ * fills Gaussian properties.
+ *
+ * @inCount     -> 1
+ * @inFormat    -> [blurDegree (Int)]
+ *
+ * @outCount    -> 0
+ * @outFormat   -> None
+ */
+ADCVStatus_t NDPluginCVHelper::gaussian_blur(Mat &img, double* inputs, double* outputs){
+    const char* functionName = "gaussian_blur";
+    ADCVStatus_t status = cvHelperSuccess;
+    int blurDegree = inputs[0];
+    //imwrite("/home/jwlodek/Documents/testinp.jpg", img);
+    try{
+        if(img.channels() == 3){
+            cvtColor(img, img, COLOR_RGB2BGR);
+        }
+        GaussianBlur(img, img, Size(blurDegree, blurDegree), 1, 0, BORDER_DEFAULT);
+        //imwrite("/home/jwlodek/Documents/testgaussian.jpg", img);
+    }catch(Exception &e){
+        print_cv_error(e, functionName);
+        status = cvHelperError;
+    }
+    return status;
+}
+
+
+/**
+ * WRAPPER      -> Threshold Image
+ * Function that thresholds an image based on a certain pixel value. First, the image is converted to grayscale.
+ * RGB images cannot be thresholded. For each pixel, if the grayscale value is larger than the threshold, set it 
+ * to white, otherwise set it to black. Creates a binary image
+ * 
+ * @inCount     -> 3
+ * @inFormat    -> [Threshhold Value (Int), Max Pixel Value (Int)]
+ * 
+ * @outCount    -> 0
+ * @outFormat   -> None
+ */
+ADCVStatus_t NDPluginCVHelper::threshold_image(Mat &img, double* inputs, double* outputs){
+    const char* functionName = "threshold_image";
+    ADCVStatus_t status = cvHelperSuccess;
+    
+    if(img.channels()!=2){
+        cvtColor(img, img, COLOR_BGR2GRAY);
+    }
+    //imwrite("/home/jwlodek/Documents/testGray.jpg", img);
+    int threshVal = (int) inputs[0];
+    int threshMax = (int) inputs[1];
+    //printf("%s::%s Recieving thresh val %d, thresh max %d, image size %d\n", libraryName, functionName, threshVal, threshMax, img.channels());
+    try{
+        threshold(img, img, threshVal, threshMax, THRESH_BINARY);
+        //imwrite("/home/jwlodek/Documents/testThresh.jpg", img);
+    }catch(Exception &e){
+        status = cvHelperError;
+        print_cv_error(e, functionName);
+    }
+    return status;
+}
+
+
+/**
+ * WRAPPER      -> Laplacian Edge Detector
+ * Function for laplacian-based edge detection. First, the image is converted to grayscale if it is not already.
+ * Next, the image is blurred using a gaussian kernel to emphasize edges. Then a laplacian kernel runs over
+ * the images assigning a 'sharpness' value to each pixel. The sharpest values are hard edges from black to white.
+ * 
+ * @inCount     -> 1
+ * @inFormat    -> [Blur degree (Int)]
+ * 
+ * @outCount    -> 0
+ * @outFormat   -> None
+ */
+ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat &img, double* inputs, double* outputs){
+    const char* functionName = "laplacian_edge_detection";
+    int blurDegree = inputs[0];
+    ADCVStatus_t status = cvHelperSuccess;
+    if(img.channels()!=2){
+        cvtColor(img, img, COLOR_BGR2GRAY);
+    }
+    try{
+        GaussianBlur(img, img, Size(blurDegree, blurDegree),1, 0, BORDER_DEFAULT);
+        int depth = img.depth();
+        Laplacian(img, img, depth);
+        convertScaleAbs(img, img);
+    }catch(Exception &e){
+        print_cv_error(e, functionName);
+        return cvHelperError;
+    }
+    return status;
+}
+
+
+/**
  * WRAPPER      -> Canny Edge Detector
  * Function for canny-based edge detection. First, we ensure that the image is grayscale. Then, the image is blurred, so that only
  * strong edges remain. Then, a threshold is applied to the image in order to further reinforce strong edges. Finally, the canny
@@ -186,72 +282,6 @@ ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat &img, double* inputs, do
     }catch(Exception &e){
         print_cv_error(e, functionName);
         return cvHelperError;
-    }
-    return status;
-}
-
-
-/**
- * WRAPPER      -> Laplacian Edge Detector
- * Function for laplacian-based edge detection. First, the image is converted to grayscale if it is not already.
- * Next, the image is blurred using a gaussian kernel to emphasize edges. Then a laplacian kernel runs over
- * the images assigning a 'sharpness' value to each pixel. The sharpest values are hard edges from black to white.
- * 
- * @inCount     -> 1
- * @inFormat    -> [Blur degree (Int)]
- * 
- * @outCount    -> 0
- * @outFormat   -> None
- */
-ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat &img, double* inputs, double* outputs){
-    const char* functionName = "laplacian_edge_detection";
-    int blurDegree = inputs[0];
-    ADCVStatus_t status = cvHelperSuccess;
-    if(img.channels()!=2){
-        cvtColor(img, img, COLOR_BGR2GRAY);
-    }
-    try{
-        GaussianBlur(img, img, Size(blurDegree, blurDegree),1, 0, BORDER_DEFAULT);
-        int depth = img.depth();
-        Laplacian(img, img, depth);
-        convertScaleAbs(img, img);
-    }catch(Exception &e){
-        print_cv_error(e, functionName);
-        return cvHelperError;
-    }
-    return status;
-}
-
-
-/**
- * WRAPPER      -> Threshold Image
- * Function that thresholds an image based on a certain pixel value. First, the image is converted to grayscale.
- * RGB images cannot be thresholded. For each pixel, if the grayscale value is larger than the threshold, set it 
- * to white, otherwise set it to black. Creates a binary image
- * 
- * @inCount     -> 3
- * @inFormat    -> [Threshhold Value (Int), Max Pixel Value (Int)]
- * 
- * @outCount    -> 0
- * @outFormat   -> None
- */
-ADCVStatus_t NDPluginCVHelper::threshold_image(Mat &img, double* inputs, double* outputs){
-    const char* functionName = "threshold_image";
-    ADCVStatus_t status = cvHelperSuccess;
-    
-    if(img.channels()!=2){
-        cvtColor(img, img, COLOR_BGR2GRAY);
-    }
-    //imwrite("/home/jwlodek/Documents/testGray.jpg", img);
-    int threshVal = (int) inputs[0];
-    int threshMax = (int) inputs[1];
-    //printf("%s::%s Recieving thresh val %d, thresh max %d, image size %d\n", libraryName, functionName, threshVal, threshMax, img.channels());
-    try{
-        threshold(img, img, threshVal, threshMax, THRESH_BINARY);
-        //imwrite("/home/jwlodek/Documents/testThresh.jpg", img);
-    }catch(Exception &e){
-        status = cvHelperError;
-        print_cv_error(e, functionName);
     }
     return status;
 }
@@ -348,34 +378,44 @@ ADCVStatus_t NDPluginCVHelper::find_centroids(Mat &img, double* inputs, double* 
 
 
 /**
- * WRAPPER  ->  gaussian_blur
- * Blurs image based on a gaussian kernel. A gaussian kernel is simply a matrix of a set size that
- * fills Gaussian properties.
+ * WRAPPER  ->  movement_vectors
+ * Function that does feature detection on images a set number of frames apart, and attempts to calculate the 
+ * movement vector for the calculated key points. It uses ORB feature detection and vector flow
  *
- * @inCount     -> 1
- * @inFormat    -> [blurDegree (Int)]
+ * @inCount     -> 2
+ * @inFormat    -> [Frames Between Images (Int), Num Vectors (Int)]
  *
- * @outCount    -> 0
- * @outFormat   -> None
+ * @outCount    -> 0 - 8
+ * @outFormat   -> [Vector 1 Start X (Int), Vector 1 Start Y (Int), Vector 1 End X, Vector 1 End Y ...]
  */
-ADCVStatus_t NDPluginCVHelper::gaussian_blur(Mat &img, double* inputs, double* outputs){
-    const char* functionName = "gaussian_blur";
+ADCVStatus_t NDPluginCVHelper::movement_vectors(Mat &img, double* inputs, double* outputs){
+    const char* functionName = "movement_vectors";
     ADCVStatus_t status = cvHelperSuccess;
-    int blurDegree = inputs[0];
-    //imwrite("/home/jwlodek/Documents/testinp.jpg", img);
+    int framesBetween = inputs[0];
+    int numVectors = inputs[1];
+    if(numVectors >2 || numVectors <0){
+        return cvHelperError;
+    }
+
     try{
-        if(img.channels() == 3){
-            cvtColor(img, img, COLOR_RGB2BGR);
+        if(frameCounter == 0){
+            //initialize the first starting point image
+            img.copyTo(firstMVImage);
+            frameCounter++;
         }
-        GaussianBlur(img, img, Size(blurDegree, blurDegree), 1, 0, BORDER_DEFAULT);
-        //imwrite("/home/jwlodek/Documents/testgaussian.jpg", img);
+        else if(frameCounter >= framesBetween){
+            //TODO calculate movement vectors
+        }
+        if(wasComputed){
+            // If we have a movement vector computed, copy it into output image
+            processedMVImage.copyTo(img);
+        }
     }catch(Exception &e){
         print_cv_error(e, functionName);
         status = cvHelperError;
     }
     return status;
 }
-
 
 //------------------------ End of OpenCV wrapper functions -------------------------------------------------
 
@@ -416,7 +456,7 @@ ADCVStatus_t NDPluginCVHelper::get_YOURFUNCTION_description(string* inputDesc, s
     .
     .
     .
-    description = "Description of YOURFUNCTION";
+    *description = "Description of YOURFUNCTION";
     populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
     return status
 }
@@ -563,6 +603,34 @@ ADCVStatus_t NDPluginCVHelper::get_centroid_finder_description(string* inputDesc
     outputDesc[8] = "Centroid 5 X";
     outputDesc[9] = "Centroid 5 Y";
     *description = "Centroid computation. Thresholds, then finds centroid. Thresholds used to remove contours by area";
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    return status;
+}
+
+
+/**
+ * Function that sets the I/O descriptions for movement vectors
+ * 
+ * @params[out]: inputDesc      -> array of input descriptions
+ * @params[out]: outputDesc     -> array of output descriptions
+ * @params[out]: description    -> overall function usage description
+ * @return: void
+ */
+ADCVStatus_t NDPluginCVHelper::get_movement_vectors_description(string* inputDesc, string* outputDesc, string* description){
+    ADCVStatus_t status = cvHelperSuccess;
+    int numInput = 2;
+    int numOutput = 8;
+    inputDesc[0] = "Num Frames Between movement check (Int)";
+    inputDesc[1] = "Max Vectors counted (Int 1 or 2)";
+    outputDesc[0] = "Vector 1 Start X";
+    outputDesc[1] = "Vector 1 Start Y";
+    outputDesc[2] = "Vector 1 End X";
+    outputDesc[3] = "Vector 1 End Y";
+    outputDesc[4] = "Vector 2 Start X";
+    outputDesc[5] = "Vector 2 Start Y";
+    outputDesc[6] = "Vector 2 End X";
+    outputDesc[7] = "Vector 2 End Y";
+    *description = "Function that tracks movement of objects between two images separated by a certain number of frames.";
     populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
     return status;
 }

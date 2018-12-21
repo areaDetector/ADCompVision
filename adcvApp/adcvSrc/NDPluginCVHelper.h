@@ -38,7 +38,7 @@ using namespace std;
  * 
  */ 
 #define N_FUNC_1                    5
-#define N_FUNC_2                    2
+#define N_FUNC_2                    3
 #define N_FUNC_3                    1
 
 // Total Number of CV functions
@@ -53,6 +53,7 @@ typedef enum {
     ADCV_Laplacian          = 3,
     ADCV_EdgeDetectionCanny = 4,
     ADCV_CentroidFinder     = 5,
+    ADCV_MovementVectors    = 6,
 } ADCVFunction_t;
 
 // Simple binary status enum
@@ -60,7 +61,6 @@ typedef enum {
     cvHelperSuccess         = 0,
     cvHelperError           = -1,
 } ADCVStatus_t;
-
 
 class NDPluginCVHelper {
 
@@ -82,6 +82,7 @@ class NDPluginCVHelper {
         ADCVStatus_t threshold_image(Mat &img, double* inputs, double* outputs);
         ADCVStatus_t find_centroids(Mat &img, double* inputs, double* outputs);
         ADCVStatus_t gaussian_blur(Mat &img, double* inputs, double* outputs);
+        ADCVStatus_t movement_vectors(Mat &img, double* inputs, double* outputs);
 
 
         // IO description helper functions
@@ -94,6 +95,7 @@ class NDPluginCVHelper {
         ADCVStatus_t get_laplacian_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_canny_edge_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_centroid_finder_description(string* inputDesc, string* outputDesc, string* description);
+        ADCVStatus_t get_movement_vectors_description(string* inputDesc, string* outputDesc, string* description);
         
 
         // Function called from the Plugin itself
@@ -103,6 +105,15 @@ class NDPluginCVHelper {
     protected:
 
     private:
+
+        // Variables if function requires some information to be stored for multiple function calls
+        
+        // movement vector variables
+        int frameCounter = 0;
+        bool wasComputed = false;
+        Mat firstMVImage;
+        Mat processedMVImage;
+
 
 };
 #endif
