@@ -45,7 +45,7 @@ using namespace std;
 #define NUM_FUNCTIONS               N_FUNC_1 + N_FUNC_2 + N_FUNC_3
 
 
-// Some basic flag types
+// enum that lists the possible functions supported by ADCompVision. NOTE that they must be in the same order as they are in the DB.
 typedef enum {
     ADCV_NoFunction         = 0,
     ADCV_GaussianBlur       = 1,
@@ -55,6 +55,7 @@ typedef enum {
     ADCV_CentroidFinder     = 5,
 } ADCVFunction_t;
 
+// Simple binary status enum
 typedef enum {
     cvHelperSuccess         = 0,
     cvHelperError           = -1,
@@ -83,15 +84,17 @@ class NDPluginCVHelper {
         ADCVStatus_t gaussian_blur(Mat &img, double* inputs, double* outputs);
 
 
-        // IO descriptions
+        // IO description helper functions
         void populate_remaining_descriptions(string* inputDesc, string* outputDesc, int nIn, int nOut);
+        ADCVStatus_t get_default_description(string* inputDesc, string* outputDesc, string* description);
 
+        // Wrapper function IO descriptions
         ADCVStatus_t get_threshold_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_gaussian_blur_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_laplacian_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_canny_edge_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_centroid_finder_description(string* inputDesc, string* outputDesc, string* description);
-        ADCVStatus_t get_default_description(string* inputDesc, string* outputDesc, string* description);
+        
 
         // Function called from the Plugin itself
         ADCVStatus_t processImage(Mat &image, ADCVFunction_t function, double* inputs, double* outputs);

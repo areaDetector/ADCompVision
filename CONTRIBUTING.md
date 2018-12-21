@@ -6,10 +6,18 @@ Some pointers:
 by-reference by default. Because of this, make sure to pass the image into the function with (Mat &img).
 * The plugin works by calling functions in a helper library. If you wish to add an additional function for a more specific use case that the plugin does not support, follow the steps below.
 
-# Adding a new CV function
+## Adding a new CV function
 
-To add a new CV function there are several files you will need to edit. First, in the NDCV.template file, find the record titled "CompVisionFunction3", and add your function to its output and input records.  
-Next, in the NDPluginCVHelper.h file, change the N_FUNC_3 value to take into account the new number of functions in the CompVisionFunction3 PV.  
+To add a new CV function there are several files you will need to edit. First, in the NDCV.template file, find the record titled "CompVisionFunctionN", where N is an integer from 1 to 3. These are the three sets of supported functions, and generally follow the rule:
+* Function set 1 contains basic OpenCV image processing functions
+* Function set 2 contains more complex functions that are still general and with many use cases
+* Function set 3 contains functions for specific use cases and custom implementations.  
+
+Decide which of these sets your new function falls under, and add it to the Input and Output records.   
+
+**Note that for the easiest implementation, it is recommended to only add your function to the last position in function set 3.**  
+
+Next, in the NDPluginCVHelper.h file, change the N_FUNC_3 value to take into account the new number of functions in the CompVisionFunction3 PV, or replace the value for the set you inputted your function into.  
 Next, you will need to edit the NDPluginCVHelper.cpp and NDPluginCVHelper.h files. In NDPluginCVHelper.h, find the definition of ADCVFunction_t and add:
 ```
 // Some basic flag types
@@ -20,13 +28,16 @@ typedef enum {
     ADCV_YOURFUNCTION       = n,
 } ADCVFunction_t;
 ```
-where n is the next integer. This will add the function to the list of possible functions handled by ADCompVision. Then, add the line:
+where n is the next integer. If you added your function to any PV other than the last position in function set 3, you will need to find which value it should be assigned. NoFunction represents the first PV value in function set 1, and the rest count in order, going through set 1 -> set 2 -> set 3, disregarding the PVs for no function in set 2 and 3. Once you found the correct number add it to the enum, and fix any numbers that have changed. This will add the function to the list of possible functions handled by ADCompVision. Then, add the lines:
 
 ```
 ADCVStatus_t YOURFUNCTION(Mat &img, double* inputs, double* outputs);
+ADCVStatus_t get_YOURFUNCTION_description(string* inputDesc, string* outputDesc, string* description);
 ```
 in the 'public' portion of the class declaration. You may follow the standard set by the other functions.   
-Next, in the NDPluginCVHelper.cpp file, add your new function definition. it should take the following form:
+Next, in the NDPluginCVHelper.cpp file, add your new function definitions. They should take the following form:
+
+**The Wrapper**
 ```
 /**
  * WRAPPER  ->  YOURFUNCTIONNAME
@@ -60,16 +71,49 @@ ADCVStatus_t NDPluginCVHelper::YOURFUNCTION(Mat &img, double* inputs, double* ou
     return status;
 }
 ```
-**NOTE** The commenting standard for these helper functions should be followed strictly, as it will allow for the provided python script to generate a manual for operation easily. Once you add the function and write the comment above it appropriately, you may run the createIOmanual.py script in the docs/ directory with:
+**The I/O Description**
+```
+/**
+ * Function that sets the I/O descriptions for YOURFUNCTION
+ * 
+ * @params[out]: inputDesc      -> array of input descriptions
+ * @params[out]: outputDesc     -> array of output descriptions
+ * @params[out]: description    -> overall function usage description
+ * @return: void
+ */
+ADCVStatus_t NDPluginCVHelper::get_YOURFUNCTION_description(string* inputDesc, string* outputDesc, string* description){
+    ADCVStatus_t status = cvHelperSuccess;
+    int numInput = ?;
+    int numOutput = ?;
+    inputDesc[0] = "Input 1 Description";
+    inputDesc[1] = "Input 2 Description";
+    .
+    .
+    .
+    outputDesc[0] = "Output 1 Description";
+    outputDesc[1] = "Output 2 Description";
+    .
+    .
+    .
+    description = "Description of YOURFUNCTION";
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    return status
+}
+```
+**NOTE** The commenting standard for these helper functions should be followed strictly, as it will allow for the provided python script to generate a manual for operation easily. Once you add the function and write the comment above it appropriately, you may run the createIOmanual.py script in the scripts/ directory with:
 ```
 python3 createIOmanual.py
 ```
 This will create a manual describing the inputs and outputs of each of the functions including your new custom function along with a description of each function as provided in the comments.  
-In order for the input and output description you provide to be visible in CSS, a few additional steps are required. First, you need to open the NDPluginCVHelper.cpp file and add definitions to the input and output descriptions string arrays:
+
+Next, you must edit the 'getFunctionDescription' function in NDPluginCVHelper.cpp. Add a case to the switch statement as follows:
 ```
-string inputDescriptions[NUM_FUNCTIONS]  = [....  "INPUT DESCRIPTION"];
-string outputDescriptions[NUM_FUNCTIONS]  = [....  "OUTPUT DESCRIPTION"];
+case ADCV_YOURFUNCTION:
+    status = get_YOURFUNCTION_description(inputDesc, outputDesc,description);
+    break;
 ```
+This will allow NDPluginCV to update descriptions for each input and output in real time when you select your function.
+
 Finally, you need to edit the 'processImage' function in NDPluginCVHelper.cpp. In the switch statement, add a case as follows:
 
 ```
@@ -77,5 +121,6 @@ case ADCV_YOURFUNCTION:
     status = YOURFUNCTION(image, inputs, outputs);
     break;
 ```
+This will tell ADCompVision which function to process when your function is requested.
 
 Your function should now be implemented into ADCompVision and is ready to be tested.

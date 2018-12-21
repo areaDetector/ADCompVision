@@ -124,10 +124,15 @@ ADCVStatus_t NDPluginCVHelper::YOURFUNCTION(Mat &img, double* inputs, double* ou
 
 /**
  * WRAPPER      -> Canny Edge Detector
- * Function for canny-based edge detection
+ * Function for canny-based edge detection. First, we ensure that the image is grayscale. Then, the image is blurred, so that only
+ * strong edges remain. Then, a threshold is applied to the image in order to further reinforce strong edges. Finally, the canny
+ * algorithm is applied to the image, and the edges are displayed. The function outputs some information based on the detected
+ * edges that can assist with object detection/identification: the top, bottom, left, and right pixels are the min and max X and
+ * Y pixel values that appear on one of the edges. The horizontal and vertical size and center give you the spacing between
+ * these min and max values and their midpoint.
  * 
  * @inCount     -> 3
- * @inFormat    -> [Threshold value (Int), Threshold ratio (Int), Blur degree (Int)]
+ * @inFormat    -> [Threshold value (Int), Threshold ratio (Int), Blur degree (Int), Kernel Size (Int)]
  *
  * @outCount    -> 8
  * @outFormat   -> [Horizontal Center, Horizontal Size, Vertical Center, Vertical Size, Top Pixel, Bottom Pixel, Left Pixel, Right Pixel]
@@ -147,9 +152,7 @@ ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat &img, double* inputs, do
         blur(img, img, Size(blurDegree, blurDegree));
         Canny(img, img, threshVal, (threshVal*threshRatio), kernelSize);
         // set output params
-        //Size imSize = img.size();
         int i, j;
-        
         unsigned char* outData = (unsigned char *)img.data;
         int topPixel = -1;
         int bottomPixel = 100000;
@@ -178,52 +181,6 @@ ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat &img, double* inputs, do
         outputs[5] = bottomPixel;
         outputs[6] = leftPixel;
         outputs[7] = rightPixel;
-        /*
-        // find top pixel
-        //int j = imSize.height/2;
-        for( i=0; i<imSize.height; i++) {
-            if( *(outData + i*imSize.height + j) != 0) {
-                outputs[4] = i;
-                break;
-            }
-            outputs[4] = -1;
-        }
-        // find the bottom pixel
-        for( i=imSize.height - 1; i>=0; i--) {
-            if( *(outData + i*imSize.height + j) != 0) {
-                outputs[5] = i;
-                break;
-            }
-            outputs[5] = -1;
-        }
-        if(outputs[4] != -1 && outputs[5] != -1 && outputs[4] != outputs[5]){
-            outputs[2] = (outputs[4]+outputs[5])/2.0;
-            outputs[3] = (outputs[5] - outputs[4]);
-        }
-        else{ outputs[2] = -1; outputs[3] = -1; }
-        i = imSize.height;
-        // find left
-        for( j=0; j<imSize.width; j++) {
-            if( *(outData + i*imSize.height + j) != 0) {
-                outputs[6] = j;
-                break;
-            }
-            outputs[6] = -1;
-        }
-        // find the right pixel
-        for( j=imSize.width - 1; j>=0; j--) {
-            if( *(outData + i*imSize.height + j) != 0) {
-                outputs[7] = j;
-                break;
-            }
-            outputs[7] = -1;
-        }
-        if(outputs[6] != -1 && outputs[7] != -1 && outputs[6] != outputs[7]){
-            outputs[0] = (outputs[6] + outputs[7])/2.0;
-            outputs[1] = (outputs[7] - outputs[6]);
-        }
-        else{ outputs[0] = -1; outputs[1] = -1; }
-        */
     }catch(Exception &e){
         print_cv_error(e, functionName);
         return cvHelperError;
@@ -234,13 +191,15 @@ ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat &img, double* inputs, do
 
 /**
  * WRAPPER      -> Laplacian Edge Detector
- * Function for laplacian-based edge detection
+ * Function for laplacian-based edge detection. First, the image is converted to grayscale if it is not already.
+ * Next, the image is blurred using a gaussian kernel to emphasize edges. Then a laplacian kernel runs over
+ * the images assigning a 'sharpness' value to each pixel. The sharpest values are hard edges from black to white.
  * 
  * @inCount     -> 1
  * @inFormat    -> [Blur degree (Int)]
  * 
- * @outCount    -> TODO
- * @outFormat   -> TODO
+ * @outCount    -> 0
+ * @outFormat   -> None
  */
 ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat &img, double* inputs, double* outputs){
     const char* functionName = "laplacian_edge_detection";
@@ -264,13 +223,15 @@ ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat &img, double* inputs
 
 /**
  * WRAPPER      -> Threshold Image
- * Function that thresholds an image based on a certain pixel value
+ * Function that thresholds an image based on a certain pixel value. First, the image is converted to grayscale.
+ * RGB images cannot be thresholded. For each pixel, if the grayscale value is larger than the threshold, set it 
+ * to white, otherwise set it to black. Creates a binary image
  * 
  * @inCount     -> 3
  * @inFormat    -> [Threshhold Value (Int), Max Pixel Value (Int)]
  * 
- * @outCount    -> TODO
- * @outFormat   -> TODO
+ * @outCount    -> 0
+ * @outFormat   -> None
  */
 ADCVStatus_t NDPluginCVHelper::threshold_image(Mat &img, double* inputs, double* outputs){
     const char* functionName = "threshold_image";
@@ -386,13 +347,14 @@ ADCVStatus_t NDPluginCVHelper::find_centroids(Mat &img, double* inputs, double* 
 
 /**
  * WRAPPER  ->  gaussian_blur
- * Blurs image based on a gaussian kernel
+ * Blurs image based on a gaussian kernel. A gaussian kernel is simply a matrix of a set size that
+ * fills Gaussian properties.
  *
  * @inCount     -> 1
  * @inFormat    -> [blurDegree (Int)]
  *
- * @outCount    -> TODO
- * @outFormat   -> [Param1 (Int), Param2 (Double) ...]
+ * @outCount    -> 0
+ * @outFormat   -> None
  */
 ADCVStatus_t NDPluginCVHelper::gaussian_blur(Mat &img, double* inputs, double* outputs){
     const char* functionName = "gaussian_blur";
@@ -415,8 +377,51 @@ ADCVStatus_t NDPluginCVHelper::gaussian_blur(Mat &img, double* inputs, double* o
 
 //------------------------ End of OpenCV wrapper functions -------------------------------------------------
 
+/*
+#############################################################################
+#                                                                           #
+# Wrapper function I/O description setters. All of these functions will     #
+# take an array of strings for inputs and outputs, and an a single string   #
+# for an overall description. These are simply populated, and then a func   #                                                                       
+# that fills the remaining spots is called.                                 #
+#                                                                           #
+#############################################################################
+*/
 
-//------------------------ Start sof I/O description functions ----------------------------------------------
+
+//------------- Template for wrapper I/O description function  -------------------
+
+/*
+/**
+ * Function that sets the I/O descriptions for YOURFUNCTION
+ * 
+ * @params[out]: inputDesc      -> array of input descriptions
+ * @params[out]: outputDesc     -> array of output descriptions
+ * @params[out]: description    -> overall function usage description
+ * @return: void
+ *
+ADCVStatus_t NDPluginCVHelper::get_YOURFUNCTION_description(string* inputDesc, string* outputDesc, string* description){
+    ADCVStatus_t status = cvHelperSuccess;
+    int numInput = ?;
+    int numOutput = ?;
+    inputDesc[0] = "Input 1 Description";
+    inputDesc[1] = "Input 2 Description";
+    .
+    .
+    .
+    outputDesc[0] = "Output 1 Description";
+    outputDesc[1] = "Output 2 Description";
+    .
+    .
+    .
+    description = "Description of YOURFUNCTION";
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    return status
+}
+*/
+
+
+//------------------------ Wrapper function I/O description implementation -------------------------------
 
 
 /**
@@ -582,6 +587,8 @@ ADCVStatus_t NDPluginCVHelper::get_default_description(string* inputDesc, string
     return status;
 }
 
+/* ---------------------- Functions called from the EPICS Plugin implementation ----------------------- */
+
 
 /**
  * Function that is called from the ADCompVision plugin. It detects which function is being requested, and calls the appropriate
@@ -671,4 +678,4 @@ ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, s
 
 NDPluginCVHelper::NDPluginCVHelper(){ }
 
-NDPluginCVHelper::~NDPluginCVHelper(){ delete this; }
+NDPluginCVHelper::~NDPluginCVHelper(){ }
