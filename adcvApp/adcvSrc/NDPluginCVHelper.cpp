@@ -154,8 +154,8 @@ ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat &img, double* inputs, do
         // set output params
         int i, j;
         unsigned char* outData = (unsigned char *)img.data;
-        int topPixel = -1;
-        int bottomPixel = 100000;
+        int bottomPixel = -1;
+        int topPixel = 100000;
         int leftPixel = 100000;
         int rightPixel = -1;
         for(j = 0; j< img.cols; j++){
@@ -164,11 +164,13 @@ ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat &img, double* inputs, do
                 if(newPixel != 0){
                     if(j<leftPixel) leftPixel = j;
                     if(j>rightPixel) rightPixel = j;
-                    if(i<bottomPixel) bottomPixel = i;
-                    if(i>topPixel) topPixel = i;
+                    if(i<topPixel) topPixel = i;
+                    if(i>bottomPixel) bottomPixel = i;
                 }
             }
         }
+        topPixel = img.size().height - topPixel;
+        bottomPixel = img.size().height - bottomPixel;
         int h_size = rightPixel - leftPixel;
         int v_size = topPixel - bottomPixel;
         int h_center = (h_size/2) + leftPixel;
@@ -326,8 +328,8 @@ ADCVStatus_t NDPluginCVHelper::find_centroids(Mat &img, double* inputs, double* 
         }
         int counter = 0;
         for(k = 0; k < contour_centroids.size(); k++){
-            outputs[counter] = (double) contour_centroids[k].x;
-            outputs[counter+1] = (double) contour_centroids[k].y;
+            outputs[counter] = contour_centroids[k].x;
+            if(contour_centroids[k].y != 0) outputs[counter+1] = img.size().height - contour_centroids[k].y;
             counter = counter + 2;
             if(counter >= NUM_OUTPUTS) break;
         }
