@@ -24,8 +24,32 @@
     <p>This plugin allows for a multitude of Open Computer Vision functions. As a result, each function will use the input/output PVs differently.</p>
     <p>To view how each function uses the inputs and outputs view the manual <a href="manual.html">here.</a></p>
 
-    <p>Here is an example usage where the plugin is set to perform Canny based edge detection</p>
-    <img style="width: 30%;" src="assets/Canny.png" alt="Canny Detection" />
+    <p>The main CSS screen for the ADCompVision plugin looks as follows:</p>
+    <img style="width: 30%;" src = "assets/Main CV Screen.png" alt = "main">
+    <p>To use the plugin, you must select one of the functions from the three function sets. The other 2 function sets must be set to 'None'
+        Then, make sure that the image1 plugin has its input port set to be the output port of ADCompVision (CV1). Then, open the main screen, and
+        note that input and output descriptions are listed for each function. Enter valid input values for each of the required inputs.
+        Next, start image acquisition and enable the plugin. You should see the processed image in image1 ArrayData. Some examples are shown below:
+    </p>
+
+    <h4>Usage Examples:</h4>
+
+    <p>Thresholding</p>
+    <img style="width: 30%;"src = "assets/threshold.png" alt = "Thresholding">
+    <img style="width: 30%;"src = "assets/threshold_menu.png" alt = "Thresholding Menu">
+
+    <p>Laplacian Edge Detection</p>
+    <img style="width: 30%;"src = "assets/Laplacian.png" alt = "Laplacian">
+    <img style="width: 30%;"src = "assets/laplacian_menu.png" alt = "Laplacian Menu">
+
+    <p>Canny edge detection</p>
+    <img style="width: 30%;"src = "assets/Canny2.png" alt = "Canny">
+    <img style="width: 30%;"src = "assets/canny_menu.png" alt = "Canny Menu">
+
+    <p>Centroid identification</p>
+    <img style="width: 30%;"src = "assets/Centroid.png" alt = "Centroid">
+    <img style="width: 30%;"src = "assets/centroid_menu.png" alt = "Centroid Menu">
+
     <h3>copyright: Brookhaven National Laboratory 2017/2018</h3>
 </body>
 </html>

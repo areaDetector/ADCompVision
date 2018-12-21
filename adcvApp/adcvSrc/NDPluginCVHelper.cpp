@@ -263,7 +263,7 @@ ADCVStatus_t NDPluginCVHelper::threshold_image(Mat &img, double* inputs, double*
  * function. Then get the centroids from the contour objects. Draw the contours and centroids on 
  * the image. Set the first 5 centroid coordinates to the output values. A size filter can also
  * be used to remove contours that are too large, removing contours that span the entire size of
- * the image
+ * the image. Any contour with area > upper threshold is removed, and any lower than lower threshold
  * 
  * @inCount     -> 5
  * @inFormat    -> [Num Largest Contours (Int), Blur Degree (Int), Threshold Value (Int), Upper Size Threshold (Int), Lower Size Threshold (Int)]
@@ -392,7 +392,7 @@ ADCVStatus_t NDPluginCVHelper::gaussian_blur(Mat &img, double* inputs, double* o
 //------------- Template for wrapper I/O description function  -------------------
 
 /*
-/**
+ *
  * Function that sets the I/O descriptions for YOURFUNCTION
  * 
  * @params[out]: inputDesc      -> array of input descriptions
