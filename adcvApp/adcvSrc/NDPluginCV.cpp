@@ -248,9 +248,7 @@ asynStatus NDPluginCV::mat2NDArray(Mat &pMat, NDDataType_t dataType, NDColorMode
             callParamCallbacks();
             doCallbacksGenericPointer(pScratch, NDArrayData, 0);
             //pMat.release();
-            printf("Invalid free after mat release?\n");
             pScratch->release();
-            printf("Invalid free after pscratch release?\n");
             status = asynSuccess;
         }
     }
@@ -557,13 +555,8 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
         asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error copying from NDArray to Mat\n", pluginName, functionName);
     }
     else{
-        //test to see if copying function works
-        //imshow("Test image", inputImage);
-        //waitKey(1);
 
         NDPluginDriver::beginProcessCallbacks(pArray);
-
-        // do the computations on multiple threads
 
         // Function that calls on helper library
         status = processImage(img);
@@ -583,12 +576,9 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
 
             if(status == asynError){
                 asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error copying from Mat to NDArray\n", pluginName, functionName);
-                //pScratch->release();
             }
-            printf("Got outside of the mat2NDArrayMethod\n");
             // refresh the PV values, and push the output image to NDArrayData. then release the memory for pScratch
             callParamCallbacks();
-            printf("passed the callparamcallbacks\n");
         }
     }
 }
