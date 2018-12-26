@@ -384,6 +384,17 @@ asynStatus NDPluginCV::setOutputParams(double* outputs){
 //---------------- Functions that call CVHelper library ----------------------
 //----------------------------------------------------------------------------
 
+/**
+ * Very simple function that allows for status information to be saved to a PV
+ * 
+ * @params[in]: statusMessage -> new value for Status Message PV
+ * @return: value returned by setStringParam
+ */
+asynStatus NDPluginCV::updatePluginStatus(string statusMessage){
+    asynStatus status = setStringParam(NDPluginCVStatusMessage, statusMessage);
+    return status;
+}
+
 
 /*
  * Function calls the aproppriate image processing function. These functions can be
@@ -442,10 +453,19 @@ asynStatus NDPluginCV::processImage(Mat &inputImg){
     else{
         status = asynError;
     }
+    writeImageFile(inputImg);
+    updatePluginStatus(cvHelper->cvHelperStatus);
     return status;
 }
 
 
+/**
+ * Function that is used to update the function descriptions for all of the input and
+ * output PVS. Called every time the user switches to a different CV function
+ * 
+ * @params[in]: function    -> function the user switched to 
+ * @return: asynSuccess if set correctly, otherwise asynError
+ */
 asynStatus NDPluginCV::updateFunctionDescriptions(ADCVFunction_t function){
     const char* functionName = "updateFunctionDescriptions";
     string inputDesc[NUM_INPUTS];
@@ -463,6 +483,39 @@ asynStatus NDPluginCV::updateFunctionDescriptions(ADCVFunction_t function){
     }
     setStringParam(NDPluginCVFunctionDescription, description);
     return asynSuccess;
+}
+
+
+/**
+ * Function responsible for getting filewriting information from appropriate PVs,
+ * then calling the appropriate helper function
+ * 
+ * @params[in]: inputImg    -> image to be saved
+ * @return: asynSuccess if saved successfully, otherwise asynError
+ */
+asynStatus NDPluginCV::writeImageFile(Mat &inputImg){
+    const char* functionName = "writeImageFile";
+    asynStatus status;
+    ADCVStatus_t libStatus;
+    char buff[255];
+    string filename;
+    int format;
+    getIntegerParam(NDPluginCVWriteFile, &format);
+    if((ADCVFileFormat_t) format == ADCV_FileDisable){
+        return asynSuccess;
+    }
+    else{
+        getStringParam(NDPluginCVFilename, 255, buff);
+        filename = buff;
+        libStatus = cvHelper->writeImage(inputImg, filename, (ADCVFileFormat_t) format);
+        if(libStatus == cvHelperError){
+            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error writing image\n", pluginName, functionName);
+            return asynError;
+        }
+        else{
+            return asynSuccess;
+        }
+    }
 }
 
 
@@ -672,8 +725,11 @@ NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallback
     createParam(NDPluginCVOutput9DescriptionString,             asynParamOctet,     &NDPluginCVOutput9Description);
     createParam(NDPluginCVOutput10DescriptionString,            asynParamOctet,     &NDPluginCVOutput10Description);
 
-    createParam(NDPluginCVFunctionDescriptionString,            asynParamOctet,     &NDPluginCVFunctionDescription);
+    createParam(NDPluginCVWriteFileString,                      asynParamInt32,     &NDPluginCVWriteFile);
+    createParam(NDPluginCVFilenameString,                       asynParamOctet,     &NDPluginCVFilename);
 
+    createParam(NDPluginCVFunctionDescriptionString,            asynParamOctet,     &NDPluginCVFunctionDescription);
+    createParam(NDPluginCVStatusMessageString,                  asynParamOctet,     &NDPluginCVStatusMessage);
 
     // assigns inputs and outputs to arrays to simplify iteration
     assignInputs();

@@ -27,7 +27,7 @@ using namespace cv;
 //version numbers
 #define NDPluginCV_VERSION          0
 #define NDPluginCV_REVISION         0
-#define NDPluginCV_MODIFICATION     6
+#define NDPluginCV_MODIFICATION     7
 
 /* definitions of parameters */
 
@@ -84,8 +84,13 @@ using namespace cv;
 #define NDPluginCVOutput9DescriptionString          "NDCV_OUT_DESCRIPTION9"     //asynParamOctet
 #define NDPluginCVOutput10DescriptionString         "NDCV_OUT_DESCRIPTION10"    //asynParamOctet
 
+// File Saving PVs
+#define NDPluginCVWriteFileString                   "NDCV_FILE"                 //asynParamInt32
+#define NDPluginCVFilenameString                    "NDCV_FILENAME"             //asynParamOctet
+
 // Other records
-#define NDPluginCVFunctionDescriptionString         "NDCV_FUN_DESCRIPTION"      // asynParamOctet
+#define NDPluginCVFunctionDescriptionString         "NDCV_FUN_DESCRIPTION"      //asynParamOctet
+#define NDPluginCVStatusMessageString               "NDCV_STATUS"               //asynParamOctet 
 
 
 /**
@@ -218,9 +223,14 @@ class NDPluginCV : public NDPluginDriver{
         int NDPluginCVOutput9Description;
         int NDPluginCVOutput10Description;
 
+        // File writing db vals
+        int NDPluginCVWriteFile;
+        int NDPluginCVFilename;
+
         // Other db values
         int NDPluginCVFunctionDescription;
-        #define NDCV_LAST_PARAM NDPluginCVFunctionDescription
+        int NDPluginCVStatusMessage;
+        #define NDCV_LAST_PARAM NDPluginCVStatusMessage
 
         // Helper library object. Will be created at constructor invocation
 	    NDPluginCVHelper* cvHelper;
@@ -253,6 +263,8 @@ class NDPluginCV : public NDPluginDriver{
         // Function that calls the appropriate helper library function
         asynStatus updateFunctionDescriptions(ADCVFunction_t function);
         asynStatus processImage(Mat &inputImg);
+        asynStatus writeImageFile(Mat &inputImg);
+        asynStatus updatePluginStatus(string statusMessage);
         
 };
 
