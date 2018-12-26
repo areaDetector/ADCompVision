@@ -635,15 +635,16 @@ record(mbbi, "$(P)$(R)CVWriteFile_RBV")
 
 
 record(stringout, "$(P)$(R)CVFilename"){
+    field(PINI, "YES")
     field(DTYP, "asynOctetWrite")
     field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_FILENAME")
-    field(VAL, "Filename")
+    field(VAL, "")
 }
 
 record(stringin, "$(P)$(R)CVFilename_RBV"){
 	field(DTYP, "asynOctetRead")
 	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_FILENAME")
-    field(VAL, "Filename")
+    field(VAL, "")
 	field(SCAN, "I/O Intr")
 }
 
