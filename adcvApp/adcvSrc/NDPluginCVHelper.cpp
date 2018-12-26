@@ -42,7 +42,7 @@ void NDPluginCVHelper::print_cv_error(Exception &e, const char* functionName){
     char buff[255];
     sprintf(buff, "OpenCV Error in function %s: %s code: %d file: %s\n", functionName, e.err.c_str(), e.code, e.file.c_str());
     cvHelperStatus = buff;
-    printf(buff);
+    printf("%s\n", buff);
 }
 
 
