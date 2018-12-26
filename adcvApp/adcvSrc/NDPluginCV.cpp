@@ -482,6 +482,7 @@ asynStatus NDPluginCV::updateFunctionDescriptions(ADCVFunction_t function){
         setStringParam(outputDescPVs[l], outputDesc[l]);
     }
     setStringParam(NDPluginCVFunctionDescription, description);
+    updatePluginStatus(cvHelper->cvHelperStatus);
     return asynSuccess;
 }
 

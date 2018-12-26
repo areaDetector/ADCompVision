@@ -67,6 +67,7 @@ ADCVFunction_t NDPluginCVHelper::get_function_from_pv(int pvValue, int functionS
         return (ADCVFunction_t) (N_FUNC_1 + N_FUNC_2 - 1 + pvValue - 1);
     }
     printf("%s::%s ERROR: Couldn't find correct function val\n", libraryName, functionName);
+    cvHelperStatus = "ERROR: Couldn't find correct function val";
     return ADCV_NoFunction;
 }
 
@@ -487,6 +488,7 @@ void NDPluginCVHelper::populate_remaining_descriptions(string* inputDesc, string
     for(j = nOut; j< NUM_OUTPUTS; j++){
         outputDesc[j] = "Not Used";
     }
+    cvHelperStatus = "Populated Input and output descriptions";
 }
 
 
@@ -700,7 +702,9 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
 
     if(status == cvHelperError){
         printf("%s::%s Error in helper library\n", libraryName, functionName);
+        cvHelperStatus = "Error processing image";
     }
+    else cvHelperStatus = "Image processed successfully";
     return status;
 }
 
@@ -741,6 +745,7 @@ ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, s
     }
     if(status == cvHelperError){
         printf("%s::%s Error, Function does not support I/O descriptions\n", libraryName, functionName);
+        cvHelperStatus = "Error, Function does not support I/O descriptions";
     }
     return status;
 }
