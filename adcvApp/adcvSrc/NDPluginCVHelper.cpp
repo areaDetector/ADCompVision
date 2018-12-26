@@ -39,7 +39,10 @@ const char* libraryName = "NDPluginCVHelper";
  */
 void NDPluginCVHelper::print_cv_error(Exception &e, const char* functionName){
     //cout << "OpenCV error: " << e.err << " code: " << e.code << " file: " << e.file << endl;
-    printf("OpenCV Error in function %s: %s code: %d file: %s\n", functionName, e.err.c_str(), e.code, e.file.c_str());
+    char buff[255];
+    sprintf(buff, "OpenCV Error in function %s: %s code: %d file: %s\n", functionName, e.err.c_str(), e.code, e.file.c_str());
+    cvHelperStatus = buff;
+    printf(buff);
 }
 
 
@@ -740,7 +743,47 @@ ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, s
         printf("%s::%s Error, Function does not support I/O descriptions\n", libraryName, functionName);
     }
     return status;
+}
 
+
+/**
+ * This function is called fom the ADCompVision plugin. It takes an image and then saves it in the specified format
+ * with the specified filename. 
+ * 
+ * @params[in]: image       -> image to be saved
+ * @params[in]: filename    -> filename of saved image
+ * @params[in]: format      -> file format in which to save image
+ * @return: cvHelperSuccess if file saved correctly, otherwise cvHelperError
+ */
+ADCVStatus_t NDPluginCVHelper::writeImage(Mat &image, string filename, ADCVFileFormat_t format){
+    const char* functionName = "writeImage";
+    ADCVStatus_t status = cvHelperError;
+    
+    switch(format){
+        case ADCV_FileDisable:
+            status = cvHelperSuccess;
+            break;
+        case ADCV_FileJPEG:
+            filename = filename + ".jpg";
+            break;
+        case ADCV_FilePNG:
+            filename = filename + ".png";
+            break;
+        case ADCV_FileTIF:
+            filename = filename + ".tif";
+            break;
+        default:
+            cvHelperStatus = "Error in helper library invalid selected file format";
+            break;
+    }
+    if(status == cvHelperSuccess) return status;
+    try{
+        imwrite(filename, image);
+    }catch(Exception &e){
+        print_cv_error(e, functionName);
+        return cvHelperError;
+    }
+    return cvHelperSuccess;
 }
 
 

@@ -56,6 +56,14 @@ typedef enum {
     ADCV_MovementVectors    = 6,
 } ADCVFunction_t;
 
+//enum that stores file save format
+typedef enum {
+    ADCV_FileDisable        = 0,
+    ADCV_FileJPEG           = 1,
+    ADCV_FilePNG            = 2,
+    ADCV_FileTIF            = 3,
+} ADCVFileFormat_t;
+
 // Simple binary status enum
 typedef enum {
     cvHelperSuccess         = 0,
@@ -65,6 +73,9 @@ typedef enum {
 class NDPluginCVHelper {
 
     public:
+
+        // variables that can be accessed by the plugin
+        string cvHelperStatus;
 
         // constructor/destructor
         NDPluginCVHelper();
@@ -99,8 +110,10 @@ class NDPluginCVHelper {
         
 
         // Function called from the Plugin itself
-        ADCVStatus_t processImage(Mat &image, ADCVFunction_t function, double* inputs, double* outputs);
         ADCVStatus_t getFunctionDescription(ADCVFunction_t function, string* inputDesc, string* outputDesc, string* description);
+        ADCVStatus_t processImage(Mat &image, ADCVFunction_t function, double* inputs, double* outputs);
+        ADCVStatus_t writeImage(Mat &image, string filename, ADCVFileFormat_t fileFormat);
+
 
     protected:
 
