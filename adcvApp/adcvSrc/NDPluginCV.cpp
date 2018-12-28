@@ -561,12 +561,6 @@ asynStatus NDPluginCV::writeInt32(asynUser* pasynUser, epicsInt32 value){
         updateFunctionDescriptions(function);
 
     }
-    /*
-    else if((function == NDPluginCVWriteFile || function == NDPluginCVFilename) && value != 0){
-        if(checkFilenameValid()) setIntegerParam(NDPluginCVFilenameValid, 0);
-        else setIntegerParam(NDPluginCVFilenameValid, 1);
-    }
-    */
     else if(function < NDCV_FIRST_PARAM){
         //make sure to call base class for remaining PVs
         status = NDPluginDriver::writeInt32(pasynUser, value);

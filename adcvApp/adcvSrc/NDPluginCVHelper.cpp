@@ -784,6 +784,8 @@ ADCVStatus_t NDPluginCVHelper::writeImage(Mat &image, string filename, ADCVFileF
     if(status == cvHelperSuccess) return status;
     try{
         imwrite(filename, image);
+        filename = "wrote image called " + filename + "\n";
+        cout << filename;
     }catch(Exception &e){
         print_cv_error(e, functionName);
         return cvHelperError;

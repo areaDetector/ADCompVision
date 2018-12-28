@@ -653,17 +653,6 @@ record(waveform, "$(P)$(R)CVFilename_RBV"){
 }
 
 
-record(bi, "$(P)$(R)CVFilenameValid_RBV"){
-    field(DTYP, "asynInt32")
-    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_FILENAME_VALID)
-    field(ZRST, "NO")
-    field(ZRVL, "0")
-    field(ONST, "YES")
-    field(ONVL, "1")
-    field(VAL, "0")
-    field(SCAN, "I/O Intr)
-}
-
 #################################################################
 # Other records                                                 #
 #################################################################

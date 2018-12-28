@@ -250,6 +250,7 @@ class NDPluginCV : public NDPluginDriver{
         void assignInputDescriptions();
         void assignOutputDescriptions();
 
+
         // Conversion functions
         asynStatus ndArray2Mat(NDArray* pArray, Mat &pMat, NDDataType_t dataType, NDColorMode_t colorMode);
         asynStatus mat2NDArray(Mat &pMat, NDDataType_t dataType, NDColorMode_t colorMode);
