@@ -73,4 +73,10 @@ Two screens are provided for use with ADCompVision. The first is the main screen
 
 ADCompVision is meant to be a comprehensive implementation of OpenCV functionality into areaDetector. As a result, because of the quantity of different functionality with different input and output parameters, having a Process Variable (PV) for every one of them would not have been reasonable. As a result, the plugin uses 10 generic input PVs and 10 generic output PVs. Each function accepts different parameters, and relationship between the generic inputs and these parameters can be seen in the user manual. In addition, when a function is selected, an input and output guide are displayed. This generic input and output system makes ADCompVision flexible and easy to adapt into any workflow, as new custom functions can be written and implemented into the plugin without ever touching the functions that interface with EPICS and areaDetector, meaning that all that is required to add to the functionality of ADCompVision is a knowledge of C++ and OpenCV.
 
+### File saving
+
+ADCompVision offers some generic file saving support for jpeg, png, and tif images. Please give a valid absolute path for the filename PV and select the format. No extentions are necessary as these will be added by the plugin.
+
+For further file saving functionality, you may pass the CV1 asyn port to one of the NDFile plugins.
+
 Further usage and the I/O instruction manual can be found at https://jwlodek.github.io/ADCompVision

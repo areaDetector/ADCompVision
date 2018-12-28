@@ -35,7 +35,7 @@ const char* libraryName = "NDPluginCVHelper";
  * Simple function that prints OpenCV error information.
  * Used in try/catch blocks
  *
- * @params: e -> exception thrown by OpenCV function
+ * @params[in]: e -> exception thrown by OpenCV function
  */
 void NDPluginCVHelper::print_cv_error(Exception &e, const char* functionName){
     //cout << "OpenCV error: " << e.err << " code: " << e.code << " file: " << e.file << endl;
@@ -51,9 +51,9 @@ void NDPluginCVHelper::print_cv_error(Exception &e, const char* functionName){
  * enum type. This is used to decide which function the plugin is to perform as well
  * as to compute Input/Output descriptions
  * 
- * @params: pvValue         -> value of the PV when it is changed
- * @params: functionSet     -> the set from which the function set came from. currently (1-3)
- * @return: function        -> returns the function as an ADCVFunction_t enum
+ * @params[in]: pvValue         -> value of the PV when it is changed
+ * @params[in]: functionSet     -> the set from which the function set came from. currently (1-3)
+ * @return: function            -> returns the function as an ADCVFunction_t enum
  */
 ADCVFunction_t NDPluginCVHelper::get_function_from_pv(int pvValue, int functionSet){
     const char* functionName = "get_function_from_pv";
@@ -64,7 +64,7 @@ ADCVFunction_t NDPluginCVHelper::get_function_from_pv(int pvValue, int functionS
         return (ADCVFunction_t) (N_FUNC_1 + pvValue - 1);
     }
     if(functionSet == 3){
-        return (ADCVFunction_t) (N_FUNC_1 + N_FUNC_2 - 1 + pvValue - 1);
+        return (ADCVFunction_t) (N_FUNC_1 + N_FUNC_2 + pvValue - 2);
     }
     printf("%s::%s ERROR: Couldn't find correct function val\n", libraryName, functionName);
     cvHelperStatus = "ERROR: Couldn't find correct function val";
@@ -115,6 +115,7 @@ ADCVStatus_t NDPluginCVHelper::YOURFUNCTION(Mat &img, double* inputs, double* ou
         // Don't make copies, pass img, img as input and output to OpenCV.
         // Set output values with output[n] = value. cast non-double values to double
         // If you need more inputs or outputs, add more PVs following previous examples.
+        cvHelperStatus = "Finished processing YOURFUNCTION";
     }catch(Exception &e){
         print_cv_error(e, functionName);
         status = cvHelperError;
@@ -141,13 +142,12 @@ ADCVStatus_t NDPluginCVHelper::gaussian_blur(Mat &img, double* inputs, double* o
     const char* functionName = "gaussian_blur";
     ADCVStatus_t status = cvHelperSuccess;
     int blurDegree = inputs[0];
-    //imwrite("/home/jwlodek/Documents/testinp.jpg", img);
     try{
         if(img.channels() == 3){
             cvtColor(img, img, COLOR_RGB2BGR);
         }
         GaussianBlur(img, img, Size(blurDegree, blurDegree), 1, 0, BORDER_DEFAULT);
-        //imwrite("/home/jwlodek/Documents/testgaussian.jpg", img);
+        cvHelperStatus = "Computed Gaussian Blur of image";
     }catch(Exception &e){
         print_cv_error(e, functionName);
         status = cvHelperError;
@@ -175,13 +175,11 @@ ADCVStatus_t NDPluginCVHelper::threshold_image(Mat &img, double* inputs, double*
     if(img.channels()!=2){
         cvtColor(img, img, COLOR_BGR2GRAY);
     }
-    //imwrite("/home/jwlodek/Documents/testGray.jpg", img);
     int threshVal = (int) inputs[0];
     int threshMax = (int) inputs[1];
-    //printf("%s::%s Recieving thresh val %d, thresh max %d, image size %d\n", libraryName, functionName, threshVal, threshMax, img.channels());
     try{
         threshold(img, img, threshVal, threshMax, THRESH_BINARY);
-        //imwrite("/home/jwlodek/Documents/testThresh.jpg", img);
+        cvHelperStatus = "Computed image threshold";
     }catch(Exception &e){
         status = cvHelperError;
         print_cv_error(e, functionName);
@@ -214,6 +212,7 @@ ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat &img, double* inputs
         int depth = img.depth();
         Laplacian(img, img, depth);
         convertScaleAbs(img, img);
+        cvHelperStatus = "Detected laplacian edges";
     }catch(Exception &e){
         print_cv_error(e, functionName);
         return cvHelperError;
@@ -283,6 +282,7 @@ ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat &img, double* inputs, do
         outputs[5] = bottomPixel;
         outputs[6] = leftPixel;
         outputs[7] = rightPixel;
+        cvHelperStatus = "Detected object edges";
     }catch(Exception &e){
         print_cv_error(e, functionName);
         return cvHelperError;
@@ -348,7 +348,6 @@ ADCVStatus_t NDPluginCVHelper::find_centroids(Mat &img, double* inputs, double* 
                 break;
             }
             largestContours[a] = largestContour;
-            //printf("largest contours is of size %lf out of %d\n", largestArea, 640*480);
             contours.erase(contours.begin() + pos);
         }
         vector<Moments> contour_moments(largestContours.size());
@@ -373,6 +372,7 @@ ADCVStatus_t NDPluginCVHelper::find_centroids(Mat &img, double* inputs, double* 
             drawContours(img, largestContours, l, Scalar(0, 0, 255), 2, 8, heirarchy, 0, Point());
             circle(img, contour_centroids[l], 3, Scalar(255,0,0), -1, 8, 0);
         }
+        cvHelperStatus = "Calculated Object Centroids";
     } catch(Exception &e){
         status = cvHelperError;
         print_cv_error(e, functionName);
@@ -414,6 +414,7 @@ ADCVStatus_t NDPluginCVHelper::movement_vectors(Mat &img, double* inputs, double
             // If we have a movement vector computed, copy it into output image
             processedMVImage.copyTo(img);
         }
+        cvHelperStatus = "Processed Movement Vectors";
     }catch(Exception &e){
         print_cv_error(e, functionName);
         status = cvHelperError;
@@ -516,7 +517,7 @@ ADCVStatus_t NDPluginCVHelper::get_threshold_description(string* inputDesc, stri
  * Function that sets the I/O descriptions for thresholding
  * 
  * @params[out]: inputDesc      -> array of input descriptions
- * @params[out]: outputDesc     -> array of output descriptions
+ * @params[out]: outputDesc     -> array of output    else cvHelperStatus = "Image processed successfully"; descriptions
  * @params[out]: description    -> overall function usage description
  * @return: void
  */
@@ -669,16 +670,15 @@ ADCVStatus_t NDPluginCVHelper::get_default_description(string* inputDesc, string
  * Function that is called from the ADCompVision plugin. It detects which function is being requested, and calls the appropriate
  * opencv wrapper function from those above.
  * 
- * @params: image       -> pointer to Mat object
- * @params: function    -> type of CV function to perform
- * @params: inputs      -> array with inputs for functions
- * @params: outputs     -> array for outputs of functions
+ * @params[out]: image       -> pointer to Mat object
+ * @params[in]:  function    -> type of CV function to perform
+ * @params[in]:  inputs      -> array with inputs for functions
+ * @params[out]: outputs     -> array for outputs of functions
  * @return: status      -> check if library function completed successfully
  */
 ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function, double* inputs, double* outputs){
     const char* functionName = "processImage";
     ADCVStatus_t status;
-
     switch(function){
         case ADCV_Threshold:
             status = threshold_image(image, inputs, outputs);
@@ -704,7 +704,6 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
         printf("%s::%s Error in helper library\n", libraryName, functionName);
         cvHelperStatus = "Error processing image";
     }
-    else cvHelperStatus = "Image processed successfully";
     return status;
 }
 
@@ -763,6 +762,11 @@ ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, s
 ADCVStatus_t NDPluginCVHelper::writeImage(Mat &image, string filename, ADCVFileFormat_t format){
     const char* functionName = "writeImage";
     ADCVStatus_t status = cvHelperError;
+
+    if(filename[0] != '/'){
+        cvHelperStatus = "Please use absolute path name starting with /";
+        return status;
+    }
     
     switch(format){
         case ADCV_FileDisable:
@@ -784,8 +788,8 @@ ADCVStatus_t NDPluginCVHelper::writeImage(Mat &image, string filename, ADCVFileF
     if(status == cvHelperSuccess) return status;
     try{
         imwrite(filename, image);
-        filename = "wrote image called " + filename + "\n";
-        cout << filename;
+        //filename = "wrote image called " + filename + "\n";
+        //cout << filename;
     }catch(Exception &e){
         print_cv_error(e, functionName);
         return cvHelperError;
