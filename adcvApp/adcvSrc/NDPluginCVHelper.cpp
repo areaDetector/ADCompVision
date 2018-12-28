@@ -422,6 +422,32 @@ ADCVStatus_t NDPluginCVHelper::movement_vectors(Mat &img, double* inputs, double
     return status;
 }
 
+
+/**
+ * WRAPPER  ->  User Function
+ * This is an unimplemented wrapper function that has already been added to the PV database in order to
+ * simplify creating user defined functions. Simply implement this function and its description function,
+ * and then select 'User Function' in function set 3. 
+ *
+ * @inCount     -> n
+ * @inFormat    -> [Param1 (Int), Param2 (Double) ...]
+ *
+ * @outCount    -> n
+ * @outFormat   -> [Param1 (Int), Param2 (Double) ...]
+ */
+ADCVStatus_t NDPluginCVHelper::user_function(Mat &img, double* inputs, double* outputs){
+    const char* functionName = "user_function";
+    ADCVStatus_t status = cvHelperSuccess;
+    try{
+        // Process your image here
+        cvHelperStatus = "Finished processing user defined function";
+    }catch(Exception &e){
+        print_cv_error(e, functionName);
+        status = cvHelperError;
+    }
+    return status;
+}
+
 //------------------------ End of OpenCV wrapper functions -------------------------------------------------
 
 /*
@@ -626,7 +652,7 @@ ADCVStatus_t NDPluginCVHelper::get_movement_vectors_description(string* inputDes
     ADCVStatus_t status = cvHelperSuccess;
     int numInput = 2;
     int numOutput = 8;
-    inputDesc[0] = "Num Frames Between movement check (Int)";
+    inputDesc[0] = "Frames Between check (Int)";
     inputDesc[1] = "Max Vectors counted (Int 1 or 2)";
     outputDesc[0] = "Vector 1 Start X";
     outputDesc[1] = "Vector 1 Start Y";
@@ -636,11 +662,28 @@ ADCVStatus_t NDPluginCVHelper::get_movement_vectors_description(string* inputDes
     outputDesc[5] = "Vector 2 Start Y";
     outputDesc[6] = "Vector 2 End X";
     outputDesc[7] = "Vector 2 End Y";
-    *description = "Function that tracks movement of objects between two images separated by a certain number of frames.";
+    *description = "Function that tracks movement of objects between two images separated by a certain number of frames. Not fully implemented";
     populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
     return status;
 }
 
+
+/**
+ * Function that sets the I/O descriptions for a user defined function
+ * 
+ * @params[out]: inputDesc      -> array of input descriptions
+ * @params[out]: outputDesc     -> array of output descriptions
+ * @params[out]: description    -> overall function usage description
+ * @return: void
+ */
+ADCVStatus_t NDPluginCVHelper::get_user_function_description(string* inputDesc, string* outputDesc, string* description){
+    ADCVStatus_t status = cvHelperSuccess;
+    int numInput = 0;
+    int numOutput = 0;
+    *description = "Describe what your function does here";
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    return status;
+}
 
 /**
  * Function that sets default I/O descriptions
@@ -695,6 +738,11 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
         case ADCV_Laplacian:
             status = laplacian_edge_detection(image, inputs, outputs);
             break;
+        case ADCV_MovementVectors:
+            status = movement_vectors(image, inputs, outputs);
+            break;
+        case ADCV_UserDefined:
+            status = user_function(image, inputs, outputs);
         default:
             status = cvHelperError;
             break;
@@ -738,12 +786,18 @@ ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, s
         case ADCV_CentroidFinder:
             status = get_centroid_finder_description(inputDesc, outputDesc, description);
             break;
+        case ADCV_MovementVectors:
+            status = get_movement_vectors_description(inputDesc, outputDesc, description);
+            break;
+        case ADCV_UserDefined:
+            status = get_user_function_description(inputDesc, outputDesc, description);
+            break;
         default:
             status = get_default_description(inputDesc, outputDesc, description);
             break;
     }
-    if(status == cvHelperError){
-        printf("%s::%s Error, Function does not support I/O descriptions\n", libraryName, functionName);
+    if(function == ADCV_NoFunction) cvHelperStatus = "No function selected";
+    else if(status == cvHelperError){
         cvHelperStatus = "Error, Function does not support I/O descriptions";
     }
     return status;
@@ -788,8 +842,6 @@ ADCVStatus_t NDPluginCVHelper::writeImage(Mat &image, string filename, ADCVFileF
     if(status == cvHelperSuccess) return status;
     try{
         imwrite(filename, image);
-        //filename = "wrote image called " + filename + "\n";
-        //cout << filename;
     }catch(Exception &e){
         print_cv_error(e, functionName);
         return cvHelperError;

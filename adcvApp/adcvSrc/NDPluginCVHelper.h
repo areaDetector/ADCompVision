@@ -39,7 +39,7 @@ using namespace std;
  */ 
 #define N_FUNC_1                    5
 #define N_FUNC_2                    3
-#define N_FUNC_3                    1
+#define N_FUNC_3                    2
 
 // Total Number of CV functions
 #define NUM_FUNCTIONS               N_FUNC_1 + N_FUNC_2 + N_FUNC_3
@@ -54,6 +54,7 @@ typedef enum {
     ADCV_EdgeDetectionCanny = 4,
     ADCV_CentroidFinder     = 5,
     ADCV_MovementVectors    = 6,
+    ADCV_UserDefined        = 7,
 } ADCVFunction_t;
 
 //enum that stores file save format
@@ -108,6 +109,9 @@ class NDPluginCVHelper {
         ADCVStatus_t get_centroid_finder_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_movement_vectors_description(string* inputDesc, string* outputDesc, string* description);
         
+        // User defined function. Implement these functions in NDPluginCVHelper.cpp to be able to use them within the plugin
+        ADCVStatus_t get_user_function_description(string* inputDesc, string* outputDesc, string* description);
+        ADCVStatus_t user_function(Mat& img, double* inputs, double* outputs);
 
         // Function called from the Plugin itself
         ADCVStatus_t getFunctionDescription(ADCVFunction_t function, string* inputDesc, string* outputDesc, string* description);

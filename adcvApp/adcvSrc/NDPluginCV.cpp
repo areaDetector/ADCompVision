@@ -559,7 +559,9 @@ asynStatus NDPluginCV::writeInt32(asynUser* pasynUser, epicsInt32 value){
         setIntegerParam(NDPluginCVFunction2, 0);
         ADCVFunction_t function = cvHelper->get_function_from_pv(value, 3);
         updateFunctionDescriptions(function);
-
+    }
+    else if((function == NDPluginCVFunction1 || function == NDPluginCVFunction2 || function == NDPluginCVFunction3) && value == 0){
+        updateFunctionDescriptions(ADCV_NoFunction);
     }
     else if(function < NDCV_FIRST_PARAM){
         //make sure to call base class for remaining PVs
