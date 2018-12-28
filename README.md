@@ -50,9 +50,9 @@ ifdef ADCOMPVISION
   PROD_LIBS     += NDPluginCV
   ifdef OPENCV_LIB
     opencv_core_DIR += $(OPENCV_LIB)
-    PROD_LIBS       += opencv_core opencv_imgproc
+    PROD_LIBS       += opencv_core opencv_imgproc opencv_imgcodecs
   else
-    PROD_SYS_LIBS   += opencv_core opencv_imgproc
+    PROD_SYS_LIBS   += opencv_core opencv_imgproc opencv_imgcodecs
   endif 
 endif
 ```
