@@ -95,7 +95,7 @@ class NDPluginCVHelper {
         ADCVStatus_t find_centroids(Mat &img, double* inputs, double* outputs);
         ADCVStatus_t gaussian_blur(Mat &img, double* inputs, double* outputs);
         ADCVStatus_t movement_vectors(Mat &img, double* inputs, double* outputs);
-
+        ADCVStatus_t obj_identification(Mat &img, double* inputs, double* outputs);
 
         // IO description helper functions
         void populate_remaining_descriptions(string* inputDesc, string* outputDesc, int nIn, int nOut);
@@ -108,6 +108,7 @@ class NDPluginCVHelper {
         ADCVStatus_t get_canny_edge_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_centroid_finder_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_movement_vectors_description(string* inputDesc, string* outputDesc, string* description);
+        ADCVStatus_t get_obj_identification_description(string* inputDesc, string* outputDesc, string* description);
         
         // User defined function. Implement these functions in NDPluginCVHelper.cpp to be able to use them within the plugin
         ADCVStatus_t get_user_function_description(string* inputDesc, string* outputDesc, string* description);

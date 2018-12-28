@@ -424,6 +424,57 @@ ADCVStatus_t NDPluginCVHelper::movement_vectors(Mat &img, double* inputs, double
 
 
 /**
+ * WRAPPER  ->  Object Identification
+ * YOUR_FUNCTION_DESCRIPTION
+ *
+ * @inCount     -> 4
+ * @inFormat    -> [Param1 (Int), Param2 (Double) ...]
+ *
+ * @outCount    -> 10
+ * @outFormat   -> [Param1 (Int), Param2 (Double) ...]
+ */
+ADCVStatus_t NDPluginCVHelper::obj_identification(Mat &img, double* inputs, double* outputs){
+    const char* functionName = "YOURFUNCTION";
+    ADCVStatus_t status = cvHelperSuccess;
+    int upperSizeThreshold = inputs[0];
+    int lowerSizeThreshold = inputs[1];
+    int blurDegree = inputs[2];
+    int thresholdVal = inputs[3];
+
+    try{
+        // first we need to convert to grayscale if necessary
+        if(img.channels()!=2){
+            cvtColor(img, img, COLOR_BGR2GRAY);
+        }
+        GaussianBlur(img, img, Size(blurDegree, blurDegree), 0);
+        threshold(img, img, thresholdVal, 255, THRESH_BINARY);
+        vector<vector<Point>> contours;
+        vector<vector<Point>> validContours;
+        vector<Vec4i> heirarchy;
+        findContours(img, contours, heirarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0,0));
+        int k;
+        for(k = 0; k< contours.size(); k++){
+            if(contourArea(contours[k]) > lowerSizeThreshold && contourArea(contours[k]) < upperSizeThreshold){
+                validContours.push_back(contours[k]);
+            }
+        }
+        if(validContours.size()==0){
+            cvHelperStatus = "No contours within thresholds found";
+            return cvHelperSuccess;
+        }
+        outputs[0] = contourArea(validContours[0]);
+        outputs[1] = cvContourPerimeter(validContours[0]);
+        outputs[2] = math.pow((4*outputs[0])/math.pi, 0.5);
+        cvHelperStatus = "Finished object identification";
+    }catch(Exception &e){
+        print_cv_error(e, functionName);
+        status = cvHelperError;
+    }
+    return status;
+}
+
+
+/**
  * WRAPPER  ->  User Function
  * This is an unimplemented wrapper function that has already been added to the PV database in order to
  * simplify creating user defined functions. Simply implement this function and its description function,
@@ -665,6 +716,39 @@ ADCVStatus_t NDPluginCVHelper::get_movement_vectors_description(string* inputDes
     *description = "Function that tracks movement of objects between two images separated by a certain number of frames. Not fully implemented";
     populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
     return status;
+}
+
+
+/**
+ *
+ * Function that sets the I/O descriptions for Object Identification
+ * 
+ * @params[out]: inputDesc      -> array of input descriptions
+ * @params[out]: outputDesc     -> array of output descriptions
+ * @params[out]: description    -> overall function usage description
+ * @return: void
+ */
+ADCVStatus_t NDPluginCVHelper::get_obj_identification_description(string* inputDesc, string* outputDesc, string* description){
+    ADCVStatus_t status = cvHelperSuccess;
+    int numInput = 4;
+    int numOutput = 10;
+    inputDesc[0] = "Upper Cntr Size Thresh";
+    inputDesc[1] = "Lower Cntr Size Thresh";
+    inputDesc[2] = "Blur Degree";
+    inputDesc[3] = "Threshold Val";
+    outputDesc[0] = "Contour Area";
+    outputDesc[1] = "Contour Perimeter";
+    outputDesc[2] = "Equivalent Diameter";
+    outputDesc[3] = "Solidity";
+    outputDesc[4] = "Aspect Ratio";
+    outputDesc[5] = "Contour Extent";
+    outputDesc[6] = "Min Enclosing Circle Rad";
+    outputDesc[7] = "Min Enclosing Circle X";
+    outputDesc[8] = "Min Enclosing Circle Y";
+    outputDesc[9] = "Orientation";
+    *description = "Identify object contours and list information";
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    return status
 }
 
 
