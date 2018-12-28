@@ -8,6 +8,21 @@ by-reference by default. Because of this, make sure to pass the image into the f
 
 ## Adding a new CV function
 
+There are two primary ways to add a new CV function to ADCompVision to customize the plugin. 
+
+### Implementing user_function
+
+The easier solution, and the one recommended if only one custom function is required is to implement the user_function that has been integrated but left unimplemented. To implement it, open the NDPluginCVHelper.cpp file, and locate these two functions:
+
+* user_function
+* get_user_function_description
+
+Implement both of these functions following the standards set by the other Wrapper functions, and you should be able to access your implementation from CSS by selecting 'User Defined' from Vision function set 3.
+
+### Adding a brand new CV function
+
+This is a more complicated process than simply implementing the user_function, and should be done only to add permanent new functions to the plugin.
+
 To add a new CV function there are several files you will need to edit. First, in the NDCV.template file, find the record titled "CompVisionFunctionN", where N is an integer from 1 to 3. These are the three sets of supported functions, and generally follow the rule:
 * Function set 1 contains basic OpenCV image processing functions
 * Function set 2 contains more complex functions that are still general and with many use cases
@@ -25,6 +40,9 @@ typedef enum {
     ADCV_NoFunction         = 0,
     ADCV_EdgeDetectionCanny = 1,
     ADCV_Threshold          = 2,
+    .
+    .
+    .
     ADCV_YOURFUNCTION       = n,
 } ADCVFunction_t;
 ```
@@ -63,6 +81,7 @@ ADCVStatus_t NDPluginCVHelper::YOURFUNCTION(Mat &img, double* inputs, double* ou
         // Don't make copies, pass img, img as input and output to OpenCV.
         // Set output values with output[n] = value. cast non-double values to double
         // If you need more inputs or outputs, add more PVs following previous examples.
+        cvHelperStatus = "Image processed successfully with YOURFUNCTION"
     }catch(Exception &e){
         print_cv_error(e, functionName);
         status = cvHelperError;
@@ -109,7 +128,7 @@ This will create a manual describing the inputs and outputs of each of the funct
 Next, you must edit the 'getFunctionDescription' function in NDPluginCVHelper.cpp. Add a case to the switch statement as follows:
 ```
 case ADCV_YOURFUNCTION:
-    status = get_YOURFUNCTION_description(inputDesc, outputDesc,description);
+    status = get_YOURFUNCTION_description(inputDesc, outputDesc, description);
     break;
 ```
 This will allow NDPluginCV to update descriptions for each input and output in real time when you select your function.
