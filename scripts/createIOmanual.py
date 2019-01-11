@@ -4,11 +4,10 @@
 #
 # Author: Jakub Wlodek
 # Created on: November 21, 2018
-# Copyright (c): Brookhaven National Laboratory
+# Copyright (c): Brookhaven National Laboratory 2018-2019
 #
 
 import os
-
 
 # Function that removes all whitespace in a string
 def remove_whitespace(line):
@@ -79,13 +78,13 @@ def parse_comments_table():
         line = helper_file.readline()
     return functions
 
+
 # Function that searches the Helper lib for WRAPPER functions and gets their descriptions
 # The descriptions are then passed to the html generator
 def parse_comments_descriptions():
     helper_file = open("../adcvApp/adcvSrc/NDPluginCVHelper.cpp", "r+")
 
     functions = []
-    functionCounter = 0
 
     line = helper_file.readline()
     while line:
@@ -115,6 +114,7 @@ def generate_html_table(functions):
         manual.write("</tr>\n")
     manual.close()
 
+
 # Function that generates function descriptions from comments into HTML
 def generate_html_descriptions(functions):
     manual = open("../docs/manual.html", "a")
@@ -123,6 +123,7 @@ def generate_html_descriptions(functions):
         manual.write("<h3>{}</h3>".format(function[0]))
         manual.write("<p>{}</p>".format(function[1]))
     manual.close()
+
 
 # Main function
 def create_manual():
@@ -143,7 +144,6 @@ def create_manual():
 
     print("Getting function descriptions")
     descFunctions = parse_comments_descriptions()
-    
 
     print("Adding descriptions to html")
     generate_html_descriptions(descFunctions)
