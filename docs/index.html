@@ -32,6 +32,59 @@
         Next, start image acquisition and enable the plugin. You should see the processed image in image1 ArrayData. Some examples are shown below:
     </p>
 
+    <h4>Release Notes</h4>
+
+    <!--RELEASE START-->
+
+<h4>R1-0 (???-January-2019)</h4>
+<ul>
+<li>
+<p>Computer Vision functions implemented:</p>
+<ul>
+<li>Gaussian Blur</li>
+<li>Thresholding</li>
+<li>Laplacian Edge Detection</li>
+<li>Canny Edge Detection</li>
+<li>Centroid Detection</li>
+<li>User Definable Function</li>
+</ul>
+</li>
+<li>
+<p>Additional Features added</p>
+<ul>
+<li>Processed image file saving. (This can work in tandem with NDPluginFile)</li>
+<li>Support for mono or RGB images</li>
+<li>Support for 8, 16, 32, and 64 bit images</li>
+<li>Flexible and modular function implementation system</li>
+<li>CSS User Interface screen</li>
+<li>Documentation</li>
+</ul>
+</li>
+<li>
+<p>Known Limitations:</p>
+<ul>
+<li>No current support for performing operations accross multiple images. Required for several CV functions</li>
+<li>Conversion between PV and ADCV_Function is convoluted and should be reworked</li>
+</ul>
+</li>
+<li>
+<p>Future Release Plans</p>
+<ul>
+<li>Expand list of supported functions<ul>
+<li>Motion Vectors</li>
+<li>Object identification</li>
+<li>Image alignment</li>
+<li>More...</li>
+</ul>
+</li>
+<li>Perform tests with variety of cameras</li>
+<li>Performance improvements and bug fixes</li>
+<li>Expand file saving to allow for capture, stream, etc</li>
+</ul>
+</li>
+</ul>
+    <!--RELEASE END-->
+
     <h4>Usage Examples:</h4>
 
     <p>Thresholding</p>

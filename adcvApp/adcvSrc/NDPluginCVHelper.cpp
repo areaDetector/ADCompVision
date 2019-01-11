@@ -385,6 +385,8 @@ ADCVStatus_t NDPluginCVHelper::find_centroids(Mat &img, double* inputs, double* 
  * WRAPPER  ->  movement_vectors
  * Function that does feature detection on images a set number of frames apart, and attempts to calculate the 
  * movement vector for the calculated key points. It uses ORB feature detection and vector flow
+ * 
+ * NOT YET IMPLEMENTED/TESTED
  *
  * @inCount     -> 2
  * @inFormat    -> [Frames Between Images (Int), Num Vectors (Int)]
@@ -425,7 +427,9 @@ ADCVStatus_t NDPluginCVHelper::movement_vectors(Mat &img, double* inputs, double
 
 /**
  * WRAPPER  ->  Object Identification
- * YOUR_FUNCTION_DESCRIPTION
+ * Function that detects contours in an image and returns information regarding said contours
+ * 
+ * NOT YET IMPLEMENTED/TESTED
  *
  * @inCount     -> 4
  * @inFormat    -> [Param1 (Int), Param2 (Double) ...]
@@ -434,7 +438,7 @@ ADCVStatus_t NDPluginCVHelper::movement_vectors(Mat &img, double* inputs, double
  * @outFormat   -> [Param1 (Int), Param2 (Double) ...]
  */
 ADCVStatus_t NDPluginCVHelper::obj_identification(Mat &img, double* inputs, double* outputs){
-    const char* functionName = "YOURFUNCTION";
+    const char* functionName = "obj_identification";
     ADCVStatus_t status = cvHelperSuccess;
     int upperSizeThreshold = inputs[0];
     int lowerSizeThreshold = inputs[1];
@@ -463,8 +467,8 @@ ADCVStatus_t NDPluginCVHelper::obj_identification(Mat &img, double* inputs, doub
             return cvHelperSuccess;
         }
         outputs[0] = contourArea(validContours[0]);
-        outputs[1] = cvContourPerimeter(validContours[0]);
-        outputs[2] = math.pow((4*outputs[0])/math.pi, 0.5);
+        //outputs[1] = cvContourPerimeter(validContours[0]);
+        //outputs[2] = math.pow((4*outputs[0])/math.pi, 0.5);
         cvHelperStatus = "Finished object identification";
     }catch(Exception &e){
         print_cv_error(e, functionName);
@@ -629,7 +633,7 @@ ADCVStatus_t NDPluginCVHelper::get_laplacian_description(string* inputDesc, stri
 
 
 /**
- * Function that sets the I/O descriptions for Laplacian
+ * Function that sets the I/O descriptions for Canny Edge Detection
  * 
  * @params[out]: inputDesc      -> array of input descriptions
  * @params[out]: outputDesc     -> array of output descriptions
@@ -748,7 +752,7 @@ ADCVStatus_t NDPluginCVHelper::get_obj_identification_description(string* inputD
     outputDesc[9] = "Orientation";
     *description = "Identify object contours and list information";
     populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
-    return status
+    return status;
 }
 
 
@@ -822,11 +826,14 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
         case ADCV_Laplacian:
             status = laplacian_edge_detection(image, inputs, outputs);
             break;
+        /*
         case ADCV_MovementVectors:
             status = movement_vectors(image, inputs, outputs);
             break;
+        */
         case ADCV_UserDefined:
             status = user_function(image, inputs, outputs);
+            break;
         default:
             status = cvHelperError;
             break;
@@ -870,9 +877,11 @@ ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, s
         case ADCV_CentroidFinder:
             status = get_centroid_finder_description(inputDesc, outputDesc, description);
             break;
+        /*
         case ADCV_MovementVectors:
             status = get_movement_vectors_description(inputDesc, outputDesc, description);
             break;
+        */
         case ADCV_UserDefined:
             status = get_user_function_description(inputDesc, outputDesc, description);
             break;
