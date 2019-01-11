@@ -49,23 +49,11 @@
         <th>
           Output value format</th>
     </tr><tr>
-<th>CannyEdgeDetector
-</th>
-<th>3
-</th>
-<th>[Threshold value (Int), Threshold ratio (Int), Blur degree (Int), Kernel Size (Int)]
-</th>
-<th>8
-</th>
-<th>[Horizontal Center, Horizontal Size, Vertical Center, Vertical Size, Top Pixel, Bottom Pixel, Left Pixel, Right Pixel]
-</th>
-</tr>
-<tr>
-<th>LaplacianEdgeDetector
+<th>gaussian_blur
 </th>
 <th>1
 </th>
-<th>[Blur degree (Int)]
+<th>[blurDegree (Int)]
 </th>
 <th>0
 </th>
@@ -85,6 +73,30 @@
 </th>
 </tr>
 <tr>
+<th>LaplacianEdgeDetector
+</th>
+<th>1
+</th>
+<th>[Blur degree (Int)]
+</th>
+<th>0
+</th>
+<th>None
+</th>
+</tr>
+<tr>
+<th>CannyEdgeDetector
+</th>
+<th>3
+</th>
+<th>[Threshold value (Int), Threshold ratio (Int), Blur degree (Int), Kernel Size (Int)]
+</th>
+<th>8
+</th>
+<th>[Horizontal Center, Horizontal Size, Vertical Center, Vertical Size, Top Pixel, Bottom Pixel, Left Pixel, Right Pixel]
+</th>
+</tr>
+<tr>
 <th>FindObjectCentroids
 </th>
 <th>5
@@ -97,38 +109,66 @@
 </th>
 </tr>
 <tr>
-<th>gaussian_blur
+<th>movement_vectors
 </th>
-<th>1
+<th>2
 </th>
-<th>[blurDegree (Int)]
+<th>[Frames Between Images (Int), Num Vectors (Int)]
 </th>
-<th>0
+<th>0-8
 </th>
-<th>None
+<th>[Vector 1 Start X (Int), Vector 1 Start Y (Int), Vector 1 End X, Vector 1 End Y ...]
+</th>
+</tr>
+<tr>
+<th>ObjectIdentification
+</th>
+<th>4
+</th>
+<th>[Param1 (Int), Param2 (Double) ...]
+</th>
+<th>10
+</th>
+<th>[Param1 (Int), Param2 (Double) ...]
+</th>
+</tr>
+<tr>
+<th>UserFunction
+</th>
+<th>n
+</th>
+<th>[Param1 (Int), Param2 (Double) ...]
+</th>
+<th>n
+</th>
+<th>[Param1 (Int), Param2 (Double) ...]
 </th>
 </tr>
 
 </tbody>
 </table>
 <h2>Function descriptions</h2>
-<h3>CannyEdgeDetector
-</h3><p> Function for canny-based edge detection. First, we ensure that the image is grayscale. Then, the image is blurred, so that only
- strong edges remain. Then, a threshold is applied to the image in order to further reinforce strong edges. Finally, the canny
- algorithm is applied to the image, and the edges are displayed. The function outputs some information based on the detected
- edges that can assist with object detection/identification: the top, bottom, left, and right pixels are the min and max X and
- Y pixel values that appear on one of the edges. The horizontal and vertical size and center give you the spacing between
- these min and max values and their midpoint.
+<h3>gaussian_blur
+</h3><p> Blurs image based on a gaussian kernel. A gaussian kernel is simply a matrix of a set size that
+ fills Gaussian properties.
+
+</p><h3>ThresholdImage
+</h3><p> Function that thresholds an image based on a certain pixel value. First, the image is converted to grayscale.
+ RGB images cannot be thresholded. For each pixel, if the grayscale value is larger than the threshold, set it 
+ to white, otherwise set it to black. Creates a binary image
  
 </p><h3>LaplacianEdgeDetector
 </h3><p> Function for laplacian-based edge detection. First, the image is converted to grayscale if it is not already.
  Next, the image is blurred using a gaussian kernel to emphasize edges. Then a laplacian kernel runs over
  the images assigning a 'sharpness' value to each pixel. The sharpest values are hard edges from black to white.
  
-</p><h3>ThresholdImage
-</h3><p> Function that thresholds an image based on a certain pixel value. First, the image is converted to grayscale.
- RGB images cannot be thresholded. For each pixel, if the grayscale value is larger than the threshold, set it 
- to white, otherwise set it to black. Creates a binary image
+</p><h3>CannyEdgeDetector
+</h3><p> Function for canny-based edge detection. First, we ensure that the image is grayscale. Then, the image is blurred, so that only
+ strong edges remain. Then, a threshold is applied to the image in order to further reinforce strong edges. Finally, the canny
+ algorithm is applied to the image, and the edges are displayed. The function outputs some information based on the detected
+ edges that can assist with object detection/identification: the top, bottom, left, and right pixels are the min and max X and
+ Y pixel values that appear on one of the edges. The horizontal and vertical size and center give you the spacing between
+ these min and max values and their midpoint.
  
 </p><h3>FindObjectCentroids
 </h3><p> Function for finding centroids of objects in an image. Useful for alignment of objects
@@ -137,11 +177,23 @@
  function. Then get the centroids from the contour objects. Draw the contours and centroids on 
  the image. Set the first 5 centroid coordinates to the output values. A size filter can also
  be used to remove contours that are too large, removing contours that span the entire size of
- the image
+ the image. Any contour with area > upper threshold is removed, and any lower than lower threshold
  
-</p><h3>gaussian_blur
-</h3><p> Blurs image based on a gaussian kernel. A gaussian kernel is simply a matrix of a set size that
- fills Gaussian properties.
+</p><h3>movement_vectors
+</h3><p> Function that does feature detection on images a set number of frames apart, and attempts to calculate the 
+ movement vector for the calculated key points. It uses ORB feature detection and vector flow
+ 
+ NOT YET IMPLEMENTED/TESTED
+
+</p><h3>ObjectIdentification
+</h3><p> Function that detects contours in an image and returns information regarding said contours
+ 
+ NOT YET IMPLEMENTED/TESTED
+
+</p><h3>UserFunction
+</h3><p> This is an unimplemented wrapper function that has already been added to the PV database in order to
+ simplify creating user defined functions. Simply implement this function and its description function,
+ and then select 'User Function' in function set 3. 
 
 </p>
 </body>

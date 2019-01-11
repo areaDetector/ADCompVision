@@ -12,12 +12,12 @@ There are two primary ways to add a new CV function to ADCompVision to customize
 
 ### Implementing user_function
 
-The easier solution, and the one recommended if only one custom function is required is to implement the user_function that has been integrated but left unimplemented. To implement it, open the NDPluginCVHelper.cpp file, and locate these two functions:
+The easier solution, and the one recommended if only one custom function is required, is to implement the user_function that has been integrated but left unimplemented. To implement it, open the NDPluginCVHelper.cpp file, and locate these two functions:
 
 * user_function
 * get_user_function_description
 
-Implement both of these functions following the standards set by the other Wrapper functions, and you should be able to access your implementation from CSS by selecting 'User Defined' from Vision function set 3.
+Implement both of these functions following the standards set by the other Wrapper functions, and you should be able to access your implementation from CSS by selecting 'User Function' from Vision function set 3.
 
 ### Adding a brand new CV function
 
