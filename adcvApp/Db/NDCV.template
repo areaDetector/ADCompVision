@@ -135,10 +135,10 @@ record(ai, "$(P)$(R)Input1_RBV")
 }
 
 record(stringin, "$(P)$(R)Input1Description_RBV"){
-	field(DTYP, "asynOctetRead")
-	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_IN_DESCRIPTION1")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_IN_DESCRIPTION1")
     field(VAL, "CV Inputs")
-	field(SCAN, "I/O Intr")
+    field(SCAN, "I/O Intr")
 }
 
 #------------------------------------------------------------------------------------
@@ -159,10 +159,10 @@ record(ai, "$(P)$(R)Input2_RBV")
 }
 
 record(stringin, "$(P)$(R)Input2Description_RBV"){
-	field(DTYP, "asynOctetRead")
-	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_IN_DESCRIPTION2")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_IN_DESCRIPTION2")
     field(VAL, "CV Inputs")
-	field(SCAN, "I/O Intr")
+    field(SCAN, "I/O Intr")
 }
 
 #------------------------------------------------------------------------------------
@@ -183,10 +183,10 @@ record(ai, "$(P)$(R)Input3_RBV")
 }
 
 record(stringin, "$(P)$(R)Input3Description_RBV"){
-	field(DTYP, "asynOctetRead")
-	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_IN_DESCRIPTION3")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_IN_DESCRIPTION3")
     field(VAL, "CV Inputs")
-	field(SCAN, "I/O Intr")
+    field(SCAN, "I/O Intr")
 }
 
 #------------------------------------------------------------------------------------
@@ -207,10 +207,10 @@ record(ai, "$(P)$(R)Input4_RBV")
 }
 
 record(stringin, "$(P)$(R)Input4Description_RBV"){
-	field(DTYP, "asynOctetRead")
-	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_IN_DESCRIPTION4")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_IN_DESCRIPTION4")
     field(VAL, "CV Inputs")
-	field(SCAN, "I/O Intr")
+    field(SCAN, "I/O Intr")
 }
 
 #------------------------------------------------------------------------------------
@@ -231,10 +231,10 @@ record(ai, "$(P)$(R)Input5_RBV")
 }
 
 record(stringin, "$(P)$(R)Input5Description_RBV"){
-	field(DTYP, "asynOctetRead")
-	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_IN_DESCRIPTION5")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_IN_DESCRIPTION5")
     field(VAL, "CV Inputs")
-	field(SCAN, "I/O Intr")
+    field(SCAN, "I/O Intr")
 }
 
 #------------------------------------------------------------------------------------
@@ -255,10 +255,10 @@ record(ai, "$(P)$(R)Input6_RBV")
 }
 
 record(stringin, "$(P)$(R)Input6Description_RBV"){
-	field(DTYP, "asynOctetRead")
-	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_IN_DESCRIPTION6")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_IN_DESCRIPTION6")
     field(VAL, "CV Inputs")
-	field(SCAN, "I/O Intr")
+    field(SCAN, "I/O Intr")
 }
 
 #------------------------------------------------------------------------------------
@@ -279,10 +279,10 @@ record(ai, "$(P)$(R)Input7_RBV")
 }
 
 record(stringin, "$(P)$(R)Input7Description_RBV"){
-	field(DTYP, "asynOctetRead")
-	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_IN_DESCRIPTION7")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_IN_DESCRIPTION7")
     field(VAL, "CV Inputs")
-	field(SCAN, "I/O Intr")
+    field(SCAN, "I/O Intr")
 }
 
 #------------------------------------------------------------------------------------
@@ -303,10 +303,10 @@ record(ai, "$(P)$(R)Input8_RBV")
 }
 
 record(stringin, "$(P)$(R)Input8Description_RBV"){
-	field(DTYP, "asynOctetRead")
-	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_IN_DESCRIPTION8")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_IN_DESCRIPTION8")
     field(VAL, "CV Inputs")
-	field(SCAN, "I/O Intr")
+    field(SCAN, "I/O Intr")
 }
 
 #------------------------------------------------------------------------------------
@@ -327,10 +327,10 @@ record(ai, "$(P)$(R)Input9_RBV")
 }
 
 record(stringin, "$(P)$(R)Input9Description_RBV"){
-	field(DTYP, "asynOctetRead")
-	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_IN_DESCRIPTION9")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_IN_DESCRIPTION9")
     field(VAL, "CV Inputs")
-	field(SCAN, "I/O Intr")
+    field(SCAN, "I/O Intr")
 }
 
 #------------------------------------------------------------------------------------
@@ -351,10 +351,10 @@ record(ai, "$(P)$(R)Input10_RBV")
 }
 
 record(stringin, "$(P)$(R)Input10Description_RBV"){
-	field(DTYP, "asynOctetRead")
-	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_IN_DESCRIPTION10")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_IN_DESCRIPTION10")
     field(VAL, "CV Inputs")
-	field(SCAN, "I/O Intr")
+    field(SCAN, "I/O Intr")
 }
 
 #######################################################################
@@ -377,10 +377,10 @@ record(ai, "$(P)$(R)Output1_RBV")
 }
 
 record(stringin, "$(P)$(R)Output1Description_RBV"){
-	field(DTYP, "asynOctetRead")
-	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_OUT_DESCRIPTION1")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_OUT_DESCRIPTION1")
     field(VAL, "CV Outputs")
-	field(SCAN, "I/O Intr")
+    field(SCAN, "I/O Intr")
 }
 
 #------------------------------------------------------------------------------------
@@ -401,10 +401,10 @@ record(ai, "$(P)$(R)Output2_RBV")
 }
 
 record(stringin, "$(P)$(R)Output2Description_RBV"){
-	field(DTYP, "asynOctetRead")
-	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_OUT_DESCRIPTION2")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_OUT_DESCRIPTION2")
     field(VAL, "CV Outputs")
-	field(SCAN, "I/O Intr")
+    field(SCAN, "I/O Intr")
 }
 
 #------------------------------------------------------------------------------------
@@ -425,10 +425,10 @@ record(ai, "$(P)$(R)Output3_RBV")
 }
 
 record(stringin, "$(P)$(R)Output3Description_RBV"){
-	field(DTYP, "asynOctetRead")
-	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_OUT_DESCRIPTION3")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_OUT_DESCRIPTION3")
     field(VAL, "CV Outputs")
-	field(SCAN, "I/O Intr")
+    field(SCAN, "I/O Intr")
 }
 
 #------------------------------------------------------------------------------------
@@ -449,10 +449,10 @@ record(ai, "$(P)$(R)Output4_RBV")
 }
 
 record(stringin, "$(P)$(R)Output4Description_RBV"){
-	field(DTYP, "asynOctetRead")
-	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_OUT_DESCRIPTION4")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_OUT_DESCRIPTION4")
     field(VAL, "CV Outputs")
-	field(SCAN, "I/O Intr")
+    field(SCAN, "I/O Intr")
 }
 
 #------------------------------------------------------------------------------------
@@ -473,10 +473,10 @@ record(ai, "$(P)$(R)Output5_RBV")
 }
 
 record(stringin, "$(P)$(R)Output5Description_RBV"){
-	field(DTYP, "asynOctetRead")
-	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_OUT_DESCRIPTION5")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_OUT_DESCRIPTION5")
     field(VAL, "CV Outputs")
-	field(SCAN, "I/O Intr")
+    field(SCAN, "I/O Intr")
 }
 
 #------------------------------------------------------------------------------------
@@ -497,10 +497,10 @@ record(ai, "$(P)$(R)Output6_RBV")
 }
 
 record(stringin, "$(P)$(R)Output6Description_RBV"){
-	field(DTYP, "asynOctetRead")
-	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_OUT_DESCRIPTION6")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_OUT_DESCRIPTION6")
     field(VAL, "CV Outputs")
-	field(SCAN, "I/O Intr")
+    field(SCAN, "I/O Intr")
 }
 
 #------------------------------------------------------------------------------------
@@ -521,10 +521,10 @@ record(ai, "$(P)$(R)Output7_RBV")
 }
 
 record(stringin, "$(P)$(R)Output7Description_RBV"){
-	field(DTYP, "asynOctetRead")
-	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_OUT_DESCRIPTION7")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_OUT_DESCRIPTION7")
     field(VAL, "CV Outputs")
-	field(SCAN, "I/O Intr")
+    field(SCAN, "I/O Intr")
 }
 
 #------------------------------------------------------------------------------------
@@ -545,10 +545,10 @@ record(ai, "$(P)$(R)Output8_RBV")
 }
 
 record(stringin, "$(P)$(R)Output8Description_RBV"){
-	field(DTYP, "asynOctetRead")
-	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_OUT_DESCRIPTION8")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_OUT_DESCRIPTION8")
     field(VAL, "CV Outputs")
-	field(SCAN, "I/O Intr")
+    field(SCAN, "I/O Intr")
 }
 
 #------------------------------------------------------------------------------------
@@ -569,10 +569,10 @@ record(ai, "$(P)$(R)Output9_RBV")
 }
 
 record(stringin, "$(P)$(R)Output9Description_RBV"){
-	field(DTYP, "asynOctetRead")
-	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_OUT_DESCRIPTION9")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_OUT_DESCRIPTION9")
     field(VAL, "CV Outputs")
-	field(SCAN, "I/O Intr")
+    field(SCAN, "I/O Intr")
 }
 
 #------------------------------------------------------------------------------------
@@ -593,10 +593,10 @@ record(ai, "$(P)$(R)Output10_RBV")
 }
 
 record(stringin, "$(P)$(R)Output10Description_RBV"){
-	field(DTYP, "asynOctetRead")
-	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_OUT_DESCRIPTION10")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_OUT_DESCRIPTION10")
     field(VAL, "CV Outputs")
-	field(SCAN, "I/O Intr")
+    field(SCAN, "I/O Intr")
 }
 
 
@@ -648,11 +648,11 @@ record(waveform, "$(P)$(R)CVFilename"){
 }
 
 record(waveform, "$(P)$(R)CVFilename_RBV"){
-	field(DTYP, "asynOctetRead")
-	field(INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FILENAME")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FILENAME")
     field(FTVL, "CHAR")
     field(NELM, "256")
-	field(SCAN, "I/O Intr")
+    field(SCAN, "I/O Intr")
 }
 
 
@@ -663,21 +663,21 @@ record(waveform, "$(P)$(R)CVFilename_RBV"){
 #------------------Description of values in output PVs--------------------------
 
 record(waveform, "$(P)$(R)FunctionDescription_RBV"){
-	field(DTYP, "asynOctetRead")
-	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_FUN_DESCRIPTION")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_FUN_DESCRIPTION")
     field(FTVL, "CHAR")
     field(NELM, "256")
-	field(SCAN, "I/O Intr")
+    field(SCAN, "I/O Intr")
 }
 
 #-----------------CompVision Status message, for troubleshooting----------------
 
 record(waveform, "$(P)$(R)CVStatusMessage_RBV"){
-	field(DTYP, "asynOctetRead")
-	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_STATUS")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_STATUS")
     field(FTVL, "CHAR")
     field(NELM, "256")
-	field(SCAN, "I/O Intr")
+    field(SCAN, "I/O Intr")
 }
 
 
