@@ -37,7 +37,7 @@ using namespace std;
 using namespace cv;
 
 // name of the plugin
-static const char *pluginName="NDPluginCV";
+static const char* pluginName="NDPluginCV";
 
 
 //----------------------------------------------------------------------------
@@ -51,8 +51,8 @@ static const char *pluginName="NDPluginCV";
  * NDDataType/ColorMode to CV data type, check the CV_DTYP_CONV.md file, or look at the 
  * website in the documentation
  * 
- * @params: dataType    -> dataType of NDArray
- * @params: colorMode   -> colorMode of NDArray
+ * @params[in]: dataType    -> dataType of NDArray
+ * @params[in]: colorMode   -> colorMode of NDArray
  * @return: appropriate frame format based on dtype and color mode
  */
 ADCVFrameFormat_t NDPluginCV::getCurrentImageFormat(NDDataType_t dataType, NDColorMode_t colorMode){
@@ -104,11 +104,11 @@ ADCVFrameFormat_t NDPluginCV::getCurrentImageFormat(NDDataType_t dataType, NDCol
 
 
 /**
- * Function that gets that NDDataType from an OpenCV Mat
+ * Function that gets an NDDataType from an OpenCV Mat
  * 
- * @params: matFormat   -> current image format of OpenCV Matrix image
- * @params: pdataType   -> pointer to output data type
- * @return: status      -> asynSuccess if data Type identified, otherwise asynError
+ * @params[in]:  matFormat   -> current image format of OpenCV Matrix image
+ * @params[out]: pdataType   -> pointer to output data type
+ * @return: status           -> asynSuccess if data Type identified, otherwise asynError
  */
 asynStatus NDPluginCV::getDataTypeFromMat(ADCVDataFormat_t matFormat, NDDataType_t* pdataType){
     const char* functionName = "getDataTypeFromMat";
@@ -134,9 +134,9 @@ asynStatus NDPluginCV::getDataTypeFromMat(ADCVDataFormat_t matFormat, NDDataType
 /**
  * Function that gets that NDColorMode from an OpenCV Mat
  * 
- * @params: matFormat   -> current image format of OpenCV Matrix image
- * @params: pcolorMode  -> pointer to output color mode
- * @return: status      -> asynSuccess if color mode identified, otherwise asynError
+ * @params[in]:  matFormat   -> current image format of OpenCV Matrix image
+ * @params[out]: pcolorMode  -> pointer to output color mode
+ * @return: status           -> asynSuccess if color mode identified, otherwise asynError
  */
 asynStatus NDPluginCV::getColorModeFromMat(ADCVColorFormat_t matFormat, NDColorMode_t* pcolorMode){
     const char* functionName = "getDataTypeFromMat";
@@ -163,10 +163,11 @@ asynStatus NDPluginCV::getColorModeFromMat(ADCVColorFormat_t matFormat, NDColorM
  * Function that will take a pointer to an NDArray, and converts it into
  * an OpenCV "Mat" image object
  * 
- * @params: pArray      -> pointer to input array passed from the driver
- * @params: dataType    -> dataType of current array
- * @params: colorMode   -> color mode of current array
- * 
+ * @params[in]:  pArray      -> pointer to input array passed from the driver
+ * @params[out]: pMat        -> Mat image taken from pArray
+ * @params[in]:  dataType    -> dataType of current array
+ * @params[in]:  colorMode   -> color mode of current array
+ * @return: status -> success if converted correctly otherwise error
  */
 asynStatus NDPluginCV::ndArray2Mat(NDArray* pArray, Mat &pMat, NDDataType_t dataType, NDColorMode_t colorMode){
     const char* functionName = "ndArray2Mat";
@@ -198,8 +199,10 @@ asynStatus NDPluginCV::ndArray2Mat(NDArray* pArray, Mat &pMat, NDDataType_t data
  * Function that converts Mat object after it has been processed back to an NDArray for use in Area
  * Detector does not replace the original pArray, because otherwise 
  *
- * @params: pScratch -> pointer to a blank temporary NDArray
- * @params: pMat -> pointer to opencv Mat object after processing
+ * @params[in]: pMat        -> pointer to opencv Mat object after processing
+ * @params[in]: dataType    -> data type of output array
+ * @params[in]: colorMode   -> color mode of output array
+ * @return: status -> success if converted correctly, otherwise error
  */
 asynStatus NDPluginCV::mat2NDArray(Mat &pMat, NDDataType_t dataType, NDColorMode_t colorMode){
     const char* functionName = "mat2NDArray";
@@ -358,7 +361,7 @@ asynStatus NDPluginCV::getRequiredParams(double* inputs){
 
 
 /**
- * Function that pulls the ouptu values from the PVs and puts them into an array
+ * Function that pushes the values in the output array to PVs
  * 
  * @params[in]: outputs -> a pointer to the outputs that are pushed to PVs
  * @return: asynStatus
@@ -403,8 +406,7 @@ asynStatus NDPluginCV::updatePluginStatus(string statusMessage){
  * this value, and calls the appropriate function, replacing the arguments in the call
  * with PV values, which can also be set by the user.
  * 
- * @params: inputImg    -> pointer to mat to be processed
- * @params: outputImg   -> pointer to output of image processing
+ * @params[in]: inputImg    -> pointer to mat to be processed
  * @return: status      -> asynSuccess if success, asynError if OpenCV exception thrown
  */
 asynStatus NDPluginCV::processImage(Mat &inputImg){
@@ -471,7 +473,6 @@ asynStatus NDPluginCV::updateFunctionDescriptions(ADCVFunction_t function){
     string inputDesc[NUM_INPUTS];
     string outputDesc[NUM_OUTPUTS];
     string description;
-    if(function == ADCV_CentroidFinder) printf("Up to here it is correct\n");
     cvHelper->getFunctionDescription(function, inputDesc, outputDesc, &description);
     asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DRIVER, "%s::%s Updating I/O descriptions\n", pluginName, functionName);
     int k, l;
@@ -529,8 +530,8 @@ asynStatus NDPluginCV::writeImageFile(Mat &inputImg){
  * Function that overwrites the NDPluginDriver function. This function is called when an integer PV is
  * changed in EPICS
  * 
- * @params: pasynUser       -> the thread/user that made the PV change
- * @params: value           -> the value assigned to the PV
+ * @params[in]: pasynUser       -> the thread/user that made the PV change
+ * @params[in]: value           -> the value assigned to the PV
  * @return: status          -> success or failure
  */
 asynStatus NDPluginCV::writeInt32(asynUser* pasynUser, epicsInt32 value){
@@ -539,7 +540,7 @@ asynStatus NDPluginCV::writeInt32(asynUser* pasynUser, epicsInt32 value){
     asynStatus status = asynSuccess;
 
     status = setIntegerParam(function, value);
-    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s function=%d value=%d\n", pluginName, functionName, function, value);
+    asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DRIVER, "%s::%s function=%d value=%d\n", pluginName, functionName, function, value);
 
     if(function == NDPluginCVFunction1 && value != 0){
         setIntegerParam(NDPluginCVFunction2, 0);
@@ -552,7 +553,6 @@ asynStatus NDPluginCV::writeInt32(asynUser* pasynUser, epicsInt32 value){
         setIntegerParam(NDPluginCVFunction3, 0);
         ADCVFunction_t function = cvHelper->get_function_from_pv(value, 2);
         updateFunctionDescriptions(function);
-
     }
     else if(function == NDPluginCVFunction3 && value != 0){
         setIntegerParam(NDPluginCVFunction1, 0);
@@ -584,7 +584,7 @@ asynStatus NDPluginCV::writeInt32(asynUser* pasynUser, epicsInt32 value){
  * converted into an OpenCV Mat. The processImage function is called on the Mat.
  * the resulting Mat is placed into a temporary NDArray which is then called back
  *
- * @params: pArray -> pointer to image in the form of an NDArray
+ * @params[in]: pArray -> pointer to image in the form of an NDArray
  * @return: void
  */
 void NDPluginCV::processCallbacks(NDArray *pArray){
@@ -650,15 +650,15 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
  * NDPluginDriver constructor. Next, PV parameters are initialized, and then the
  * plugin connects to the new Array port.
  * 
- * @params: portName            -> asyn port for the plugin
- * @params: queueSize           -> number of Arrays the plugin can back up if it can't keep up
- * @params: blockingCallbacks   -> Whether or not plugin can perform callbacks
- * @params: NDArrayPort         -> portname for arrays sent out by the plugin
- * @params: NDArrayAddr         -> address for arrays sent out by the plugin
- * @params: maxBuffers          -> max buffer size for the plugin
- * @params: maxMemeory          -> max memory the plugin can allocate
- * @params: priority            -> plugin priority
- * @params: stackSize           -> size of the stack given to the plugin
+ * @params[in]: portName            -> asyn port for the plugin
+ * @params[in]: queueSize           -> number of Arrays the plugin can back up if it can't keep up
+ * @params[in]: blockingCallbacks   -> Whether or not plugin can perform callbacks
+ * @params[in]: NDArrayPort         -> portname for arrays sent out by the plugin
+ * @params[in]: NDArrayAddr         -> address for arrays sent out by the plugin
+ * @params[in]: maxBuffers          -> max buffer size for the plugin
+ * @params[in]: maxMemeory          -> max memory the plugin can allocate
+ * @params[in]: priority            -> plugin priority
+ * @params[in]: stackSize           -> size of the stack given to the plugin
  */
 NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallbacks,
 		    const char *NDArrayPort, int NDArrayAddr,
@@ -740,6 +740,7 @@ NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallback
     assignInputDescriptions();
     assignOutputDescriptions();
 
+    // init some plugin info
     setStringParam(NDPluginDriverPluginType, functionName);
     epicsSnprintf(versionString, sizeof(versionString), "%d.%d.%d", NDPluginCV_VERSION, NDPluginCV_REVISION, NDPluginCV_MODIFICATION);
     setStringParam(NDDriverVersion, versionString);

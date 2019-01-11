@@ -17,19 +17,22 @@
 
 #include <opencv2/opencv.hpp>
 
+// standard and opencv namespaces used
 using namespace std;
 using namespace cv;
 
-//base driver header file
+// base driver header file
 #include "NDPluginDriver.h"
+
+// Header file that contains CV Wrapper functions
 #include "NDPluginCVHelper.h"
 
-//version numbers
-#define NDPluginCV_VERSION          0
-#define NDPluginCV_REVISION         4
-#define NDPluginCV_MODIFICATION     3
+// version numbers
+#define NDPluginCV_VERSION          1
+#define NDPluginCV_REVISION         0
+#define NDPluginCV_MODIFICATION     0
 
-/* definitions of parameters */
+/* Definitions of parameters */
 
 // CV functions (3)
 #define NDPluginCVFunction1String                   "NDCV_FUNCTION1"            //asynInt32
@@ -105,7 +108,7 @@ typedef enum {
     ADCV_Mono_U16           = CV_16UC1,         // Unsigned 16 bit mono
     ADCV_Mono_S16           = CV_16SC1,         // Signed 16 bit mono
     ADCV_RGB_U16            = CV_16UC3,         // Unsigned 16 bit rgb
-    ADCV_RGB_S16            = CV_16SC3,         // Signed 8 bit rgb
+    ADCV_RGB_S16            = CV_16SC3,         // Signed 16 bit rgb
     ADCV_Mono_S32           = CV_32SC1,         // Signed 32 bit mono
     ADCV_RGB_S32            = CV_32SC3,         // Signed 32 bit rgb
     ADCV_Mono_F32           = CV_32FC1,         // Float 32 mono
@@ -123,11 +126,11 @@ typedef enum {
 typedef enum {
     ADCV_U8            = CV_8U,          // Unsigned 8
     ADCV_S8            = CV_8S,          // Signed 8
-    ADCV_U16           = CV_16U,         // Unsigned 16 bit mono
-    ADCV_S16           = CV_16S,         // Signed 16 bit mono
-    ADCV_S32           = CV_32S,         // Signed 32 bit mono
-    ADCV_F32           = CV_32F,         // Float 32 mono
-    ADCV_F64           = CV_64F,         // Float 64 mono
+    ADCV_U16           = CV_16U,         // Unsigned 16 bit
+    ADCV_S16           = CV_16S,         // Signed 16 bit
+    ADCV_S32           = CV_32S,         // Signed 32 bit
+    ADCV_F32           = CV_32F,         // Float 32
+    ADCV_F64           = CV_64F,         // Float 64
     ADCV_UnsupportedData = -1,
 } ADCVDataFormat_t;
 
@@ -141,7 +144,7 @@ typedef enum {
 } ADCVColorFormat_t;
 
 
-//NDPluginCV class that extends base NDPluginDriver class
+/* NDPluginCV class that extends base NDPluginDriver class */
 
 class NDPluginCV : public NDPluginDriver{
 
@@ -244,7 +247,7 @@ class NDPluginCV : public NDPluginDriver{
         int inputDescPVs[NUM_INPUTS];
         int outputDescPVs[NUM_OUTPUTS];
 
-        //functions that assing the PV indexes to arrays
+        //functions that assign the PV indexes to arrays
         void assignInputs();
         void assignOutputs();
         void assignInputDescriptions();
