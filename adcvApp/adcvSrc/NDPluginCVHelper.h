@@ -8,10 +8,11 @@
  *
  */
 
+// Include guard
 #ifndef NDPluginCVHelper_H
 #define NDPluginCVHelper_H
 
-//include some standard libraries
+// include some standard libraries
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -21,6 +22,7 @@
 //OpenCV is used for image manipulation
 #include <opencv2/opencv.hpp>
 
+// use standard and opencv namespaces
 using namespace cv;
 using namespace std;
 
@@ -59,6 +61,7 @@ typedef enum {
     ADCV_UserDefined        = 6,
 } ADCVFunction_t;
 
+
 //enum that stores file save format
 typedef enum {
     ADCV_FileDisable        = 0,
@@ -67,12 +70,15 @@ typedef enum {
     ADCV_FileTIF            = 3,
 } ADCVFileFormat_t;
 
+
 // Simple binary status enum
 typedef enum {
     cvHelperSuccess         = 0,
     cvHelperError           = -1,
 } ADCVStatus_t;
 
+
+/* Helper class that contains CV Wrapper function implemenations */
 class NDPluginCVHelper {
 
     public:
@@ -116,7 +122,7 @@ class NDPluginCVHelper {
         ADCVStatus_t get_user_function_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t user_function(Mat& img, double* inputs, double* outputs);
 
-        // Function called from the Plugin itself
+        // Functions called from the Plugin itself
         ADCVStatus_t getFunctionDescription(ADCVFunction_t function, string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t processImage(Mat &image, ADCVFunction_t function, double* inputs, double* outputs);
         ADCVStatus_t writeImage(Mat &image, string filename, ADCVFileFormat_t fileFormat);
@@ -128,7 +134,7 @@ class NDPluginCVHelper {
 
         // Variables if function requires some information to be stored for multiple function calls
         
-        // movement vector variables
+        // movement vector variables (Currently Unused/untested)
         int frameCounter = 0;
         bool wasComputed = false;
         Mat firstMVImage;

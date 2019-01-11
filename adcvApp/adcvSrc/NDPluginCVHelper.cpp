@@ -28,6 +28,7 @@
 using namespace cv;
 using namespace std;
 
+
 const char* libraryName = "NDPluginCVHelper";
 
 
@@ -326,7 +327,11 @@ ADCVStatus_t NDPluginCVHelper::find_centroids(Mat &img, double* inputs, double* 
         vector<Vec4i> heirarchy;
 
         findContours(img, contours, heirarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0,0));
-        if(contours.size() < numLargestContours){
+        if(contours.size() == 0){
+            cvHelperStatus = "No contours were found.";
+            return cvHelperSuccess;
+        }
+        else if(contours.size() < numLargestContours){
             numLargestContours = contours.size();
         }
         vector<vector<Point>> largestContours(numLargestContours);
@@ -357,6 +362,7 @@ ADCVStatus_t NDPluginCVHelper::find_centroids(Mat &img, double* inputs, double* 
         }
         vector<Point2f> contour_centroids(contours.size());
         for(j = 0; j < largestContours.size(); j++){
+            // segfault here on too much movement
             contour_centroids[j] = Point2f((contour_moments[j].m10/contour_moments[j].m00), (contour_moments[j].m01/contour_moments[j].m00));
         }
         int counter = 0;
