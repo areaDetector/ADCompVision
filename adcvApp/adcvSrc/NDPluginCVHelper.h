@@ -38,7 +38,7 @@ using namespace std;
  * 
  */ 
 #define N_FUNC_1                    5
-#define N_FUNC_2                    3
+#define N_FUNC_2                    2
 #define N_FUNC_3                    2
 
 // Total Number of CV functions
@@ -111,9 +111,6 @@ class NDPluginCVHelper {
         ADCVStatus_t get_centroid_finder_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_movement_vectors_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_obj_identification_description(string* inputDesc, string* outputDesc, string* description);
-
-        // IO description for when user selectes none
-        ADCVStatus_t get_none_function_description(string* inputDesc, string* outputDesc, string* description);
         
         // User defined function. Implement these functions in NDPluginCVHelper.cpp to be able to use them within the plugin
         ADCVStatus_t get_user_function_description(string* inputDesc, string* outputDesc, string* description);

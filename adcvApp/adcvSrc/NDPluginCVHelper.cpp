@@ -456,7 +456,7 @@ ADCVStatus_t NDPluginCVHelper::obj_identification(Mat &img, double* inputs, doub
         vector<vector<Point>> validContours;
         vector<Vec4i> heirarchy;
         findContours(img, contours, heirarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0,0));
-        int k;
+        size_t k;
         for(k = 0; k< contours.size(); k++){
             if(contourArea(contours[k]) > lowerSizeThreshold && contourArea(contours[k]) < upperSizeThreshold){
                 validContours.push_back(contours[k]);
@@ -858,7 +858,7 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
  * @return: cvHelperSuccess if function desc defined, otherwise cvHelperError
  */
 ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, string* inputDesc, string* outputDesc, string* description){
-    const char* functionName = "getFunctionDescription";
+    //const char* functionName = "getFunctionDescription";
     ADCVStatus_t status;
 
     switch(function){

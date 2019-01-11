@@ -451,7 +451,7 @@ asynStatus NDPluginCV::processImage(Mat &inputImg){
         }
     }
     else{
-        status = asynError;
+        status = asynDisabled;
     }
     writeImageFile(inputImg);
     updatePluginStatus(cvHelper->cvHelperStatus);
