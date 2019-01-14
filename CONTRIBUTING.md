@@ -1,5 +1,7 @@
 # Guide to contributing to ADCompVision
 
+Author: Jakub Wlodek
+
 
 Some pointers:  
 * OpenCV uses Mat objects for images. They are written as a 'smart-pointer' class, meaning that they are passed
@@ -123,7 +125,7 @@ ADCVStatus_t NDPluginCVHelper::get_YOURFUNCTION_description(string* inputDesc, s
 ```
 python3 createIOmanual.py
 ```
-This will create a manual describing the inputs and outputs of each of the functions including your new custom function along with a description of each function as provided in the comments.  
+This will create a manual (in docs/manual.html) describing the inputs and outputs of each of the functions including your new custom function along with a description of each function as provided in the comments.  
 
 Next, you must edit the 'getFunctionDescription' function in NDPluginCVHelper.cpp. Add a case to the switch statement as follows:
 ```

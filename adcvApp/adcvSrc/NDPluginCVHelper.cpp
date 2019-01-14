@@ -1,14 +1,33 @@
-/*
+/**
+ * NDPluginCVHelper.cpp
+ * 
  * Helper file for ADCompVision Plugin.
+ * 
  * This file will contatin all of the OpenCV wrapper functions.
  * The main plugin will call a function that switches on a PV val,
  * and based on the results, passes the image to the correct helper
- * function.
+ * function. There is no interfacing with EPICS in this file, all of that
+ * is done in the NDPluginCV.cpp file
+ * 
+ * Current functionality includes:
+ * 
+ * 1. Gaussian Blur
+ * 2. Image Thresholding
+ * 3. Laplacian edge detection
+ * 4. Canny edge detection
+ * 5. Centroid Identification
+ * 6. User defined function
+ * 
+ * In-progress functions:
+ * 
+ * 1. Movement Vectors
+ * 2. Object Identification
  *
  * Author: Jakub Wlodek
- * Date: June 2018
- *
- * Copyright (c): Brookhaven National Laboratory 2018
+ * 
+ * Created: 26-Jun-2018
+ * Last Updated: 14-Jan-2019
+ * Copyright (c): Brookhaven National Laboratory 2018-2019
  */
 
 //include some standard libraries
@@ -45,33 +64,6 @@ void NDPluginCVHelper::print_cv_error(Exception &e, const char* functionName){
     cvHelperStatus = buff;
     printf("%s\n", buff);
 }
-
-
-/**
- * Function that takes PV value from the plugin driver, and converts it into the ADCVFunction_t 
- * enum type. This is used to decide which function the plugin is to perform as well
- * as to compute Input/Output descriptions
- * 
- * @params[in]: pvValue         -> value of the PV when it is changed
- * @params[in]: functionSet     -> the set from which the function set came from. currently (1-3)
- * @return: function            -> returns the function as an ADCVFunction_t enum
- */
-ADCVFunction_t NDPluginCVHelper::get_function_from_pv(int pvValue, int functionSet){
-    const char* functionName = "get_function_from_pv";
-    if(functionSet == 1){
-        return (ADCVFunction_t) pvValue;
-    }
-    if(functionSet == 2){
-        return (ADCVFunction_t) (N_FUNC_1 + pvValue - 1);
-    }
-    if(functionSet == 3){
-        return (ADCVFunction_t) (N_FUNC_1 + N_FUNC_2 + pvValue - 2);
-    }
-    printf("%s::%s ERROR: Couldn't find correct function val\n", libraryName, functionName);
-    cvHelperStatus = "ERROR: Couldn't find correct function val";
-    return ADCV_NoFunction;
-}
-
 
 
 /*
@@ -334,6 +326,7 @@ ADCVStatus_t NDPluginCVHelper::find_centroids(Mat &img, double* inputs, double* 
         else if(contours.size() < numLargestContours){
             numLargestContours = contours.size();
         }
+        // clean this part up if possible
         vector<vector<Point>> largestContours(numLargestContours);
         size_t a, b;
         for(a = 0; a< numLargestContours; a++){
@@ -362,7 +355,6 @@ ADCVStatus_t NDPluginCVHelper::find_centroids(Mat &img, double* inputs, double* 
         }
         vector<Point2f> contour_centroids(largestContours.size());
         for(j = 0; j < largestContours.size(); j++){
-            // segfault here on too much movement
             contour_centroids[j] = Point2f((contour_moments[j].m10/contour_moments[j].m00), (contour_moments[j].m01/contour_moments[j].m00));
         }
         int counter = 0;
@@ -462,6 +454,7 @@ ADCVStatus_t NDPluginCVHelper::obj_identification(Mat &img, double* inputs, doub
         vector<vector<Point>> validContours;
         vector<Vec4i> heirarchy;
         findContours(img, contours, heirarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0,0));
+        // TODO
         size_t k;
         for(k = 0; k< contours.size(); k++){
             if(contourArea(contours[k]) > lowerSizeThreshold && contourArea(contours[k]) < upperSizeThreshold){
@@ -779,6 +772,7 @@ ADCVStatus_t NDPluginCVHelper::get_user_function_description(string* inputDesc, 
     return status;
 }
 
+
 /**
  * Function that sets default I/O descriptions
  * 
@@ -799,6 +793,7 @@ ADCVStatus_t NDPluginCVHelper::get_default_description(string* inputDesc, string
     *description = "None Available";
     return status;
 }
+
 
 /* ---------------------- Functions called from the EPICS Plugin implementation ----------------------- */
 

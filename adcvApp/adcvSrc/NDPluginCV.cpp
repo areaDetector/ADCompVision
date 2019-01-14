@@ -1,15 +1,32 @@
-/*
+/**
  * NDPluginCV.cpp
  *
  * Top level source file for OpenCV based computer vision plugin for EPICS
  * Area Detector. Extends from the base NDPluginDriver found in ADCore, and
  * overrides its process callbacks function.
- * The OpenCV computer vision library is used for all image processing
+ * 
+ * All actual computer vision application is done in the helper file. In this .cpp file
+ * there are functions that do the following:
+ * 
+ * 1. Bidirectional conversion from OpenCV data type to NDDataType
+ * 2. Bidirectional conversion from OpenCV color mode to NDColorMode
+ * 3. Bidirectional conversion from OpenCV Mat image to NDArray
+ * 4. PV Assignment functions for generic inputs and outputs
+ * 5. Functions that call implementations from helper lib
+ * 6. Function to call on updating PVs (writeInt32)
+ * 7. Constructor/Destructor
+ * 8. Plugin IOC shell registration
+ * 
+ * Note that this file is intended to house all of the EPICS interfacing for the
+ * ADCompVision plugin, and as a result, adding new OpenCV functionality should
+ * NOT require any edits to be made to this file. Please read the CONTRIBUTING.md
+ * file at the top level of this repository to learn how to add new functionality.
  *
  * Author: Jakub Wlodek
  *
- * Created: June 23, 2018
- * Copyright (c): Brookhaven National Laboratory 2018
+ * Created: 23-Jun-2018
+ * Last Updated: 14-Jan-2019
+ * Copyright (c): Brookhaven National Laboratory 2018-2019
  */
 
 
@@ -340,6 +357,32 @@ void NDPluginCV::assignOutputDescriptions(){
 
 
 /**
+ * Function that takes PV value from the plugin driver, and converts it into the ADCVFunction_t 
+ * enum type. This is used to decide which function the plugin is to perform as well
+ * as to compute Input/Output descriptions
+ * 
+ * @params[in]: pvValue         -> value of the PV when it is changed
+ * @params[in]: functionSet     -> the set from which the function set came from. currently (1-3)
+ * @return: function            -> returns the function as an ADCVFunction_t enum
+ */
+ADCVFunction_t NDPluginCV::get_function_from_pv(int pvValue, int functionSet){
+    const char* functionName = "get_function_from_pv";
+    if(functionSet == 1){
+        return (ADCVFunction_t) pvValue;
+    }
+    if(functionSet == 2){
+        return (ADCVFunction_t) (N_FUNC_1 + pvValue - 1);
+    }
+    if(functionSet == 3){
+        return (ADCVFunction_t) (N_FUNC_1 + N_FUNC_2 + pvValue - 2);
+    }
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s ERROR: Couldn't find correct function val\n", pluginName, functionName);
+    cvHelper->cvHelperStatus = "ERROR: Couldn't find correct function val";
+    return ADCV_NoFunction;
+}
+
+
+/**
  * Function that pulls the input values from the PVs and puts them into an array
  * 
  * @params[out]: inputs -> a pointer that is populated by the values stored in the input PVs.
@@ -427,13 +470,13 @@ asynStatus NDPluginCV::processImage(Mat &inputImg){
     ADCVFunction_t visionFunction;
 
     if(functionSet1 != 0){
-        visionFunction = cvHelper->get_function_from_pv(functionSet1, 1);
+        visionFunction = get_function_from_pv(functionSet1, 1);
     }
     else if(functionSet2 != 0){
-        visionFunction = cvHelper->get_function_from_pv(functionSet2, 2);
+        visionFunction = get_function_from_pv(functionSet2, 2);
     }
     else if(functionSet3 != 0){
-        visionFunction = cvHelper->get_function_from_pv(functionSet3, 3);
+        visionFunction = get_function_from_pv(functionSet3, 3);
     }
     else{
         visionFunction = ADCV_NoFunction;
@@ -545,19 +588,19 @@ asynStatus NDPluginCV::writeInt32(asynUser* pasynUser, epicsInt32 value){
     if(function == NDPluginCVFunction1 && value != 0){
         setIntegerParam(NDPluginCVFunction2, 0);
         setIntegerParam(NDPluginCVFunction3, 0);
-        ADCVFunction_t function = cvHelper->get_function_from_pv(value, 1);
+        ADCVFunction_t function = get_function_from_pv(value, 1);
         updateFunctionDescriptions(function);
     }
     else if(function == NDPluginCVFunction2 && value != 0){
         setIntegerParam(NDPluginCVFunction1, 0);
         setIntegerParam(NDPluginCVFunction3, 0);
-        ADCVFunction_t function = cvHelper->get_function_from_pv(value, 2);
+        ADCVFunction_t function = get_function_from_pv(value, 2);
         updateFunctionDescriptions(function);
     }
     else if(function == NDPluginCVFunction3 && value != 0){
         setIntegerParam(NDPluginCVFunction1, 0);
         setIntegerParam(NDPluginCVFunction2, 0);
-        ADCVFunction_t function = cvHelper->get_function_from_pv(value, 3);
+        ADCVFunction_t function = get_function_from_pv(value, 3);
         updateFunctionDescriptions(function);
     }
     else if((function == NDPluginCVFunction1 || function == NDPluginCVFunction2 || function == NDPluginCVFunction3) && value == 0){
@@ -573,7 +616,7 @@ asynStatus NDPluginCV::writeInt32(asynUser* pasynUser, epicsInt32 value){
         asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s ERROR status=%d, function=%d, value=%d\n", pluginName, functionName, status, function, value);
         return asynError;
     }
-    else asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s function=%d value=%d\n", pluginName, functionName, function, value);
+    else asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DRIVER, "%s::%s function=%d value=%d\n", pluginName, functionName, function, value);
     return asynSuccess;
 }
 
@@ -808,6 +851,7 @@ extern "C" void NDCVRegister(void){
 }
 
 
+/* Extern C function called from IOC startup script */
 extern "C" {
 	epicsExportRegistrar(NDCVRegister);
 }

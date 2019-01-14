@@ -1,4 +1,6 @@
-/*
+/**
+ * NDPluginCV.h
+ * 
  * Main header file for NDPluginCV
  *
  * Includes version number definition, the class itself, function definitions,
@@ -7,8 +9,9 @@
  *
  * Author: Jakub Wlodek
  *
- * Created: June 2018
- * Copyright (c): Brookhaven National Laboratory 2018
+ * Created: 26-Jun-18
+ * Last Updated: 14-Jan-2019
+ * Copyright (c): Brookhaven National Laboratory 2018-2019
  */
 
 //include guard to avoid multiple inclusions
@@ -252,6 +255,9 @@ class NDPluginCV : public NDPluginDriver{
         void assignOutputs();
         void assignInputDescriptions();
         void assignOutputDescriptions();
+
+        // gets function from PV values
+        ADCVFunction_t get_function_from_pv(int pvValue, int functionSet);
 
 
         // Conversion functions

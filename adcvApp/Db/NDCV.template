@@ -3,9 +3,11 @@
 # This will contatin records used by the plugin's various
 # functions.
 # 
-# Author: Jakub Wlodek June 2018
+# Author: Jakub Wlodek 
 #
-# Last modified: November 18, 2018
+# Created on: 26-Jun-2018
+# Last modified: 11-Jan-2019
+#
 
 
 # include the base driver template file

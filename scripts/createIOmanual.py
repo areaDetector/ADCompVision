@@ -1,9 +1,12 @@
+# 
 # Python script for scraping the documentation of NDPluginCVHelper.cpp to create an
 # html file containing information on the inputs and outputs of each of the supported 
 # wrapper funcitons
 #
 # Author: Jakub Wlodek
-# Created on: November 21, 2018
+#
+# Created on: 21-Nov-2018
+# Last Updated: 11-Jan-2019
 # Copyright (c): Brookhaven National Laboratory 2018-2019
 #
 

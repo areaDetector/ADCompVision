@@ -1,8 +1,8 @@
 # ADCompVision
 
-A plugin that will allow for Open CV based computer vision intergation with EPICS area detector
+A plugin that will allow for a comprehensive implementation of Open CV based computer vision intergation with EPICS area detector
 
-This plugin is still in development
+Check the RELEASE.md file or the website https://jwlodek.github.io/ADCompVision for release notes on current versions.
 
 ### Installation
 
@@ -18,7 +18,7 @@ sudo apt install libopencv-dev
 ```
 git clone https://github.com/jwlodek/ADCompVision
 ```
-3. Enter the 'configure' directory, and open the RELEASE_PRODS.local file, and add the following:
+3. Enter the 'configure' directory at the top level of area detector, and open the RELEASE_PRODS.local file, and add the following:
 ```
 ADCOMPVISION=$(AREA_DETECTOR)/ADCompVision
 ```

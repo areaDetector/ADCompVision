@@ -1,10 +1,16 @@
-/*
+/**
+ * NDPluginCVHelper.h
+ * 
  * Header file for helper functions/structs for NDPluginCV
+ * 
+ * This file includes counts for the number of functions in each set, the number of inputs and outputs,
+ * various type definitions used by the plugin, and function definitions used by the helper file
  *
  * Author: Jakub Wlodek
  *
- * Created: June 2018
- * Copyright (c): Brookhaven National Laboratory 2018
+ * Created: 26-Jun-2018
+ * Last Updated: 14-Jan-2019
+ * Copyright (c): Brookhaven National Laboratory 2018-2019
  *
  */
 
@@ -92,9 +98,6 @@ class NDPluginCVHelper {
 
         //function that will print information about an opencv error
         void print_cv_error(Exception &e, const char* functionName);
-
-        // gets function from PV values
-        ADCVFunction_t get_function_from_pv(int pvValue, int functionSet);
  
         // OpenCV Wrapper functions
         ADCVStatus_t canny_edge_detection(Mat &img, double* inputs, double* outputs);
