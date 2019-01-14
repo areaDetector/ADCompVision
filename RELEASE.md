@@ -9,7 +9,7 @@ Dependencies: ADCompVision requires opencv core, highgui, image processing, and 
 
 <!--RELEASE START-->
 
-## R1-0 (10-January-2019)
+## R1-0 (14-January-2019)
 
 * Computer Vision functions implemented:
     * Gaussian Blur

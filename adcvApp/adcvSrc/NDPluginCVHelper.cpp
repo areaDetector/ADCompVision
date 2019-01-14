@@ -360,7 +360,7 @@ ADCVStatus_t NDPluginCVHelper::find_centroids(Mat &img, double* inputs, double* 
         for(i = 0; i < largestContours.size(); i++){
             contour_moments[i] = moments(largestContours[i], false);
         }
-        vector<Point2f> contour_centroids(contours.size());
+        vector<Point2f> contour_centroids(largestContours.size());
         for(j = 0; j < largestContours.size(); j++){
             // segfault here on too much movement
             contour_centroids[j] = Point2f((contour_moments[j].m10/contour_moments[j].m00), (contour_moments[j].m01/contour_moments[j].m00));
