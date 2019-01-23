@@ -86,6 +86,7 @@ ADCVStatus_t NDPluginCVHelper::fix_coloration(Mat &img){
         print_cv_error(e, functionName);
         status = cvHelperError;
     }
+    return status;
 }
 
 
