@@ -98,6 +98,9 @@ class NDPluginCVHelper {
 
         //function that will print information about an opencv error
         void print_cv_error(Exception &e, const char* functionName);
+
+        //function that converts from rgb to bgr for image passthrough
+        ADCVStatus_t fix_coloration(Mat &img);
  
         // OpenCV Wrapper functions
         ADCVStatus_t canny_edge_detection(Mat &img, double* inputs, double* outputs);
@@ -142,7 +145,6 @@ class NDPluginCVHelper {
         bool wasComputed = false;
         Mat firstMVImage;
         Mat processedMVImage;
-
 
 };
 #endif
