@@ -482,20 +482,20 @@ asynStatus NDPluginCV::processImage(Mat &inputImg){
         visionFunction = ADCV_NoFunction;
     }
 
-    if(visionFunction != ADCV_NoFunction){
-        status = getRequiredParams(inputs);
-        if(status != asynError){
-            libStatus = cvHelper->processImage(inputImg, visionFunction, inputs, outputs);
-            if(libStatus == cvHelperError){
-                asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error processing image in library\n", pluginName, functionName);
-                status  = asynError;
-            }
-            else{
-                status = setOutputParams(outputs);
-            }
+    
+    status = getRequiredParams(inputs);
+    if(status != asynError){
+        libStatus = cvHelper->processImage(inputImg, visionFunction, inputs, outputs);
+        if(libStatus == cvHelperError){
+            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error processing image in library\n", pluginName, functionName);
+            status  = asynError;
+        }
+        else{
+            status = setOutputParams(outputs);
         }
     }
-    else{
+    
+    if(visionFunction == ADCV_NoFunction){
         status = asynDisabled;
     }
     writeImageFile(inputImg);
@@ -663,22 +663,20 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
         if(status == asynError){
             asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error Processing image\n", pluginName, functionName);
             img.release();
+            return;
         }
-        else{     
-            ADCVDataFormat_t matFormat = (ADCVDataFormat_t) img.depth();
-            ADCVColorFormat_t colorFormat = (ADCVColorFormat_t) img.channels();
-            status = getDataTypeFromMat(matFormat, &finalDataType);
-            status = getColorModeFromMat(colorFormat, &finalColorMode);
 
-            // copy from the output to the pScratch array
-            status = mat2NDArray(img, finalDataType, finalColorMode);
-
-            if(status == asynError){
-                asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error copying from Mat to NDArray\n", pluginName, functionName);
-            }
-            // refresh the PV values, and push the output image to NDArrayData. then release the memory for pScratch
-            callParamCallbacks();
+        ADCVDataFormat_t matFormat = (ADCVDataFormat_t) img.depth();
+        ADCVColorFormat_t colorFormat = (ADCVColorFormat_t) img.channels();
+        status = getDataTypeFromMat(matFormat, &finalDataType);
+        status = getColorModeFromMat(colorFormat, &finalColorMode);
+        // copy from the output to the pScratch array
+        status = mat2NDArray(img, finalDataType, finalColorMode);
+        if(status == asynError){
+            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error copying from Mat to NDArray\n", pluginName, functionName);
         }
+        // refresh the PV values, and push the output image to NDArrayData. then release the memory for pScratch
+        callParamCallbacks();
     }
 }
 

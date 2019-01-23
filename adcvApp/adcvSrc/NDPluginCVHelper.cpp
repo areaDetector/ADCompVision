@@ -66,6 +66,30 @@ void NDPluginCVHelper::print_cv_error(Exception &e, const char* functionName){
 }
 
 
+/**
+ * When using the image passthrough feature when no function is selected,
+ * if the image is color the BGR format OpenCV uses will conflict with the
+ * RGB used by area Detector. This function simply converts everything into RGB
+ * 
+ * @params[out]: img    -> the input image
+ * @return: status
+ */
+ADCVStatus_t NDPluginCVHelper::fix_coloration(Mat &img){
+    const char* functionName = "fix_coloration";
+    ADCVStatus_t status = cvHelperSuccess;
+    try{
+        if(img.channels() == 3){
+            cvtColor(img, img, COLOR_BGR2RGB);
+        }
+        cvHelperStatus = "Image passed through";
+    }catch(Exception &e){
+        print_cv_error(e, functionName);
+        status = cvHelperError;
+    }
+    return status;
+}
+
+
 /*
 #############################################################################
 #                                                                           #
@@ -834,6 +858,9 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
         */
         case ADCV_UserDefined:
             status = user_function(image, inputs, outputs);
+            break;
+        case ADCV_NoFunction:
+            status = fix_coloration(image);
             break;
         default:
             status = cvHelperError;
