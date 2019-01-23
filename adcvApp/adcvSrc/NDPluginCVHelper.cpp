@@ -76,7 +76,7 @@ void NDPluginCVHelper::print_cv_error(Exception &e, const char* functionName){
  */
 ADCVStatus_t NDPluginCVHelper::fix_coloration(Mat &img){
     const char* functionName = "fix_coloration";
-    ADCVStatus_t status;
+    ADCVStatus_t status = cvHelperSuccess;
     try{
         if(img.channels() == 3){
             cvtColor(img, img, COLOR_BGR2RGB);
