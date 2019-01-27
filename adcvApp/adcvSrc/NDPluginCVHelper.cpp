@@ -339,7 +339,7 @@ ADCVStatus_t NDPluginCVHelper::find_centroids(Mat &img, double* inputs, double* 
         }
         GaussianBlur(img, img, Size(blurDegree, blurDegree), 0);
         threshold(img, img, thresholdVal, 255, THRESH_BINARY);
-        vector<vector<Point>> contours;
+        vector<vector<Point> > contours;
         vector<Vec4i> heirarchy;
 
         findContours(img, contours, heirarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0,0));
@@ -351,7 +351,7 @@ ADCVStatus_t NDPluginCVHelper::find_centroids(Mat &img, double* inputs, double* 
             numLargestContours = contours.size();
         }
         // clean this part up if possible
-        vector<vector<Point>> largestContours(numLargestContours);
+        vector<vector<Point> > largestContours(numLargestContours);
         size_t a, b;
         for(a = 0; a< numLargestContours; a++){
             vector<Point> largestContour = contours[0];
@@ -474,8 +474,8 @@ ADCVStatus_t NDPluginCVHelper::obj_identification(Mat &img, double* inputs, doub
         }
         GaussianBlur(img, img, Size(blurDegree, blurDegree), 0);
         threshold(img, img, thresholdVal, 255, THRESH_BINARY);
-        vector<vector<Point>> contours;
-        vector<vector<Point>> validContours;
+        vector<vector<Point> > contours;
+        vector<vector<Point> > validContours;
         vector<Vec4i> heirarchy;
         findContours(img, contours, heirarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0,0));
         // TODO
