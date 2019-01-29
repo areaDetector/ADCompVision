@@ -646,7 +646,7 @@ record(waveform, "$(P)$(R)CVFilename"){
     field(INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FILENAME")
     field(FTVL, "CHAR")
     field(NELM, "256")
-    field(autosaveFields, "VAL")
+#    field(autosaveFields, "VAL")
 }
 
 record(waveform, "$(P)$(R)CVFilename_RBV"){
