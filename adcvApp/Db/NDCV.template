@@ -647,7 +647,7 @@ record(mbbi, "$(P)$(R)CVWriteFile_RBV")
 record(waveform, "$(P)$(R)CVFilename"){
     field(PINI, "YES")
     field(DTYP, "asynOctetWrite")
-    field(INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FILENAME")
+    field(OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FILENAME")
     field(FTVL, "CHAR")
     field(NELM, "256")
     field(autosaveFields, "VAL")
