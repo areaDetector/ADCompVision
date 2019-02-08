@@ -490,6 +490,9 @@ asynStatus NDPluginCV::processImage(Mat &inputImg){
             asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error processing image in library\n", pluginName, functionName);
             status  = asynError;
         }
+        else if(libStatus == cvHelperWait){
+            status = asynDisabled;
+        }
         else{
             status = setOutputParams(outputs);
         }
@@ -662,6 +665,11 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
 
         if(status == asynError){
             asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error Processing image\n", pluginName, functionName);
+            img.release();
+            return;
+        }
+        else if(status == asynDisabled){
+            asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s::%s Waiting for next image\n", pluginName, functionName);
             img.release();
             return;
         }

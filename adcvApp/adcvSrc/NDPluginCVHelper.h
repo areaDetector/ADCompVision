@@ -45,7 +45,7 @@ using namespace std;
  * The I/O descriptions would be taken from the array using this value
  * 
  */ 
-#define N_FUNC_1                    5
+#define N_FUNC_1                    6
 #define N_FUNC_2                    2
 #define N_FUNC_3                    2
 
@@ -58,13 +58,14 @@ typedef enum {
     ADCV_NoFunction         = 0,
     ADCV_GaussianBlur       = 1,
     ADCV_Threshold          = 2,
-    ADCV_Laplacian          = 3,
-    ADCV_EdgeDetectionCanny = 4,
-    ADCV_CentroidFinder     = 5,
+    ADCV_Subtract           = 3,
+    ADCV_Laplacian          = 4,
+    ADCV_EdgeDetectionCanny = 5,
+    ADCV_CentroidFinder     = 6,
     //These two functions are not yet fully implemented
     //ADCV_MovementVectors    = 6,
     //ADCV_ObjIdentification    = 7,
-    ADCV_UserDefined        = 6,
+    ADCV_UserDefined        = 7,
 } ADCVFunction_t;
 
 
@@ -81,6 +82,7 @@ typedef enum {
 typedef enum {
     cvHelperSuccess         = 0,
     cvHelperError           = -1,
+    cvHelperWait            = -2,
 } ADCVStatus_t;
 
 
@@ -108,6 +110,9 @@ class NDPluginCVHelper {
         ADCVStatus_t threshold_image(Mat &img, double* inputs, double* outputs);
         ADCVStatus_t find_centroids(Mat &img, double* inputs, double* outputs);
         ADCVStatus_t gaussian_blur(Mat &img, double* inputs, double* outputs);
+        ADCVStatus_t subtract_consecutive_images(Mat &img, double* inputs, double* outputs);
+
+        // under development
         ADCVStatus_t movement_vectors(Mat &img, double* inputs, double* outputs);
         ADCVStatus_t obj_identification(Mat &img, double* inputs, double* outputs);
 
@@ -121,6 +126,9 @@ class NDPluginCVHelper {
         ADCVStatus_t get_laplacian_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_canny_edge_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_centroid_finder_description(string* inputDesc, string* outputDesc, string* description);
+        ADCVStatus_t get_subtract_description(string* inputDesc, string* outputDesc, string* description);
+
+        // Under development
         ADCVStatus_t get_movement_vectors_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_obj_identification_description(string* inputDesc, string* outputDesc, string* description);
         
@@ -143,8 +151,7 @@ class NDPluginCVHelper {
         // movement vector variables (Currently Unused/untested)
         int frameCounter = 0;
         bool wasComputed = false;
-        Mat firstMVImage;
-        Mat processedMVImage;
+        Mat temporaryImg;
 
 };
 #endif

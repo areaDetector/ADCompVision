@@ -97,6 +97,18 @@
 </th>
 </tr>
 <tr>
+<th>SubtractConsecutiveImages
+</th>
+<th>0
+</th>
+<th>
+</th>
+<th>0
+</th>
+<th>
+</th>
+</tr>
+<tr>
 <th>FindObjectCentroids
 </th>
 <th>5
@@ -169,6 +181,11 @@
  edges that can assist with object detection/identification: the top, bottom, left, and right pixels are the min and max X and
  Y pixel values that appear on one of the edges. The horizontal and vertical size and center give you the spacing between
  these min and max values and their midpoint.
+ 
+</p><h3>SubtractConsecutiveImages
+</h3><p> Function that allows the user to take consecutive images recieved from area detector and subtract them
+ in pairs. Reads first image into memory, then waits for second one, when it receives the second one, 
+ subtract them.
  
 </p><h3>FindObjectCentroids
 </h3><p> Function for finding centroids of objects in an image. Useful for alignment of objects
