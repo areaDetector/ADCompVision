@@ -56,6 +56,7 @@ ifdef ADCOMPVISION
   endif 
 endif
 ```
+**NOTE** If using OpenCV 3.* or newer add opencv_imgcodecs to the LIBS. This is because the highgui package was split into two in the newer versions.
 8. The inital setup process is now complete. go back to the top level of ADCore and type:
 ```
 make -sj

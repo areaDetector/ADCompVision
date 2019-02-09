@@ -309,6 +309,42 @@ ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat &img, double* inputs, do
 
 
 /**
+ * WRAPPER      -> Subtract Consecutive Images
+ * Function that allows the user to take consecutive images recieved from area detector and subtract them
+ * in pairs. Reads first image into memory, then waits for second one, when it receives the second one, 
+ * subtract them.
+ * 
+ * @inCount     -> 0
+ * @inFormat    -> 
+ * 
+ * @outCount    -> 0
+ * @outFormat   -> 
+ */
+ADCVStatus_t NDPluginCVHelper::subtract_consecutive_images(Mat &img, double* inputs, double* outputs){
+    const char* functionName = "subtract_consecutive_images";
+    ADCVStatus_t status = cvHelperSuccess;
+    try{
+        if(wasComputed == false){
+            img.copyTo(temporaryImg);
+            wasComputed = true;
+            status = cvHelperWait;
+            cvHelperStatus = "Waiting for next image to subtract";
+        }
+        else{
+            subtract(img, temporaryImg, img);
+            temporaryImg.release();
+            wasComputed = false;
+            cvHelperStatus = "Finished Subtracting images";
+        }
+    }catch(Exception &e){
+        print_cv_error(e, functionName);
+        status = cvHelperError;
+    }
+    return status;
+}
+
+
+/**
  * WRAPPER      -> Find Object Centroids
  * Function for finding centroids of objects in an image. Useful for alignment of objects
  * First, blur the object based on a certain blur degree (kernel size). Then threshold the image
@@ -424,19 +460,20 @@ ADCVStatus_t NDPluginCVHelper::movement_vectors(Mat &img, double* inputs, double
     if(numVectors >2 || numVectors <0){
         return cvHelperError;
     }
-
     try{
         if(frameCounter == 0){
             //initialize the first starting point image
-            img.copyTo(firstMVImage);
+            img.copyTo(temporaryImg);
             frameCounter++;
+            status = cvHelperWait;
         }
-        else if(frameCounter >= framesBetween){
-            //TODO calculate movement vectors
+        else if(frameCounter < framesBetween){
+            frameCounter++;
+            status = cvHelperWait;
         }
-        if(wasComputed){
-            // If we have a movement vector computed, copy it into output image
-            processedMVImage.copyTo(img);
+        else {
+            frameCounter = 0;
+            //calc movement vectors.
         }
         cvHelperStatus = "Processed Movement Vectors";
     }catch(Exception &e){
@@ -655,6 +692,27 @@ ADCVStatus_t NDPluginCVHelper::get_laplacian_description(string* inputDesc, stri
 }
 
 
+
+/**
+ * Function that sets the I/O descriptions for image subtraction
+ * 
+ * @params[out]: inputDesc      -> array of input descriptions
+ * @params[out]: outputDesc     -> array of output descriptions
+ * @params[out]: description    -> overall function usage description
+ * @return: void
+ */
+ADCVStatus_t NDPluginCVHelper::get_subtract_description(string* inputDesc, string* outputDesc, string* description){
+    ADCVStatus_t status = cvHelperSuccess;
+    int numInput = 0;
+    int numOutput = 0;
+    *description = "Subtracts consecutive images. Used in certain implementations of Dual Thresholding";
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    return status;
+}
+
+
+
+
 /**
  * Function that sets the I/O descriptions for Canny Edge Detection
  * 
@@ -851,6 +909,9 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
         case ADCV_Laplacian:
             status = laplacian_edge_detection(image, inputs, outputs);
             break;
+        case ADCV_Subtract:
+            status = subtract_consecutive_images(image, inputs, outputs);
+            break;
         /*
         case ADCV_MovementVectors:
             status = movement_vectors(image, inputs, outputs);
@@ -895,6 +956,9 @@ ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, s
             break;
         case ADCV_GaussianBlur:
             status = get_gaussian_blur_description(inputDesc, outputDesc, description);
+            break;
+        case ADCV_Subtract:
+            status = get_subtract_description(inputDesc, outputDesc, description);
             break;
         case ADCV_Laplacian:
             status = get_laplacian_description(inputDesc, outputDesc, description);
