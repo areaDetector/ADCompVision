@@ -46,7 +46,7 @@ using namespace std;
  * 
  */ 
 #define N_FUNC_1                    6
-#define N_FUNC_2                    2
+#define N_FUNC_2                    3
 #define N_FUNC_3                    2
 
 // Total Number of CV functions
@@ -63,9 +63,9 @@ typedef enum {
     ADCV_EdgeDetectionCanny = 5,
     ADCV_CentroidFinder     = 6,
     //These two functions are not yet fully implemented
-    //ADCV_MovementVectors    = 6,
+    ADCV_MovementVectors    = 7,
     //ADCV_ObjIdentification    = 7,
-    ADCV_UserDefined        = 7,
+    ADCV_UserDefined        = 8,
 } ADCVFunction_t;
 
 
@@ -154,6 +154,8 @@ class NDPluginCVHelper {
         Mat temporaryImg;
 
         vector<Point2f> prevMovementKeypoints, newMovementKeypoints;
+        bool found = false;
+        vector<uchar> featuresFound;
 
 };
 #endif

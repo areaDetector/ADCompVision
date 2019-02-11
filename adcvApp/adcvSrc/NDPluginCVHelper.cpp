@@ -457,10 +457,10 @@ ADCVStatus_t NDPluginCVHelper::movement_vectors(Mat &img, double* inputs, double
     ADCVStatus_t status = cvHelperSuccess;
     int framesBetween = inputs[0];
     int numVectors = inputs[1];
-    double qualityLevel = inputs[2];
+    int qualityLevel = inputs[2];
     int minDistance = inputs[3];
     int winSize = inputs[4];
-    if(numVectors >2 || numVectors <0){
+    if(numVectors <0){
         return cvHelperError;
     }
     try{
@@ -470,34 +470,39 @@ ADCVStatus_t NDPluginCVHelper::movement_vectors(Mat &img, double* inputs, double
         if(frameCounter == 0){
             //initialize the first starting point image
             img.copyTo(temporaryImg);
-            goodFeaturesToTrack(temporaryImg, prevMovementKeypoints, numVectors, qualityLevel, minDistance);
+            goodFeaturesToTrack(temporaryImg, prevMovementKeypoints, numVectors, 0.05, minDistance);
             cornerSubPix(temporaryImg, prevMovementKeypoints, Size(winSize, winSize), Size(-1, -1), termcrit);
             frameCounter++;
-            status = cvHelperWait;
             cvHelperStatus = "Waiting for next frame cycle";
         }
         else if(frameCounter < framesBetween){
             frameCounter++;
-            status = cvHelperWait;
         }
         else {
+            found = true;
+            featuresFound.clear();
             frameCounter = 0;
-            vector<uchar> featuresFound;
             vector<float> error;
             calcOpticalFlowPyrLK(temporaryImg, img, prevMovementKeypoints, newMovementKeypoints, 
                     featuresFound, error, Size(winSize, winSize), 5, termcrit);
-            for(int i = 0; i< static_cast<int>(prevMovementKeypoints.size()); i++){
-                if(!featuresFound[i]) break;
-                line(img, prevMovementKeypoints[i], newMovementKeypoints[i], Scalar(0,255,0), 2, LINE_AA);
-                outputs[0 + (4*i)] = prevMovementKeypoints[i].x;
-                outputs[1 + (4*i)] = prevMovementKeypoints[i].y;
-                outputs[2 + (4*i)] = newMovementKeypoints[i].x;
-                outputs[3 + (4*i)] = newMovementKeypoints[i].y;
-            }
+            
             temporaryImg.release();
             prevMovementKeypoints.clear();
             newMovementKeypoints.clear();
             cvHelperStatus = "Processed Movement Vectors";
+        }
+        cvtColor(img, img, COLOR_GRAY2RGB);
+        if(found == true){
+            for(int i = 0; i< static_cast<int>(prevMovementKeypoints.size()); i++){
+                if(!featuresFound[i]) break;
+                line(img, prevMovementKeypoints[i], newMovementKeypoints[i], Scalar(0,255,0), 2, LINE_AA);
+                if(i < 2){
+                    outputs[0 + (4*i)] = prevMovementKeypoints[i].x;
+                    outputs[1 + (4*i)] = prevMovementKeypoints[i].y;
+                    outputs[2 + (4*i)] = newMovementKeypoints[i].x;
+                    outputs[3 + (4*i)] = newMovementKeypoints[i].y;
+                }
+            } 
         }
     }catch(Exception &e){
         print_cv_error(e, functionName);
@@ -938,11 +943,9 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
         case ADCV_Subtract:
             status = subtract_consecutive_images(image, inputs, outputs);
             break;
-        /*
         case ADCV_MovementVectors:
             status = movement_vectors(image, inputs, outputs);
             break;
-        */
         case ADCV_UserDefined:
             status = user_function(image, inputs, outputs);
             break;
@@ -995,11 +998,9 @@ ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, s
         case ADCV_CentroidFinder:
             status = get_centroid_finder_description(inputDesc, outputDesc, description);
             break;
-        /*
         case ADCV_MovementVectors:
             status = get_movement_vectors_description(inputDesc, outputDesc, description);
             break;
-        */
         case ADCV_UserDefined:
             status = get_user_function_description(inputDesc, outputDesc, description);
             break;
