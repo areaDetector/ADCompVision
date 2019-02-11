@@ -153,5 +153,7 @@ class NDPluginCVHelper {
         bool wasComputed = false;
         Mat temporaryImg;
 
+        vector<Point2f> movementVectorKeypoints[2];
+
 };
 #endif

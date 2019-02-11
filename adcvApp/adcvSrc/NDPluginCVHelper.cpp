@@ -457,13 +457,22 @@ ADCVStatus_t NDPluginCVHelper::movement_vectors(Mat &img, double* inputs, double
     ADCVStatus_t status = cvHelperSuccess;
     int framesBetween = inputs[0];
     int numVectors = inputs[1];
+    double qualityLevel = inputs[2];
+    double minDistance = inputs[3];
+    int subPixWinSize = inputs[4];
+    int winSize = inputs[5];
     if(numVectors >2 || numVectors <0){
         return cvHelperError;
     }
     try{
+        if(img.channels() != 2)
+            cvtColor(img, img, COLOR_BGR2GRAY);
+        TermCriteria termcrit(TermCriteria::COUNT|TermCriteria::EPS,20,0.03);
         if(frameCounter == 0){
             //initialize the first starting point image
             img.copyTo(temporaryImg);
+            goodFeaturesToTrack(temporaryImg, movementVectorKeypoints[1], numVectors, qualityLevel, minDistance);
+            cornerSubPix(temporaryImg, movementVectorKeypoints[1], Size(subPixWinSize, subPixWinSize), Size(-1, -1), termcrit);
             frameCounter++;
             status = cvHelperWait;
         }
@@ -473,7 +482,13 @@ ADCVStatus_t NDPluginCVHelper::movement_vectors(Mat &img, double* inputs, double
         }
         else {
             frameCounter = 0;
-            //calc movement vectors.
+            goodFeaturesToTrack(img, movementVectorKeypoints[0], numVectors, qualityLevel, minDistance);
+            cornerSubPix(img, movementVectorKeypoints[0], Size(subPixWinSize, subPixWinSize), Size(-1, -1), termcrit);
+            vector<uchar> stat;
+            vector<float> error;
+            calcOpticalFlowPyrLK(temporaryImg, img, movementVectorKeypoints[1], movementVectorKeypoints[0], 
+                    stat, error, Size(winSize, winSize), 3, termcrit, 0, 0.001);
+            
         }
         cvHelperStatus = "Processed Movement Vectors";
     }catch(Exception &e){
