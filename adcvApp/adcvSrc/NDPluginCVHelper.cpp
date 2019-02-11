@@ -446,8 +446,8 @@ ADCVStatus_t NDPluginCVHelper::find_centroids(Mat &img, double* inputs, double* 
  * 
  * NOT YET IMPLEMENTED/TESTED
  *
- * @inCount     -> 2
- * @inFormat    -> [Frames Between Images (Int), Num Vectors (Int)]
+ * @inCount     -> 5
+ * @inFormat    -> [Frames Between Images (Int), Num Vectors (Int), quality level (double), min distance (int), window size (int)]
  *
  * @outCount    -> 0 - 8
  * @outFormat   -> [Vector 1 Start X (Int), Vector 1 Start Y (Int), Vector 1 End X, Vector 1 End Y ...]
@@ -458,9 +458,8 @@ ADCVStatus_t NDPluginCVHelper::movement_vectors(Mat &img, double* inputs, double
     int framesBetween = inputs[0];
     int numVectors = inputs[1];
     double qualityLevel = inputs[2];
-    double minDistance = inputs[3];
-    int subPixWinSize = inputs[4];
-    int winSize = inputs[5];
+    int minDistance = inputs[3];
+    int winSize = inputs[4];
     if(numVectors >2 || numVectors <0){
         return cvHelperError;
     }
@@ -471,10 +470,11 @@ ADCVStatus_t NDPluginCVHelper::movement_vectors(Mat &img, double* inputs, double
         if(frameCounter == 0){
             //initialize the first starting point image
             img.copyTo(temporaryImg);
-            goodFeaturesToTrack(temporaryImg, movementVectorKeypoints[1], numVectors, qualityLevel, minDistance);
-            cornerSubPix(temporaryImg, movementVectorKeypoints[1], Size(subPixWinSize, subPixWinSize), Size(-1, -1), termcrit);
+            goodFeaturesToTrack(temporaryImg, prevMovementKeypoints, numVectors, qualityLevel, minDistance);
+            cornerSubPix(temporaryImg, prevMovementKeypoints, Size(winSize, winSize), Size(-1, -1), termcrit);
             frameCounter++;
             status = cvHelperWait;
+            cvHelperStatus = "Waiting for next frame cycle";
         }
         else if(frameCounter < framesBetween){
             frameCounter++;
@@ -482,15 +482,23 @@ ADCVStatus_t NDPluginCVHelper::movement_vectors(Mat &img, double* inputs, double
         }
         else {
             frameCounter = 0;
-            goodFeaturesToTrack(img, movementVectorKeypoints[0], numVectors, qualityLevel, minDistance);
-            cornerSubPix(img, movementVectorKeypoints[0], Size(subPixWinSize, subPixWinSize), Size(-1, -1), termcrit);
-            vector<uchar> stat;
+            vector<uchar> featuresFound;
             vector<float> error;
-            calcOpticalFlowPyrLK(temporaryImg, img, movementVectorKeypoints[1], movementVectorKeypoints[0], 
-                    stat, error, Size(winSize, winSize), 3, termcrit, 0, 0.001);
-            
+            calcOpticalFlowPyrLK(temporaryImg, img, prevMovementKeypoints, newMovementKeypoints, 
+                    featuresFound, error, Size(winSize, winSize), 5, termcrit);
+            for(int i = 0; i< static_cast<int>(prevMovementKeypoints.size()); i++){
+                if(!featuresFound[i]) break;
+                line(img, prevMovementKeypoints[i], newMovementKeypoints[i], Scalar(0,255,0), 2, LINE_AA);
+                outputs[0 + (4*i)] = prevMovementKeypoints[i].x;
+                outputs[1 + (4*i)] = prevMovementKeypoints[i].y;
+                outputs[2 + (4*i)] = newMovementKeypoints[i].x;
+                outputs[3 + (4*i)] = newMovementKeypoints[i].y;
+            }
+            temporaryImg.release();
+            prevMovementKeypoints.clear();
+            newMovementKeypoints.clear();
+            cvHelperStatus = "Processed Movement Vectors";
         }
-        cvHelperStatus = "Processed Movement Vectors";
     }catch(Exception &e){
         print_cv_error(e, functionName);
         status = cvHelperError;
@@ -801,10 +809,13 @@ ADCVStatus_t NDPluginCVHelper::get_centroid_finder_description(string* inputDesc
  */
 ADCVStatus_t NDPluginCVHelper::get_movement_vectors_description(string* inputDesc, string* outputDesc, string* description){
     ADCVStatus_t status = cvHelperSuccess;
-    int numInput = 2;
+    int numInput = 5;
     int numOutput = 8;
     inputDesc[0] = "Frames Between check (Int)";
     inputDesc[1] = "Max Vectors counted (Int 1 or 2)";
+    inputDesc[2] = "Quality Level (Double ex. 0.01)";
+    inputDesc[3] = "Minimum Distance (Int ex. 5)";
+    inputDesc[4] = "Subpixel window size (Int ex. 10)";
     outputDesc[0] = "Vector 1 Start X";
     outputDesc[1] = "Vector 1 Start Y";
     outputDesc[2] = "Vector 1 End X";
