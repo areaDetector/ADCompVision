@@ -163,6 +163,9 @@ ADCVStatus_t NDPluginCVHelper::gaussian_blur(Mat &img, double* inputs, double* o
         if(img.channels() == 3){
             cvtColor(img, img, COLOR_RGB2BGR);
         }
+        if(img.depth() == CV_16UC1 || img.depth() == CV_16SC1){
+            img.convertTo(img, CV_8UC1, 1/256.0);
+        }
         GaussianBlur(img, img, Size(blurDegree, blurDegree), 1, 0, BORDER_DEFAULT);
         cvHelperStatus = "Computed Gaussian Blur of image";
     }catch(Exception &e){
@@ -188,13 +191,15 @@ ADCVStatus_t NDPluginCVHelper::gaussian_blur(Mat &img, double* inputs, double* o
 ADCVStatus_t NDPluginCVHelper::threshold_image(Mat &img, double* inputs, double* outputs){
     const char* functionName = "threshold_image";
     ADCVStatus_t status = cvHelperSuccess;
-    
-    if(img.channels()!=2){
-        cvtColor(img, img, COLOR_BGR2GRAY);
-    }
     int threshVal = (int) inputs[0];
     int threshMax = (int) inputs[1];
     try{
+        if(img.channels()==3){
+            cvtColor(img, img, COLOR_BGR2GRAY);
+        }
+        if(img.depth() == CV_16UC1 || img.depth() == CV_16SC1){
+            img.convertTo(img, CV_8UC1, 1/256.0);
+        }
         threshold(img, img, threshVal, threshMax, THRESH_BINARY);
         cvHelperStatus = "Computed image threshold";
     }catch(Exception &e){
@@ -221,10 +226,13 @@ ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat &img, double* inputs
     const char* functionName = "laplacian_edge_detection";
     int blurDegree = inputs[0];
     ADCVStatus_t status = cvHelperSuccess;
-    if(img.channels()!=2){
-        cvtColor(img, img, COLOR_BGR2GRAY);
-    }
     try{
+        if(img.channels()==3){
+            cvtColor(img, img, COLOR_BGR2GRAY);
+        }
+        if(img.depth() == CV_16UC1 || img.depth() == CV_16SC1){
+            img.convertTo(img, CV_8UC1, 1/256.0);
+        }
         GaussianBlur(img, img, Size(blurDegree, blurDegree),1, 0, BORDER_DEFAULT);
         int depth = img.depth();
         Laplacian(img, img, depth);
@@ -261,10 +269,13 @@ ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat &img, double* inputs, do
     int blurDegree = inputs[2];
     int kernelSize = inputs[3];
     // If image isn't mono, we need to convert it first
-    if(img.channels()!=2){
-        cvtColor(img, img, COLOR_BGR2GRAY);
-    }
     try{
+        if(img.channels()==3){
+            cvtColor(img, img, COLOR_BGR2GRAY);
+        }
+        if(img.depth() == CV_16UC1 || img.depth() == CV_16SC1){
+            img.convertTo(img, CV_8UC1, 1/256.0);
+        }
         blur(img, img, Size(blurDegree, blurDegree));
         Canny(img, img, threshVal, (threshVal*threshRatio), kernelSize);
         // set output params
@@ -370,8 +381,11 @@ ADCVStatus_t NDPluginCVHelper::find_centroids(Mat &img, double* inputs, double* 
     double lowerSizeThreshold = inputs[4];
     try{
         // first we need to convert to grayscale if necessary
-        if(img.channels()!=2){
+        if(img.channels()==3){
             cvtColor(img, img, COLOR_BGR2GRAY);
+        }
+        if(img.depth() == CV_16UC1 || img.depth() == CV_16SC1){
+            img.convertTo(img, CV_8UC1, 1/256.0);
         }
         GaussianBlur(img, img, Size(blurDegree, blurDegree), 0);
         threshold(img, img, thresholdVal, 255, THRESH_BINARY);
@@ -506,7 +520,7 @@ ADCVStatus_t NDPluginCVHelper::obj_identification(Mat &img, double* inputs, doub
 
     try{
         // first we need to convert to grayscale if necessary
-        if(img.channels()!=2){
+        if(img.channels()==3){
             cvtColor(img, img, COLOR_BGR2GRAY);
         }
         GaussianBlur(img, img, Size(blurDegree, blurDegree), 0);
