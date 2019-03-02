@@ -245,6 +245,38 @@ ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat &img, double* inputs
     return status;
 }
 
+//------------- Template for OpenCV function wrapper -------------------
+
+
+/**
+ * WRAPPER  ->  YOURFUNCTIONNAME
+ * YOUR_FUNCTION_DESCRIPTION
+ *
+ * @inCount     -> n
+ * @inFormat    -> [Param1 (Int), Param2 (Double) ...]
+ *
+ * @outCount    -> n
+ * @outFormat   -> [Param1 (Int), Param2 (Double) ...]
+ */
+ADCVStatus_t NDPluginCVHelper::sharpen_images(Mat &img, double* inputs, double* outputs){
+    const char* functionName = "sharpen_images";
+    ADCVStatus_t status = cvHelperSuccess;
+    param1 = inputs[0];
+    param2 = inputs[1];
+
+    try{
+        // Process your image here
+        // Don't make copies, pass img, img as input and output to OpenCV.
+        // Set output values with output[n] = value. cast non-double values to double
+        // If you need more inputs or outputs, add more PVs following previous examples.
+        cvHelperStatus = "Finished processing sharpen_images";
+    }catch(Exception &e){
+        print_cv_error(e, functionName);
+        status = cvHelperError;
+    }
+    return status;
+}
+
 
 /**
  * WRAPPER      -> Canny Edge Detector
@@ -705,7 +737,31 @@ ADCVStatus_t NDPluginCVHelper::get_laplacian_description(string* inputDesc, stri
     return status;
 }
 
+//------------- Template for wrapper I/O description function  -------------------
 
+
+/*
+ * Function that sets the I/O descriptions for YOURFUNCTION
+ * 
+ * @params[out]: inputDesc      -> array of input descriptions
+ * @params[out]: outputDesc     -> array of output descriptions
+ * @params[out]: description    -> overall function usage description
+ * @return: void
+ */
+ADCVStatus_t NDPluginCVHelper::get_sharpen_description(string* inputDesc, string* outputDesc, string* description){
+    ADCVStatus_t status = cvHelperSuccess;
+    int numInput = 2;
+    int numOutput = 2;
+    inputDesc[0] = "Input 1 Description";
+    inputDesc[1] = "Input 2 Description";
+
+    outputDesc[0] = "Output 1 Description";
+    outputDesc[1] = "Output 2 Description";
+ 
+    *description = "Sharpen images using laplacian";
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    return status
+}
 
 /**
  * Function that sets the I/O descriptions for image subtraction
@@ -923,6 +979,10 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
         case ADCV_Laplacian:
             status = laplacian_edge_detection(image, inputs, outputs);
             break;
+         case ADCV_Sharpen:
+            status = sharpen_images(image, inputs, outputs);
+            break;
+            
         case ADCV_Subtract:
             status = subtract_consecutive_images(image, inputs, outputs);
             break;
@@ -983,6 +1043,10 @@ ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, s
         case ADCV_CentroidFinder:
             status = get_centroid_finder_description(inputDesc, outputDesc, description);
             break;
+        case ADCV_Sharpen:
+            status = get_sharpen_description(inputDesc, outputDesc, description);
+            break;
+          
         /*
         case ADCV_MovementVectors:
             status = get_movement_vectors_description(inputDesc, outputDesc, description);

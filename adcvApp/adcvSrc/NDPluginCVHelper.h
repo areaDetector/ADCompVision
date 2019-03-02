@@ -46,7 +46,7 @@ using namespace std;
  * 
  */ 
 #define N_FUNC_1                    6
-#define N_FUNC_2                    2
+#define N_FUNC_2                    3
 #define N_FUNC_3                    2
 
 // Total Number of CV functions
@@ -62,10 +62,11 @@ typedef enum {
     ADCV_Laplacian          = 4,
     ADCV_EdgeDetectionCanny = 5,
     ADCV_CentroidFinder     = 6,
+    ADCV_Sharpen            = 7,
     //These two functions are not yet fully implemented
     //ADCV_MovementVectors    = 6,
     //ADCV_ObjIdentification    = 7,
-    ADCV_UserDefined        = 7,
+    ADCV_UserDefined        = 8,
 } ADCVFunction_t;
 
 
@@ -111,6 +112,7 @@ class NDPluginCVHelper {
         ADCVStatus_t find_centroids(Mat &img, double* inputs, double* outputs);
         ADCVStatus_t gaussian_blur(Mat &img, double* inputs, double* outputs);
         ADCVStatus_t subtract_consecutive_images(Mat &img, double* inputs, double* outputs);
+        ADCVStatus_t sharpen_images(Mat &img, double* inputs, double* outputs);
 
         // under development
         ADCVStatus_t movement_vectors(Mat &img, double* inputs, double* outputs);
@@ -127,7 +129,8 @@ class NDPluginCVHelper {
         ADCVStatus_t get_canny_edge_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_centroid_finder_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_subtract_description(string* inputDesc, string* outputDesc, string* description);
-
+        ADCVStatus_t get_sharpen_description(string* inputDesc, string* outputDesc, string* description);
+ 
         // Under development
         ADCVStatus_t get_movement_vectors_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_obj_identification_description(string* inputDesc, string* outputDesc, string* description);
