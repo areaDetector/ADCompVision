@@ -454,7 +454,7 @@ asynStatus NDPluginCV::updatePluginStatus(string statusMessage){
  */
 asynStatus NDPluginCV::processImage(Mat &inputImg){
     const char* functionName = "processImage";
-    int functionSet1, functionSet2, functionSet3;
+    int functionSet1, functionSet2, functionSet3, cam_depth;
     asynStatus status = asynSuccess;
     ADCVStatus_t libStatus;
 
@@ -466,7 +466,9 @@ asynStatus NDPluginCV::processImage(Mat &inputImg){
     getIntegerParam(NDPluginCVFunction1, &functionSet1);
     getIntegerParam(NDPluginCVFunction2, &functionSet2);
     getIntegerParam(NDPluginCVFunction3, &functionSet3);
+    getIntegerParam(NDPluginCVCameraDepth, &cam_depth);
 
+    ADCVCameraDepth_t camera_depth = (ADCVCameraDepth_t) cam_depth;
     ADCVFunction_t visionFunction;
 
     if(functionSet1 != 0){
@@ -481,11 +483,10 @@ asynStatus NDPluginCV::processImage(Mat &inputImg){
     else{
         visionFunction = ADCV_NoFunction;
     }
-
     
     status = getRequiredParams(inputs);
     if(status != asynError){
-        libStatus = cvHelper->processImage(inputImg, visionFunction, inputs, outputs);
+        libStatus = cvHelper->processImage(inputImg, visionFunction, camera_depth, inputs, outputs);
         if(libStatus == cvHelperError){
             asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error processing image in library\n", pluginName, functionName);
             status  = asynError;
@@ -501,7 +502,7 @@ asynStatus NDPluginCV::processImage(Mat &inputImg){
     if(visionFunction == ADCV_NoFunction){
         status = asynDisabled;
     }
-    writeImageFile(inputImg);
+    // writeImageFile(inputImg);
     updatePluginStatus(cvHelper->cvHelperStatus);
     return status;
 }
@@ -534,13 +535,15 @@ asynStatus NDPluginCV::updateFunctionDescriptions(ADCVFunction_t function){
 }
 
 
+// File writing temporarily disabled
+
 /**
  * Function responsible for getting filewriting information from appropriate PVs,
  * then calling the appropriate helper function
  * 
  * @params[in]: inputImg    -> image to be saved
  * @return: asynSuccess if saved successfully, otherwise asynError
- */
+ *
 asynStatus NDPluginCV::writeImageFile(Mat &inputImg){
     const char* functionName = "writeImageFile";
     //asynStatus status;
@@ -565,7 +568,7 @@ asynStatus NDPluginCV::writeImageFile(Mat &inputImg){
         }
     }
 }
-
+*/
 
 //----------------------------------------------------------------------------
 //---------------- Overwrites of NDPluginDriver Functions --------------------
@@ -777,8 +780,10 @@ NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallback
     createParam(NDPluginCVOutput9DescriptionString,             asynParamOctet,     &NDPluginCVOutput9Description);
     createParam(NDPluginCVOutput10DescriptionString,            asynParamOctet,     &NDPluginCVOutput10Description);
 
-    createParam(NDPluginCVWriteFileString,                      asynParamInt32,     &NDPluginCVWriteFile);
-    createParam(NDPluginCVFilenameString,                       asynParamOctet,     &NDPluginCVFilename);
+    // createParam(NDPluginCVWriteFileString,                      asynParamInt32,     &NDPluginCVWriteFile);
+    // createParam(NDPluginCVFilenameString,                       asynParamOctet,     &NDPluginCVFilename);
+
+    createParam(NDPluginCVCameraDepthString,                    asynParamInt32,     &NDPluginCVCameraDepth);
 
     createParam(NDPluginCVFunctionDescriptionString,            asynParamOctet,     &NDPluginCVFunctionDescription);
     createParam(NDPluginCVStatusMessageString,                  asynParamOctet,     &NDPluginCVStatusMessage);
@@ -802,7 +807,9 @@ NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallback
 
 
 /* NDPluginCV destructor, currently empty */
-NDPluginCV::~NDPluginCV(){ }
+NDPluginCV::~NDPluginCV(){ 
+    delete this->cvHelper;
+}
 
 
 /* External function that is called in the IOC shell to create the plugin object */

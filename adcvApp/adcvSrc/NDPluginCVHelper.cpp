@@ -90,6 +90,52 @@ ADCVStatus_t NDPluginCVHelper::fix_coloration(Mat &img){
 }
 
 
+
+/**
+ * Function that takes an image and a set camera depth and scales the image to an 
+ * 8 bit image and a certain scaling factor based on camera depth.
+ * 
+ * @params[in]: img             -> image to scale
+ * @params[in]: camera_depth    -> depth of camera (for scaling factor)
+ * @return status
+ */
+ADCVStatus_t NDPluginCVHelper::downscale_image_8bit(Mat &img, ADCVCameraDepth_t camera_depth){
+    const char* functionName = "downscale_image_8bit";
+    ADCVStatus_t status = cvHelperSuccess;
+    try{
+        if(img.channels() == 3){
+            cvtColor(img, img, COLOR_BGR2GRAY);
+        }
+        switch(camera_depth){
+            case ADCV_8Bit:
+                // 8 bit is ok
+                break;
+            // scale remaining according to: 1/2^(bit depth - 8)
+            case ADVC_10Bit:
+                img.convertTo(img, CV_8UC1, 1/4.0);
+                break;
+            case ADCV_12Bit:
+                img.convertTo(img, CV_8UC1, 1/16.0);
+                break;
+            case ADCV_14Bit:
+                img.convertTo(img, CV_8UC1, 1/64.0);
+                break;
+            case ADCV_16Bit:
+                img.convertTo(img, CV_8UC1, 1/256.0);
+                break;
+            default:
+                cvHelperStatus = "Camera depth is invalid";
+                status = cvHelperError;
+                break;
+        }
+    }catch(Exception &e){
+        print_cv_error(e, functionName);
+        status = cvHelperError;
+    }
+    return status;
+}
+
+
 /*
 #############################################################################
 #                                                                           #
@@ -160,12 +206,6 @@ ADCVStatus_t NDPluginCVHelper::gaussian_blur(Mat &img, double* inputs, double* o
     ADCVStatus_t status = cvHelperSuccess;
     int blurDegree = inputs[0];
     try{
-        if(img.channels() == 3){
-            cvtColor(img, img, COLOR_RGB2BGR);
-        }
-        if(img.depth() == CV_16UC1 || img.depth() == CV_16SC1){
-            img.convertTo(img, CV_8UC1, 1/256.0);
-        }
         GaussianBlur(img, img, Size(blurDegree, blurDegree), 1, 0, BORDER_DEFAULT);
         cvHelperStatus = "Computed Gaussian Blur of image";
     }catch(Exception &e){
@@ -194,12 +234,6 @@ ADCVStatus_t NDPluginCVHelper::threshold_image(Mat &img, double* inputs, double*
     int threshVal = (int) inputs[0];
     int threshMax = (int) inputs[1];
     try{
-        if(img.channels()==3){
-            cvtColor(img, img, COLOR_BGR2GRAY);
-        }
-        if(img.depth() == CV_16UC1 || img.depth() == CV_16SC1){
-            img.convertTo(img, CV_8UC1, 1/256.0);
-        }
         threshold(img, img, threshVal, threshMax, THRESH_BINARY);
         cvHelperStatus = "Computed image threshold";
     }catch(Exception &e){
@@ -227,12 +261,6 @@ ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat &img, double* inputs
     int blurDegree = inputs[0];
     ADCVStatus_t status = cvHelperSuccess;
     try{
-        if(img.channels()==3){
-            cvtColor(img, img, COLOR_BGR2GRAY);
-        }
-        if(img.depth() == CV_16UC1 || img.depth() == CV_16SC1){
-            img.convertTo(img, CV_8UC1, 1/256.0);
-        }
         GaussianBlur(img, img, Size(blurDegree, blurDegree),1, 0, BORDER_DEFAULT);
         int depth = img.depth();
         Laplacian(img, img, depth);
@@ -270,12 +298,6 @@ ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat &img, double* inputs, do
     int kernelSize = inputs[3];
     // If image isn't mono, we need to convert it first
     try{
-        if(img.channels()==3){
-            cvtColor(img, img, COLOR_BGR2GRAY);
-        }
-        if(img.depth() == CV_16UC1 || img.depth() == CV_16SC1){
-            img.convertTo(img, CV_8UC1, 1/256.0);
-        }
         blur(img, img, Size(blurDegree, blurDegree));
         Canny(img, img, threshVal, (threshVal*threshRatio), kernelSize);
         // set output params
@@ -381,12 +403,6 @@ ADCVStatus_t NDPluginCVHelper::find_centroids(Mat &img, double* inputs, double* 
     double lowerSizeThreshold = inputs[4];
     try{
         // first we need to convert to grayscale if necessary
-        if(img.channels()==3){
-            cvtColor(img, img, COLOR_BGR2GRAY);
-        }
-        if(img.depth() == CV_16UC1 || img.depth() == CV_16SC1){
-            img.convertTo(img, CV_8UC1, 1/256.0);
-        }
         GaussianBlur(img, img, Size(blurDegree, blurDegree), 0);
         threshold(img, img, thresholdVal, 255, THRESH_BINARY);
         vector<vector<Point> > contours;
@@ -904,23 +920,28 @@ ADCVStatus_t NDPluginCVHelper::get_default_description(string* inputDesc, string
  * @params[out]: outputs     -> array for outputs of functions
  * @return: status      -> check if library function completed successfully
  */
-ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function, double* inputs, double* outputs){
+ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function, ADCVCameraDepth_t camera_depth, double* inputs, double* outputs){
     const char* functionName = "processImage";
     ADCVStatus_t status;
+
     switch(function){
         case ADCV_Threshold:
+            status = downscale_image_8bit(image, camera_depth);
             status = threshold_image(image, inputs, outputs);
             break;
         case ADCV_GaussianBlur:
             status = gaussian_blur(image, inputs, outputs);
             break;
         case ADCV_EdgeDetectionCanny:
+            status = downscale_image_8bit(image, camera_depth);
             status = canny_edge_detection(image, inputs, outputs);
             break;
         case ADCV_CentroidFinder:
+            status = downscale_image_8bit(image, camera_depth);
             status = find_centroids(image, inputs, outputs);
             break;
         case ADCV_Laplacian:
+            status = downscale_image_8bit(image, camera_depth);
             status = laplacian_edge_detection(image, inputs, outputs);
             break;
         case ADCV_Subtract:
@@ -1003,6 +1024,8 @@ ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, s
 }
 
 
+// File writing temporarily disabled
+
 /**
  * This function is called fom the ADCompVision plugin. It takes an image and then saves it in the specified format
  * with the specified filename. 
@@ -1011,7 +1034,7 @@ ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, s
  * @params[in]: filename    -> filename of saved image
  * @params[in]: format      -> file format in which to save image
  * @return: cvHelperSuccess if file saved correctly, otherwise cvHelperError
- */
+ *
 ADCVStatus_t NDPluginCVHelper::writeImage(Mat &image, string filename, ADCVFileFormat_t format){
     const char* functionName = "writeImage";
     ADCVStatus_t status = cvHelperError;
@@ -1047,7 +1070,7 @@ ADCVStatus_t NDPluginCVHelper::writeImage(Mat &image, string filename, ADCVFileF
     }
     return cvHelperSuccess;
 }
-
+*/
 
 /* Basic constructor/destructor, used by plugin to call processImage */
 

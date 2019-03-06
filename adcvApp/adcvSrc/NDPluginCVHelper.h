@@ -70,13 +70,24 @@ typedef enum {
 
 
 //enum that stores file save format
+/*
 typedef enum {
     ADCV_FileDisable        = 0,
     ADCV_FileJPEG           = 1,
     ADCV_FilePNG            = 2,
     ADCV_FileTIF            = 3,
 } ADCVFileFormat_t;
+*/
 
+
+//enum that stores camera depth (8, 10, 12, 14, 16 bit)
+typedef enum {
+    ADCV_8Bit               = 0,
+    ADVC_10Bit              = 1,
+    ADCV_12Bit              = 2,
+    ADCV_14Bit              = 3,
+    ADCV_16Bit              = 4,
+} ADCVCameraDepth_t;
 
 // Simple binary status enum
 typedef enum {
@@ -103,6 +114,9 @@ class NDPluginCVHelper {
 
         //function that converts from rgb to bgr for image passthrough
         ADCVStatus_t fix_coloration(Mat &img);
+
+        // Function that downscales image into 8 bit for functions that require it
+        ADCVStatus_t downscale_image_8bit(Mat &img, ADCVCameraDepth_t camera_depth);
  
         // OpenCV Wrapper functions
         ADCVStatus_t canny_edge_detection(Mat &img, double* inputs, double* outputs);
@@ -138,8 +152,8 @@ class NDPluginCVHelper {
 
         // Functions called from the Plugin itself
         ADCVStatus_t getFunctionDescription(ADCVFunction_t function, string* inputDesc, string* outputDesc, string* description);
-        ADCVStatus_t processImage(Mat &image, ADCVFunction_t function, double* inputs, double* outputs);
-        ADCVStatus_t writeImage(Mat &image, string filename, ADCVFileFormat_t fileFormat);
+        ADCVStatus_t processImage(Mat &image, ADCVFunction_t function, ADCVCameraDepth_t camera_depth, double* inputs, double* outputs);
+        //ADCVStatus_t writeImage(Mat &image, string filename, ADCVFileFormat_t fileFormat);
 
 
     protected:
