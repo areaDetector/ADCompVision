@@ -923,8 +923,8 @@ ADCVStatus_t NDPluginCVHelper::get_default_description(string* inputDesc, string
 ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function, ADCVCameraDepth_t camera_depth, double* inputs, double* outputs){
     const char* functionName = "processImage";
     ADCVStatus_t status;
-
-    if((status = downscale_image_8bit(image, camera_depth)) = cvHelperError){
+    status = downscale_image_8bit(image, camera_depth);
+    if(status == cvHelperError){
         printf("%s::%s Error in helper library\n", libraryName, functionName);
         cvHelperStatus = "Error processing image";
         return status;
