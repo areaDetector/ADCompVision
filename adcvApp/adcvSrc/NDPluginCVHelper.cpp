@@ -923,27 +923,25 @@ ADCVStatus_t NDPluginCVHelper::get_default_description(string* inputDesc, string
 ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function, ADCVCameraDepth_t camera_depth, double* inputs, double* outputs){
     const char* functionName = "processImage";
     ADCVStatus_t status;
-    status = downscale_image_8bit(image, camera_depth);
-    if(status == cvHelperError){
-        printf("%s::%s Error in helper library\n", libraryName, functionName);
-        cvHelperStatus = "Error processing image";
-        return status;
-    }
 
     switch(function){
         case ADCV_Threshold:
+            status = downscale_image_8bit(image, camera_depth);
             status = threshold_image(image, inputs, outputs);
             break;
         case ADCV_GaussianBlur:
             status = gaussian_blur(image, inputs, outputs);
             break;
         case ADCV_EdgeDetectionCanny:
+            status = downscale_image_8bit(image, camera_depth);
             status = canny_edge_detection(image, inputs, outputs);
             break;
         case ADCV_CentroidFinder:
+            status = downscale_image_8bit(image, camera_depth);
             status = find_centroids(image, inputs, outputs);
             break;
         case ADCV_Laplacian:
+            status = downscale_image_8bit(image, camera_depth);
             status = laplacian_edge_detection(image, inputs, outputs);
             break;
         case ADCV_Subtract:

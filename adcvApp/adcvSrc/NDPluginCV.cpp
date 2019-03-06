@@ -466,9 +466,9 @@ asynStatus NDPluginCV::processImage(Mat &inputImg){
     getIntegerParam(NDPluginCVFunction1, &functionSet1);
     getIntegerParam(NDPluginCVFunction2, &functionSet2);
     getIntegerParam(NDPluginCVFunction3, &functionSet3);
+    getIntegerParam(NDPluginCVCameraDepth, &cam_depth);
 
-    ADCVCameraDepth_t camera_depth = (ADCVCameraDepth_t) getIntegerParam(NDPluginCVCameraDepth, &cam_depth);
-
+    ADCVCameraDepth_t camera_depth = (ADCVCameraDepth_t) cam_depth;
     ADCVFunction_t visionFunction;
 
     if(functionSet1 != 0){
@@ -483,7 +483,6 @@ asynStatus NDPluginCV::processImage(Mat &inputImg){
     else{
         visionFunction = ADCV_NoFunction;
     }
-
     
     status = getRequiredParams(inputs);
     if(status != asynError){
