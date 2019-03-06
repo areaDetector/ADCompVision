@@ -1003,6 +1003,8 @@ ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, s
 }
 
 
+// File writing temporarily disabled
+
 /**
  * This function is called fom the ADCompVision plugin. It takes an image and then saves it in the specified format
  * with the specified filename. 
@@ -1011,7 +1013,7 @@ ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, s
  * @params[in]: filename    -> filename of saved image
  * @params[in]: format      -> file format in which to save image
  * @return: cvHelperSuccess if file saved correctly, otherwise cvHelperError
- */
+ *
 ADCVStatus_t NDPluginCVHelper::writeImage(Mat &image, string filename, ADCVFileFormat_t format){
     const char* functionName = "writeImage";
     ADCVStatus_t status = cvHelperError;
@@ -1047,7 +1049,7 @@ ADCVStatus_t NDPluginCVHelper::writeImage(Mat &image, string filename, ADCVFileF
     }
     return cvHelperSuccess;
 }
-
+*/
 
 /* Basic constructor/destructor, used by plugin to call processImage */
 

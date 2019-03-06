@@ -501,7 +501,7 @@ asynStatus NDPluginCV::processImage(Mat &inputImg){
     if(visionFunction == ADCV_NoFunction){
         status = asynDisabled;
     }
-    writeImageFile(inputImg);
+    // writeImageFile(inputImg);
     updatePluginStatus(cvHelper->cvHelperStatus);
     return status;
 }
@@ -534,13 +534,15 @@ asynStatus NDPluginCV::updateFunctionDescriptions(ADCVFunction_t function){
 }
 
 
+// File writing temporarily disabled
+
 /**
  * Function responsible for getting filewriting information from appropriate PVs,
  * then calling the appropriate helper function
  * 
  * @params[in]: inputImg    -> image to be saved
  * @return: asynSuccess if saved successfully, otherwise asynError
- */
+ *
 asynStatus NDPluginCV::writeImageFile(Mat &inputImg){
     const char* functionName = "writeImageFile";
     //asynStatus status;
@@ -565,7 +567,7 @@ asynStatus NDPluginCV::writeImageFile(Mat &inputImg){
         }
     }
 }
-
+*/
 
 //----------------------------------------------------------------------------
 //---------------- Overwrites of NDPluginDriver Functions --------------------
@@ -777,8 +779,8 @@ NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallback
     createParam(NDPluginCVOutput9DescriptionString,             asynParamOctet,     &NDPluginCVOutput9Description);
     createParam(NDPluginCVOutput10DescriptionString,            asynParamOctet,     &NDPluginCVOutput10Description);
 
-    createParam(NDPluginCVWriteFileString,                      asynParamInt32,     &NDPluginCVWriteFile);
-    createParam(NDPluginCVFilenameString,                       asynParamOctet,     &NDPluginCVFilename);
+    // createParam(NDPluginCVWriteFileString,                      asynParamInt32,     &NDPluginCVWriteFile);
+    // createParam(NDPluginCVFilenameString,                       asynParamOctet,     &NDPluginCVFilename);
 
     createParam(NDPluginCVFunctionDescriptionString,            asynParamOctet,     &NDPluginCVFunctionDescription);
     createParam(NDPluginCVStatusMessageString,                  asynParamOctet,     &NDPluginCVStatusMessage);
@@ -802,7 +804,9 @@ NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallback
 
 
 /* NDPluginCV destructor, currently empty */
-NDPluginCV::~NDPluginCV(){ }
+NDPluginCV::~NDPluginCV(){ 
+    delete this->cvHelper;
+}
 
 
 /* External function that is called in the IOC shell to create the plugin object */
