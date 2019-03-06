@@ -686,6 +686,45 @@ record(waveform, "$(P)$(R)CVStatusMessage_RBV"){
     field(SCAN, "I/O Intr")
 }
 
+#------------------Camera Depth Records--------------------------
+
+record(mbbo, "$(P)$(R)CompVisionCamDepth")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_CAMDEPTH")
+    field(ZRST, "8 bit")
+    field(ZRVL, "0")
+    field(ONST, "10 bit")
+    field(ONVL, "1")
+    field(TWST, "12 bit")
+    field(TWVL, "2")
+    field(THST, "14 bit")
+    field(THVL, "3")
+    field(FRST, "16 bit")
+    field(FRVL, "4")
+    field(VAL, "0")
+    info(autosaveFields, "VAL")
+}
+
+record(mbbi, "$(P)$(R)CompVisionCamDepth_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_CAMDEPTH")
+    field(ZRST, "8 bit")
+    field(ZRVL, "0")
+    field(ONST, "10 bit")
+    field(ONVL, "1")
+    field(TWST, "12 bit")
+    field(TWVL, "2")
+    field(THST, "14 bit")
+    field(THVL, "3")
+    field(FRST, "16 bit")
+    field(FRVL, "4")
+    field(VAL, "0")
+    field(SCAN, "I/O Intr")
+}
+
 
 
 

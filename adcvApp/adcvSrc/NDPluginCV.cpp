@@ -454,7 +454,7 @@ asynStatus NDPluginCV::updatePluginStatus(string statusMessage){
  */
 asynStatus NDPluginCV::processImage(Mat &inputImg){
     const char* functionName = "processImage";
-    int functionSet1, functionSet2, functionSet3;
+    int functionSet1, functionSet2, functionSet3, cam_depth;
     asynStatus status = asynSuccess;
     ADCVStatus_t libStatus;
 
@@ -466,6 +466,8 @@ asynStatus NDPluginCV::processImage(Mat &inputImg){
     getIntegerParam(NDPluginCVFunction1, &functionSet1);
     getIntegerParam(NDPluginCVFunction2, &functionSet2);
     getIntegerParam(NDPluginCVFunction3, &functionSet3);
+
+    ADCVCameraDepth_t camera_depth = (ADCVCameraDepth_t) getIntegerParam(NDPluginCVCameraDepth, &cam_depth);
 
     ADCVFunction_t visionFunction;
 
@@ -485,7 +487,7 @@ asynStatus NDPluginCV::processImage(Mat &inputImg){
     
     status = getRequiredParams(inputs);
     if(status != asynError){
-        libStatus = cvHelper->processImage(inputImg, visionFunction, inputs, outputs);
+        libStatus = cvHelper->processImage(inputImg, visionFunction, camera_depth, inputs, outputs);
         if(libStatus == cvHelperError){
             asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error processing image in library\n", pluginName, functionName);
             status  = asynError;
@@ -781,6 +783,8 @@ NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallback
 
     // createParam(NDPluginCVWriteFileString,                      asynParamInt32,     &NDPluginCVWriteFile);
     // createParam(NDPluginCVFilenameString,                       asynParamOctet,     &NDPluginCVFilename);
+
+    createParam(NDPluginCVCameraDepthString,                    asynParamInt32,     &NDPluginCVCameraDepth);
 
     createParam(NDPluginCVFunctionDescriptionString,            asynParamOctet,     &NDPluginCVFunctionDescription);
     createParam(NDPluginCVStatusMessageString,                  asynParamOctet,     &NDPluginCVStatusMessage);

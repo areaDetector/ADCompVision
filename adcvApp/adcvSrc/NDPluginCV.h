@@ -94,6 +94,9 @@ using namespace cv;
 // #define NDPluginCVWriteFileString                   "NDCV_FILE"                 //asynParamInt32
 // #define NDPluginCVFilenameString                    "NDCV_FILENAME"             //asynParamOctet
 
+//Camera Depth PV String
+#define NDPluginCVCameraDepthString                 "NDCV_CAMDEPTH"             //asynInt32
+
 // Other records
 #define NDPluginCVFunctionDescriptionString         "NDCV_FUN_DESCRIPTION"      //asynParamOctet
 #define NDPluginCVStatusMessageString               "NDCV_STATUS"               //asynParamOctet 
@@ -232,6 +235,9 @@ class NDPluginCV : public NDPluginDriver{
         // File writing db vals - Currently Unused
         // int NDPluginCVWriteFile;
         // int NDPluginCVFilename;
+
+        // Camera depth PV
+        int NDPluginCVCameraDepth;
 
         // Other db values
         int NDPluginCVFunctionDescription;

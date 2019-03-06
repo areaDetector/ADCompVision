@@ -152,7 +152,7 @@ class NDPluginCVHelper {
 
         // Functions called from the Plugin itself
         ADCVStatus_t getFunctionDescription(ADCVFunction_t function, string* inputDesc, string* outputDesc, string* description);
-        ADCVStatus_t processImage(Mat &image, ADCVFunction_t function, double* inputs, double* outputs);
+        ADCVStatus_t processImage(Mat &image, ADCVFunction_t function, ADCVCameraDepth_t camera_depth, double* inputs, double* outputs);
         //ADCVStatus_t writeImage(Mat &image, string filename, ADCVFileFormat_t fileFormat);
 
 
