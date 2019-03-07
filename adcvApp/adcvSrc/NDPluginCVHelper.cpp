@@ -261,18 +261,30 @@ ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat &img, double* inputs
 ADCVStatus_t NDPluginCVHelper::sharpen_images(Mat &img, double* inputs, double* outputs){
     const char* functionName = "sharpen_images";
     ADCVStatus_t status = cvHelperSuccess;
-    param1 = inputs[0];
-    param2 = inputs[1];
-
+    
+   int blurDegree = inputs[0];
+    ADCVStatus_t status = cvHelperSuccess;
     try{
-        // Process your image here
-        // Don't make copies, pass img, img as input and output to OpenCV.
-        // Set output values with output[n] = value. cast non-double values to double
-        // If you need more inputs or outputs, add more PVs following previous examples.
-        cvHelperStatus = "Finished processing sharpen_images";
+        if(img.channels()==3){
+            cvtColor(img, img, COLOR_BGR2GRAY);
+        }
+        if(img.depth() == CV_16UC1 || img.depth() == CV_16SC1){
+            img.convertTo(img, CV_8UC1, 1/256.0);
+        }
+        img.copyTo(this->temporaryImg);
+        GaussianBlur(img, img, Size(blurDegree, blurDegree),1, 0, BORDER_DEFAULT);
+        int depth = img.depth();
+        Laplacian(img, img, depth);
+        convertScaleAbs(img, img);
+        cvHelperStatus = "Detected laplacian edges";
+                    
+        subtract(this->temporaryImg, img, img);
+
+        this->temporaryImg.release();
+
     }catch(Exception &e){
         print_cv_error(e, functionName);
-        status = cvHelperError;
+        return cvHelperError;
     }
     return status;
 }
