@@ -293,12 +293,6 @@ ADCVStatus_t NDPluginCVHelper::sharpen_images(Mat &img, double* inputs, double* 
    int blurDegree = inputs[0];
     ADCVStatus_t status = cvHelperSuccess;
     try{
-        if(img.channels()==3){
-            cvtColor(img, img, COLOR_BGR2GRAY);
-        }
-        if(img.depth() == CV_16UC1 || img.depth() == CV_16SC1){
-            img.convertTo(img, CV_8UC1, 1/256.0);
-        }
         img.copyTo(this->temporaryImg);
         GaussianBlur(img, img, Size(blurDegree, blurDegree),1, 0, BORDER_DEFAULT);
         int depth = img.depth();
@@ -678,7 +672,7 @@ ADCVStatus_t NDPluginCVHelper::get_YOURFUNCTION_description(string* inputDesc, s
     .
     *description = "Description of YOURFUNCTION";
     populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
-    return status
+    return status;
 }
 */
 
@@ -788,7 +782,7 @@ ADCVStatus_t NDPluginCVHelper::get_sharpen_description(string* inputDesc, string
  
     *description = "Sharpen images using laplacian";
     populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
-    return status
+    return status;
 }
 
 /**
