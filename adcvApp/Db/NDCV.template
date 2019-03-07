@@ -611,59 +611,59 @@ record(stringin, "$(P)$(R)Output10Description_RBV"){
 
 
 #################################################################
-# File Writing records                                          #
+# File Writing records - Currently unused                       #
 #################################################################
 
-record(mbbo, "$(P)$(R)CVWriteFile")
-{
-    field(PINI, "YES")
-    field(DTYP, "asynInt32")
-    field(OUT, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FILE")
-    field(ZRST, "Disable")
-    field(ZRVL, "0")
-    field(ONST, "JPEG")
-    field(ONVL, "1")
-    field(TWST, "PNG")
-    field(TWVL, "2")
-    field(THST, "TIF")
-    field(THVL, "3")
-    field(VAL, "0")
-    info(autosaveFields, "VAL")
-}
-
-record(mbbi, "$(P)$(R)CVWriteFile_RBV")
-{
-    field(DTYP, "asynInt32")
-    field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FILE")
-    field(ZRST, "Disable")
-    field(ZRVL, "0")
-    field(ONST, "JPEG")
-    field(ONVL, "1")
-    field(TWST, "PNG")
-    field(TWVL, "2")
-    field(THST, "TIF")
-    field(THVL, "3")
-    field(VAL, "0")
-    field(SCAN, "I/O Intr")
-}
-
-
-record(waveform, "$(P)$(R)CVFilename"){
-    field(PINI, "YES")
-    field(DTYP, "asynOctetWrite")
-    field(OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FILENAME")
-    field(FTVL, "CHAR")
-    field(NELM, "256")
-    field(autosaveFields, "VAL")
-}
-
-record(waveform, "$(P)$(R)CVFilename_RBV"){
-    field(DTYP, "asynOctetRead")
-    field(INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FILENAME")
-    field(FTVL, "CHAR")
-    field(NELM, "256")
-    field(SCAN, "I/O Intr")
-}
+# record(mbbo, "$(P)$(R)CVWriteFile")
+# {
+#     field(PINI, "YES")
+#     field(DTYP, "asynInt32")
+#     field(OUT, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FILE")
+#     field(ZRST, "Disable")
+#     field(ZRVL, "0")
+#     field(ONST, "JPEG")
+#     field(ONVL, "1")
+#     field(TWST, "PNG")
+#     field(TWVL, "2")
+#     field(THST, "TIF")
+#     field(THVL, "3")
+#     field(VAL, "0")
+#     info(autosaveFields, "VAL")
+# }
+# 
+# record(mbbi, "$(P)$(R)CVWriteFile_RBV")
+# {
+#     field(DTYP, "asynInt32")
+#     field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FILE")
+#     field(ZRST, "Disable")
+#     field(ZRVL, "0")
+#     field(ONST, "JPEG")
+#     field(ONVL, "1")
+#     field(TWST, "PNG")
+#     field(TWVL, "2")
+#     field(THST, "TIF")
+#     field(THVL, "3")
+#     field(VAL, "0")
+#     field(SCAN, "I/O Intr")
+# }
+# 
+# 
+# record(waveform, "$(P)$(R)CVFilename"){
+#     field(PINI, "YES")
+#     field(DTYP, "asynOctetWrite")
+#     field(OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FILENAME")
+#     field(FTVL, "CHAR")
+#     field(NELM, "256")
+#     field(autosaveFields, "VAL")
+# }
+# 
+# record(waveform, "$(P)$(R)CVFilename_RBV"){
+#     field(DTYP, "asynOctetRead")
+#     field(INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FILENAME")
+#     field(FTVL, "CHAR")
+#     field(NELM, "256")
+#     field(SCAN, "I/O Intr")
+# }
 
 
 #################################################################
@@ -687,6 +687,45 @@ record(waveform, "$(P)$(R)CVStatusMessage_RBV"){
     field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_STATUS")
     field(FTVL, "CHAR")
     field(NELM, "256")
+    field(SCAN, "I/O Intr")
+}
+
+#------------------Camera Depth Records--------------------------
+
+record(mbbo, "$(P)$(R)CompVisionCamDepth")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_CAMDEPTH")
+    field(ZRST, "8 bit")
+    field(ZRVL, "0")
+    field(ONST, "10 bit")
+    field(ONVL, "1")
+    field(TWST, "12 bit")
+    field(TWVL, "2")
+    field(THST, "14 bit")
+    field(THVL, "3")
+    field(FRST, "16 bit")
+    field(FRVL, "4")
+    field(VAL, "0")
+    info(autosaveFields, "VAL")
+}
+
+record(mbbi, "$(P)$(R)CompVisionCamDepth_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_CAMDEPTH")
+    field(ZRST, "8 bit")
+    field(ZRVL, "0")
+    field(ONST, "10 bit")
+    field(ONVL, "1")
+    field(TWST, "12 bit")
+    field(TWVL, "2")
+    field(THST, "14 bit")
+    field(THVL, "3")
+    field(FRST, "16 bit")
+    field(FRVL, "4")
+    field(VAL, "0")
     field(SCAN, "I/O Intr")
 }
 

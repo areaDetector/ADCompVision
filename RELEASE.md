@@ -9,6 +9,25 @@ Dependencies: ADCompVision requires opencv core, highgui, image processing, and 
 
 <!--RELEASE START-->
 
+## R1-1 (???-March-2019)
+
+* Computer Vision functions implemented:
+    * Sharpening filter
+    * Image subtraction
+
+* Additional Feature changes
+    * File saving temporarily removed due to crashing issues over ssh and additional dependency
+    * Camera bit depth selector added to play better with higher bit images
+    * Image scaling corrected to account for other bit depth images
+    * Minor screen updates to reflect feature changes
+
+* Bugs Fixed
+    * Bug where invalid bit depth could cause IOC to crash
+    * Bug where certain PV would cause error at IOC startup
+    * Fixed Image passthrough to work with any bit depth
+    * Fixed colorspace of color images passed through
+    * Removed code that caused certain compiler warnings
+
 ## R1-0 (14-January-2019)
 
 * Computer Vision functions implemented:

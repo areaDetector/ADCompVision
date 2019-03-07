@@ -90,9 +90,12 @@ using namespace cv;
 #define NDPluginCVOutput9DescriptionString          "NDCV_OUT_DESCRIPTION9"     //asynParamOctet
 #define NDPluginCVOutput10DescriptionString         "NDCV_OUT_DESCRIPTION10"    //asynParamOctet
 
-// File Saving PVs
-#define NDPluginCVWriteFileString                   "NDCV_FILE"                 //asynParamInt32
-#define NDPluginCVFilenameString                    "NDCV_FILENAME"             //asynParamOctet
+// File Saving PVs - Currently Unused
+// #define NDPluginCVWriteFileString                   "NDCV_FILE"                 //asynParamInt32
+// #define NDPluginCVFilenameString                    "NDCV_FILENAME"             //asynParamOctet
+
+//Camera Depth PV String
+#define NDPluginCVCameraDepthString                 "NDCV_CAMDEPTH"             //asynInt32
 
 // Other records
 #define NDPluginCVFunctionDescriptionString         "NDCV_FUN_DESCRIPTION"      //asynParamOctet
@@ -229,9 +232,12 @@ class NDPluginCV : public NDPluginDriver{
         int NDPluginCVOutput9Description;
         int NDPluginCVOutput10Description;
 
-        // File writing db vals
-        int NDPluginCVWriteFile;
-        int NDPluginCVFilename;
+        // File writing db vals - Currently Unused
+        // int NDPluginCVWriteFile;
+        // int NDPluginCVFilename;
+
+        // Camera depth PV
+        int NDPluginCVCameraDepth;
 
         // Other db values
         int NDPluginCVFunctionDescription;
@@ -273,7 +279,7 @@ class NDPluginCV : public NDPluginDriver{
         // Function that calls the appropriate helper library function
         asynStatus updateFunctionDescriptions(ADCVFunction_t function);
         asynStatus processImage(Mat &inputImg);
-        asynStatus writeImageFile(Mat &inputImg);
+        // asynStatus writeImageFile(Mat &inputImg);
         asynStatus updatePluginStatus(string statusMessage);
         
 };

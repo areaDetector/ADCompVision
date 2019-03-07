@@ -37,6 +37,35 @@
 
     <!--RELEASE START-->
 
+<h4>R1-1 (???-March-2019)</h4>
+<ul>
+<li>
+<p>Computer Vision functions implemented:</p>
+<ul>
+<li>Sharpening filter</li>
+<li>Image subtraction</li>
+</ul>
+</li>
+<li>
+<p>Additional Feature changes</p>
+<ul>
+<li>File saving temporarily removed due to crashing issues over ssh and additional dependency</li>
+<li>Camera bit depth selector added to play better with higher bit images</li>
+<li>Image scaling corrected to account for other bit depth images</li>
+<li>Minor screen updates to reflect feature changes</li>
+</ul>
+</li>
+<li>
+<p>Bugs Fixed</p>
+<ul>
+<li>Bug where invalid bit depth could cause IOC to crash</li>
+<li>Bug where certain PV would cause error at IOC startup</li>
+<li>Fixed Image passthrough to work with any bit depth</li>
+<li>Fixed colorspace of color images passed through</li>
+<li>Removed code that caused certain compiler warnings</li>
+</ul>
+</li>
+</ul>
 <h4>R1-0 (14-January-2019)</h4>
 <ul>
 <li>
