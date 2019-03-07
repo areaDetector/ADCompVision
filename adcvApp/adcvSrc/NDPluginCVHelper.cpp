@@ -288,12 +288,12 @@ ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat &img, double* inputs
  */
 ADCVStatus_t NDPluginCVHelper::sharpen_images(Mat &img, double* inputs, double* outputs){
     const char* functionName = "sharpen_images";
+    int blurDegree = inputs[0];    
     ADCVStatus_t status = cvHelperSuccess;
     
-   int blurDegree = inputs[0];
-    ADCVStatus_t status = cvHelperSuccess;
     try{
         img.copyTo(this->temporaryImg);
+
         GaussianBlur(img, img, Size(blurDegree, blurDegree),1, 0, BORDER_DEFAULT);
         int depth = img.depth();
         Laplacian(img, img, depth);
@@ -301,7 +301,6 @@ ADCVStatus_t NDPluginCVHelper::sharpen_images(Mat &img, double* inputs, double* 
         cvHelperStatus = "Detected laplacian edges";
                     
         subtract(this->temporaryImg, img, img);
-
         this->temporaryImg.release();
 
     }catch(Exception &e){
