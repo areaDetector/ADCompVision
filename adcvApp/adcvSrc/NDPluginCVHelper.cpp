@@ -273,8 +273,6 @@ ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat &img, double* inputs
     return status;
 }
 
-//------------- Template for OpenCV function wrapper -------------------
-
 
 /**
  * WRAPPER  ->  YOURFUNCTIONNAME
@@ -300,7 +298,7 @@ ADCVStatus_t NDPluginCVHelper::sharpen_images(Mat &img, double* inputs, double* 
         convertScaleAbs(img, img);
         cvHelperStatus = "Detected laplacian edges";
                     
-        subtract(this->temporaryImg, img, img);
+        //subtract(this->temporaryImg, img, img);
         this->temporaryImg.release();
 
     }catch(Exception &e){
@@ -1020,13 +1018,12 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
         case ADCV_UserDefined:
             status = user_function(image, inputs, outputs);
             break;
-        case ADCV_NoFunction:
-            status = fix_coloration(image);
-            break;
         default:
             status = cvHelperError;
             break;
     }
+
+    status = fix_coloration(image);
 
     if(status == cvHelperError){
         printf("%s::%s Error in helper library\n", libraryName, functionName);
