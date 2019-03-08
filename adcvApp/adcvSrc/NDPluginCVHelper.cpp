@@ -378,6 +378,51 @@ ADCVStatus_t NDPluginCVHelper::subtract_consecutive_images(Mat &img, double* inp
 
 
 /**
+ * WRAPPER  ->  compute_image_stats
+ * OpenCV accelerated computation of Image statistics
+ *
+ * @inCount     -> 1
+ * @inFormat    -> [Reset Net Counter (0,1)]
+ *
+ * @outCount    -> 10
+ * @outFormat   -> [Param1 (Int), Param2 (Double) ...]
+ */
+ADCVStatus_t NDPluginCVHelper::compute_image_stats(Mat &img, double* inputs, double* outputs){
+    const char* functionName = "compute_image_stats";
+    ADCVStatus_t status = cvHelperSuccess;
+    int reset = inputs[0];
+    if(reset == 1){
+        this->net_total = 0;
+    }
+
+    try{
+        if(img.channels() == 3) cvtColor(img, img, COLOR_BGR2GRAY);
+        Scalar im_sum;
+        double max, min;
+        Point min_point, max_point;
+        minMaxLoc(img, &min, &max, &min_point, &max_point);
+        im_sum = sum(img);
+
+        outputs[0] = *im_sum.val;
+        outputs[1] = min;
+        outputs[2] = min_point.x;
+        outputs[3] = min_point.y;
+        outputs[4] = max;
+        outputs[5] = max_point.x;
+        outputs[6] = max_point.y;
+        outputs[7] = *im_sum.val / (img.cols * img.rows);
+        outputs[8] = 0;
+        outputs[9] = this->net_total + *im_sum.val;
+        cvHelperStatus = "Finished processing computing image stats";
+    }catch(Exception &e){
+        print_cv_error(e, functionName);
+        status = cvHelperError;
+    }
+    return status;
+}
+
+
+/**
  * WRAPPER      -> Find Object Centroids
  * Function for finding centroids of objects in an image. Useful for alignment of objects
  * First, blur the object based on a certain blur degree (kernel size). Then threshold the image
@@ -741,6 +786,23 @@ ADCVStatus_t NDPluginCVHelper::get_subtract_description(string* inputDesc, strin
 }
 
 
+/**
+ * Function that sets the I/O descriptions for YOURFUNCTION
+ * 
+ * @params[out]: inputDesc      -> array of input descriptions
+ * @params[out]: outputDesc     -> array of output descriptions
+ * @params[out]: description    -> overall function usage description
+ * @return: void
+ */
+ADCVStatus_t NDPluginCVHelper::get_image_stats_description(string* inputDesc, string* outputDesc, string* description){
+    ADCVStatus_t status = cvHelperSuccess;
+    int numInput = 1;
+    int numOutput = 0;
+    inputDesc[0] = "Reset net counter";
+    *description = "Compute image statistics";
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    return status;
+}
 
 
 /**
@@ -952,6 +1014,9 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
             status = movement_vectors(image, inputs, outputs);
             break;
         */
+        case ADCV_ImageStats:
+            status = compute_image_stats(image, inputs, outputs);
+            break;
         case ADCV_UserDefined:
             status = user_function(image, inputs, outputs);
             break;
@@ -1009,6 +1074,9 @@ ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, s
             status = get_movement_vectors_description(inputDesc, outputDesc, description);
             break;
         */
+        case ADCV_ImageStats:
+            status = get_image_stats_description(inputDesc, outputDesc, description);
+            break;
         case ADCV_UserDefined:
             status = get_user_function_description(inputDesc, outputDesc, description);
             break;

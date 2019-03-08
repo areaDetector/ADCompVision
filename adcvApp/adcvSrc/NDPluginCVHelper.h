@@ -47,7 +47,7 @@ using namespace std;
  */ 
 #define N_FUNC_1                    6
 #define N_FUNC_2                    2
-#define N_FUNC_3                    2
+#define N_FUNC_3                    3
 
 // Total Number of CV functions
 #define NUM_FUNCTIONS               N_FUNC_1 + N_FUNC_2 + N_FUNC_3
@@ -66,6 +66,7 @@ typedef enum {
     //ADCV_MovementVectors    = 6,
     //ADCV_ObjIdentification    = 7,
     ADCV_UserDefined        = 7,
+    ADCV_ImageStats         = 8,
 } ADCVFunction_t;
 
 
@@ -118,6 +119,7 @@ class NDPluginCVHelper {
         // Function that downscales image into 8 bit for functions that require it
         ADCVStatus_t downscale_image_8bit(Mat &img, ADCVCameraDepth_t camera_depth);
  
+
         // OpenCV Wrapper functions
         ADCVStatus_t canny_edge_detection(Mat &img, double* inputs, double* outputs);
         ADCVStatus_t laplacian_edge_detection(Mat &img, double* inputs, double* outputs);
@@ -125,14 +127,17 @@ class NDPluginCVHelper {
         ADCVStatus_t find_centroids(Mat &img, double* inputs, double* outputs);
         ADCVStatus_t gaussian_blur(Mat &img, double* inputs, double* outputs);
         ADCVStatus_t subtract_consecutive_images(Mat &img, double* inputs, double* outputs);
+        ADCVStatus_t compute_image_stats(Mat &img, double* inputs, double* outputs);
 
         // under development
         ADCVStatus_t movement_vectors(Mat &img, double* inputs, double* outputs);
         ADCVStatus_t obj_identification(Mat &img, double* inputs, double* outputs);
 
+
         // IO description helper functions
         void populate_remaining_descriptions(string* inputDesc, string* outputDesc, int nIn, int nOut);
         ADCVStatus_t get_default_description(string* inputDesc, string* outputDesc, string* description);
+
 
         // Wrapper function IO descriptions
         ADCVStatus_t get_threshold_description(string* inputDesc, string* outputDesc, string* description);
@@ -141,6 +146,8 @@ class NDPluginCVHelper {
         ADCVStatus_t get_canny_edge_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_centroid_finder_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_subtract_description(string* inputDesc, string* outputDesc, string* description);
+        ADCVStatus_t get_image_stats_description(string* inputDesc, string* outputDesc, string* description);
+
 
         // Under development
         ADCVStatus_t get_movement_vectors_description(string* inputDesc, string* outputDesc, string* description);
@@ -162,6 +169,10 @@ class NDPluginCVHelper {
 
         // Variables if function requires some information to be stored for multiple function calls
         
+        // image stats net counter
+        double net_total = 0;
+
+
         // movement vector variables (Currently Unused/untested)
         int frameCounter = 0;
         bool wasComputed = false;
