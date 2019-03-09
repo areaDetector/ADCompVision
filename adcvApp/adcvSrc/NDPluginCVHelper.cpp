@@ -425,8 +425,6 @@ ADCVStatus_t NDPluginCVHelper::subtract_consecutive_images(Mat &img, double* inp
 ADCVStatus_t NDPluginCVHelper::compute_image_stats(Mat &img, double* inputs, double* outputs){
     const char* functionName = "compute_image_stats";
     ADCVStatus_t status = cvHelperSuccess;
-    int reset = inputs[0];
-
     try{
         img.copyTo(this->temporaryImg);
         if(this->temporaryImg.channels() == 3) cvtColor(this->temporaryImg, this->temporaryImg, COLOR_BGR2GRAY);
