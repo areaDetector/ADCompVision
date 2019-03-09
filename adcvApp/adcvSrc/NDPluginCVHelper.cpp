@@ -275,6 +275,41 @@ ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat &img, double* inputs
 
 
 /**
+ * WRAPPER  ->  YOURFUNCTIONNAME
+ * YOUR_FUNCTION_DESCRIPTION
+ *
+ * @inCount     -> n
+ * @inFormat    -> [Param1 (Int), Param2 (Double) ...]
+ *
+ * @outCount    -> n
+ * @outFormat   -> [Param1 (Int), Param2 (Double) ...]
+ */
+ADCVStatus_t NDPluginCVHelper::sharpen_images(Mat &img, double* inputs, double* outputs){
+    const char* functionName = "sharpen_images";
+    int blurDegree = inputs[0];    
+    ADCVStatus_t status = cvHelperSuccess;
+    
+    try{
+        img.copyTo(this->temporaryImg);
+
+        GaussianBlur(img, img, Size(blurDegree, blurDegree),1, 0, BORDER_DEFAULT);
+        int depth = img.depth();
+        Laplacian(img, img, depth);
+        convertScaleAbs(img, img);
+        cvHelperStatus = "Detected laplacian edges";
+                    
+        //subtract(this->temporaryImg, img, img);
+        this->temporaryImg.release();
+
+    }catch(Exception &e){
+        print_cv_error(e, functionName);
+        return cvHelperError;
+    }
+    return status;
+}
+
+
+/**
  * WRAPPER      -> Canny Edge Detector
  * Function for canny-based edge detection. First, we ensure that the image is grayscale. Then, the image is blurred, so that only
  * strong edges remain. Then, a threshold is applied to the image in order to further reinforce strong edges. Finally, the canny
@@ -679,7 +714,7 @@ ADCVStatus_t NDPluginCVHelper::get_YOURFUNCTION_description(string* inputDesc, s
     .
     *description = "Description of YOURFUNCTION";
     populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
-    return status
+    return status;
 }
 */
 
@@ -766,7 +801,31 @@ ADCVStatus_t NDPluginCVHelper::get_laplacian_description(string* inputDesc, stri
     return status;
 }
 
+//------------- Template for wrapper I/O description function  -------------------
 
+
+/*
+ * Function that sets the I/O descriptions for YOURFUNCTION
+ * 
+ * @params[out]: inputDesc      -> array of input descriptions
+ * @params[out]: outputDesc     -> array of output descriptions
+ * @params[out]: description    -> overall function usage description
+ * @return: void
+ */
+ADCVStatus_t NDPluginCVHelper::get_sharpen_description(string* inputDesc, string* outputDesc, string* description){
+    ADCVStatus_t status = cvHelperSuccess;
+    int numInput = 2;
+    int numOutput = 2;
+    inputDesc[0] = "Input 1 Description";
+    inputDesc[1] = "Input 2 Description";
+
+    outputDesc[0] = "Output 1 Description";
+    outputDesc[1] = "Output 2 Description";
+ 
+    *description = "Sharpen images using laplacian";
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    return status;
+}
 
 /**
  * Function that sets the I/O descriptions for image subtraction
@@ -1014,6 +1073,10 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
             status = downscale_image_8bit(image, camera_depth);
             status = laplacian_edge_detection(image, inputs, outputs);
             break;
+         case ADCV_Sharpen:
+            status = sharpen_images(image, inputs, outputs);
+            break;
+            
         case ADCV_Subtract:
             status = subtract_consecutive_images(image, inputs, outputs);
             break;
@@ -1028,13 +1091,12 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
         case ADCV_UserDefined:
             status = user_function(image, inputs, outputs);
             break;
-        case ADCV_NoFunction:
-            status = fix_coloration(image);
-            break;
         default:
             status = cvHelperError;
             break;
     }
+
+    status = fix_coloration(image);
 
     if(status == cvHelperError){
         printf("%s::%s Error in helper library\n", libraryName, functionName);
@@ -1077,6 +1139,10 @@ ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, s
         case ADCV_CentroidFinder:
             status = get_centroid_finder_description(inputDesc, outputDesc, description);
             break;
+        case ADCV_Sharpen:
+            status = get_sharpen_description(inputDesc, outputDesc, description);
+            break;
+          
         /*
         case ADCV_MovementVectors:
             status = get_movement_vectors_description(inputDesc, outputDesc, description);
