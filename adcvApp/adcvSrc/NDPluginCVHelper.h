@@ -170,7 +170,7 @@ class NDPluginCVHelper {
         // Variables if function requires some information to be stored for multiple function calls
         
         // image stats net counter
-        double net_total = 0;
+        double overall_total = 0;
 
 
         // movement vector variables (Currently Unused/untested)

@@ -381,27 +381,26 @@ ADCVStatus_t NDPluginCVHelper::subtract_consecutive_images(Mat &img, double* inp
  * WRAPPER  ->  compute_image_stats
  * OpenCV accelerated computation of Image statistics
  *
- * @inCount     -> 1
- * @inFormat    -> [Reset Net Counter (0,1)]
+ * @inCount     -> 0
+ * @inFormat    -> []
  *
- * @outCount    -> 10
- * @outFormat   -> [Param1 (Int), Param2 (Double) ...]
+ * @outCount    -> 9
+ * @outFormat   -> [total, min, min x, min y, max, max x, max y, mean, sigma]
  */
 ADCVStatus_t NDPluginCVHelper::compute_image_stats(Mat &img, double* inputs, double* outputs){
     const char* functionName = "compute_image_stats";
     ADCVStatus_t status = cvHelperSuccess;
     int reset = inputs[0];
-    if(reset == 1){
-        this->net_total = 0;
-    }
 
     try{
-        if(img.channels() == 3) cvtColor(img, img, COLOR_BGR2GRAY);
-        Scalar im_sum;
+        img.copyTo(this->temporaryImg);
+        if(this->temporaryImg.channels() == 3) cvtColor(this->temporaryImg, this->temporaryImg, COLOR_BGR2GRAY);
+        Scalar im_sum, mean, sigma;
         double max, min;
         Point min_point, max_point;
-        minMaxLoc(img, &min, &max, &min_point, &max_point);
-        im_sum = sum(img);
+        minMaxLoc(this->temporaryImg, &min, &max, &min_point, &max_point);
+        im_sum = sum(this->temporaryImg);
+        meanStdDev(this->temporaryImg, mean, sigma);
 
         outputs[0] = *im_sum.val;
         outputs[1] = min;
@@ -410,9 +409,10 @@ ADCVStatus_t NDPluginCVHelper::compute_image_stats(Mat &img, double* inputs, dou
         outputs[4] = max;
         outputs[5] = max_point.x;
         outputs[6] = max_point.y;
-        outputs[7] = *im_sum.val / (img.cols * img.rows);
-        outputs[8] = 0;
-        outputs[9] = this->net_total + *im_sum.val;
+        outputs[7] = *mean.val;
+        outputs[8] = *sigma.val;
+
+        this->temporaryImg.release();
         cvHelperStatus = "Finished processing computing image stats";
     }catch(Exception &e){
         print_cv_error(e, functionName);
@@ -787,7 +787,7 @@ ADCVStatus_t NDPluginCVHelper::get_subtract_description(string* inputDesc, strin
 
 
 /**
- * Function that sets the I/O descriptions for YOURFUNCTION
+ * Function that sets the I/O descriptions for Image Stats
  * 
  * @params[out]: inputDesc      -> array of input descriptions
  * @params[out]: outputDesc     -> array of output descriptions
@@ -796,9 +796,17 @@ ADCVStatus_t NDPluginCVHelper::get_subtract_description(string* inputDesc, strin
  */
 ADCVStatus_t NDPluginCVHelper::get_image_stats_description(string* inputDesc, string* outputDesc, string* description){
     ADCVStatus_t status = cvHelperSuccess;
-    int numInput = 1;
-    int numOutput = 0;
-    inputDesc[0] = "Reset net counter";
+    int numInput = 0;
+    int numOutput = 9;
+    outputDesc[0] = "Total";
+    outputDesc[1] = "Minimum";
+    outputDesc[2] = "Min X";
+    outputDesc[3] = "Min Y";
+    outputDesc[4] = "Maximum";
+    outputDesc[5] = "Max X";
+    outputDesc[6] = "Max Y";
+    outputDesc[7] = "Mean";
+    outputDesc[8] = "Sigma";
     *description = "Compute image statistics";
     populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
     return status;
