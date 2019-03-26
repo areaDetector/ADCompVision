@@ -392,17 +392,17 @@ ADCVStatus_t NDPluginCVHelper::subtract_consecutive_images(Mat &img, double* inp
     const char* functionName = "subtract_consecutive_images";
     ADCVStatus_t status = cvHelperSuccess;
     try{
-        if(wasComputed == false){
-            img.copyTo(temporaryImg);
-            wasComputed = true;
+        if(this->wasComputed == false){
+            img.copyTo(this->temporaryImg);
+            this->wasComputed = true;
             status = cvHelperWait;
-            cvHelperStatus = "Waiting for next image to subtract";
+            this->cvHelperStatus = "Waiting for next image to subtract";
         }
         else{
-            subtract(img, temporaryImg, img);
-            temporaryImg.release();
-            wasComputed = false;
-            cvHelperStatus = "Finished Subtracting images";
+            subtract(this->temporaryImg, img, img);
+            this->temporaryImg.release();
+            this->wasComputed = false;
+            this->cvHelperStatus = "Finished Subtracting images";
         }
     }catch(Exception &e){
         print_cv_error(e, functionName);
@@ -1094,7 +1094,7 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
             break;
     }
 
-    status = fix_coloration(image);
+    fix_coloration(image);
 
     if(status == cvHelperError){
         printf("%s::%s Error in helper library\n", libraryName, functionName);

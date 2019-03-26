@@ -25,7 +25,7 @@
  * Author: Jakub Wlodek
  *
  * Created: 23-Jun-2018
- * Last Updated: 14-Jan-2019
+ * Last Updated: 26-Mar-2019
  * Copyright (c): Brookhaven National Laboratory 2018-2019
  */
 
@@ -458,7 +458,7 @@ asynStatus NDPluginCV::processImage(Mat &inputImg){
     asynStatus status = asynSuccess;
     ADCVStatus_t libStatus;
 
-    // init arrays for inputs and outputs Adding some buffer room to maybe fix the reallic errors?
+    // init arrays for inputs and outputs Adding some buffer room to maybe fix the realloc errors?
     double inputs[NUM_INPUTS];
     double outputs[NUM_OUTPUTS];
 
@@ -485,7 +485,7 @@ asynStatus NDPluginCV::processImage(Mat &inputImg){
     }
     
     status = getRequiredParams(inputs);
-    if(status != asynError){
+    if(status != asynError && visionFunction != ADCV_NoFunction){
         libStatus = cvHelper->processImage(inputImg, visionFunction, camera_depth, inputs, outputs);
         if(libStatus == cvHelperError){
             asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error processing image in library\n", pluginName, functionName);
