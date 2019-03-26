@@ -14,11 +14,10 @@ sudo apt install libopencv-dev
 ```
 ---------------------
 1. First, navigate to the top level areaDetector repository on your system. It should contain ADCore, ADSupport, any device drivers installed, and a configure directory.
-2. Next, clone this repository with the command:
+2. Next, clone this repository with the command: *(Alternatively, you may download a zip or tarball of the sources from the releases section of this repository.)*
 ```
 git clone https://github.com/jwlodek/ADCompVision
 ```
-*Alternatively, you may download a zip or tarball of the sources from the releases section of this repository.*
 3. Enter the 'configure' directory at the top level of area detector, and open the RELEASE_PRODS.local file, and add the following:
 ```
 ADCOMPVISION=$(AREA_DETECTOR)/ADCompVision
