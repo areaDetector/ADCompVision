@@ -392,18 +392,61 @@ ADCVStatus_t NDPluginCVHelper::subtract_consecutive_images(Mat &img, double* inp
     const char* functionName = "subtract_consecutive_images";
     ADCVStatus_t status = cvHelperSuccess;
     try{
-        if(wasComputed == false){
-            img.copyTo(temporaryImg);
-            wasComputed = true;
+        if(this->wasComputed == false){
+            img.copyTo(this->temporaryImg);
+            this->wasComputed = true;
             status = cvHelperWait;
-            cvHelperStatus = "Waiting for next image to subtract";
+            this->cvHelperStatus = "Waiting for next image to subtract";
         }
         else{
-            subtract(img, temporaryImg, img);
-            temporaryImg.release();
-            wasComputed = false;
-            cvHelperStatus = "Finished Subtracting images";
+            subtract(this->temporaryImg, img, img);
+            this->temporaryImg.release();
+            this->wasComputed = false;
+            this->cvHelperStatus = "Finished Subtracting images";
         }
+    }catch(Exception &e){
+        print_cv_error(e, functionName);
+        status = cvHelperError;
+    }
+    return status;
+}
+
+
+/**
+ * WRAPPER  ->  compute_image_stats
+ * OpenCV accelerated computation of Image statistics
+ *
+ * @inCount     -> 0
+ * @inFormat    -> []
+ *
+ * @outCount    -> 9
+ * @outFormat   -> [total, min, min x, min y, max, max x, max y, mean, sigma]
+ */
+ADCVStatus_t NDPluginCVHelper::compute_image_stats(Mat &img, double* inputs, double* outputs){
+    const char* functionName = "compute_image_stats";
+    ADCVStatus_t status = cvHelperSuccess;
+    try{
+        img.copyTo(this->temporaryImg);
+        if(this->temporaryImg.channels() == 3) cvtColor(this->temporaryImg, this->temporaryImg, COLOR_BGR2GRAY);
+        Scalar im_sum, mean, sigma;
+        double max, min;
+        Point min_point, max_point;
+        minMaxLoc(this->temporaryImg, &min, &max, &min_point, &max_point);
+        im_sum = sum(this->temporaryImg);
+        meanStdDev(this->temporaryImg, mean, sigma);
+
+        outputs[0] = *im_sum.val;
+        outputs[1] = min;
+        outputs[2] = min_point.x;
+        outputs[3] = min_point.y;
+        outputs[4] = max;
+        outputs[5] = max_point.x;
+        outputs[6] = max_point.y;
+        outputs[7] = *mean.val;
+        outputs[8] = *sigma.val;
+
+        this->temporaryImg.release();
+        cvHelperStatus = "Finished processing computing image stats";
     }catch(Exception &e){
         print_cv_error(e, functionName);
         status = cvHelperError;
@@ -800,6 +843,31 @@ ADCVStatus_t NDPluginCVHelper::get_subtract_description(string* inputDesc, strin
 }
 
 
+/**
+ * Function that sets the I/O descriptions for Image Stats
+ * 
+ * @params[out]: inputDesc      -> array of input descriptions
+ * @params[out]: outputDesc     -> array of output descriptions
+ * @params[out]: description    -> overall function usage description
+ * @return: void
+ */
+ADCVStatus_t NDPluginCVHelper::get_image_stats_description(string* inputDesc, string* outputDesc, string* description){
+    ADCVStatus_t status = cvHelperSuccess;
+    int numInput = 0;
+    int numOutput = 9;
+    outputDesc[0] = "Total";
+    outputDesc[1] = "Minimum";
+    outputDesc[2] = "Min X";
+    outputDesc[3] = "Min Y";
+    outputDesc[4] = "Maximum";
+    outputDesc[5] = "Max X";
+    outputDesc[6] = "Max Y";
+    outputDesc[7] = "Mean";
+    outputDesc[8] = "Sigma";
+    *description = "Compute image statistics";
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    return status;
+}
 
 
 /**
@@ -1015,6 +1083,9 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
             status = movement_vectors(image, inputs, outputs);
             break;
         */
+        case ADCV_ImageStats:
+            status = compute_image_stats(image, inputs, outputs);
+            break;
         case ADCV_UserDefined:
             status = user_function(image, inputs, outputs);
             break;
@@ -1023,7 +1094,7 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
             break;
     }
 
-    status = fix_coloration(image);
+    fix_coloration(image);
 
     if(status == cvHelperError){
         printf("%s::%s Error in helper library\n", libraryName, functionName);
@@ -1075,6 +1146,9 @@ ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, s
             status = get_movement_vectors_description(inputDesc, outputDesc, description);
             break;
         */
+        case ADCV_ImageStats:
+            status = get_image_stats_description(inputDesc, outputDesc, description);
+            break;
         case ADCV_UserDefined:
             status = get_user_function_description(inputDesc, outputDesc, description);
             break;
