@@ -259,11 +259,15 @@ ADCVStatus_t NDPluginCVHelper::threshold_image(Mat &img, double* inputs, double*
 ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat &img, double* inputs, double* outputs){
     const char* functionName = "laplacian_edge_detection";
     int blurDegree = inputs[0];
+    int kernel_size = inputs[1];
+    int scale = inputs[2];
+    int delta = inputs[3];
+
     ADCVStatus_t status = cvHelperSuccess;
     try{
         GaussianBlur(img, img, Size(blurDegree, blurDegree),1, 0, BORDER_DEFAULT);
         int depth = img.depth();
-        Laplacian(img, img, depth);
+        Laplacian(img, img, depth, kernel_size, scale, delta, BORDER_DEFAULT);
         convertScaleAbs(img, img);
         cvHelperStatus = "Detected laplacian edges";
     }catch(Exception &e){
@@ -275,14 +279,14 @@ ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat &img, double* inputs
 
 
 /**
- * WRAPPER  ->  YOURFUNCTIONNAME
- * YOUR_FUNCTION_DESCRIPTION
+ * WRAPPER  ->  Sharpen
+ * Sharpens image by sutracting Laplacian from blurred image
  *
- * @inCount     -> n
- * @inFormat    -> [Param1 (Int), Param2 (Double) ...]
+ * @inCount     -> 4
+ * @inFormat    -> [Gaussian blurr (Int), Laplacian kernel size (Int), Laplacian scale (Int), Laplacian delat (Int) ]
  *
- * @outCount    -> n
- * @outFormat   -> [Param1 (Int), Param2 (Double) ...]
+ * @outCount    -> 0
+ * @outFormat   -> []
  */
 ADCVStatus_t NDPluginCVHelper::sharpen_images(Mat &img, double* inputs, double* outputs){
     const char* functionName = "sharpen_images";
@@ -796,9 +800,13 @@ ADCVStatus_t NDPluginCVHelper::get_gaussian_blur_description(string* inputDesc, 
  */
 ADCVStatus_t NDPluginCVHelper::get_laplacian_description(string* inputDesc, string* outputDesc, string* description){
     ADCVStatus_t status = cvHelperSuccess;
-    int numInput = 1;
+    int numInput = 4;
     int numOutput = 0;
-    inputDesc[0] = "Blur Degree (Int)";
+    inputDesc[0] = "Gauss Blurr degree [int]";
+    inputDesc[1] = "Laplace kernel size [int]";
+    inputDesc[2] = "Laplace scale [int]";
+    inputDesc[3] = "Laplace delat [int]";
+
     *description = "Edge detection using a combination of a Gaussian Blur kernel and a Laplacian kernel";
     populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
     return status;
@@ -808,7 +816,7 @@ ADCVStatus_t NDPluginCVHelper::get_laplacian_description(string* inputDesc, stri
 
 
 /*
- * Function that sets the I/O descriptions for YOURFUNCTION
+ * Function that sets the I/O descriptions for Sharpen
  * 
  * @params[out]: inputDesc      -> array of input descriptions
  * @params[out]: outputDesc     -> array of output descriptions
