@@ -85,6 +85,18 @@
 </th>
 </tr>
 <tr>
+<th>Sharpen
+</th>
+<th>4
+</th>
+<th>[Gaussian blurr (Int), Laplacian kernel size (Int), Laplacian scale (Int), Laplacian delat (Int) ]
+</th>
+<th>0
+</th>
+<th>[]
+</th>
+</tr>
+<tr>
 <th>CannyEdgeDetector
 </th>
 <th>3
@@ -106,6 +118,18 @@
 <th>0
 </th>
 <th>
+</th>
+</tr>
+<tr>
+<th>compute_image_stats
+</th>
+<th>0
+</th>
+<th>[]
+</th>
+<th>9
+</th>
+<th>[total, min, min x, min y, max, max x, max y, mean, sigma]
 </th>
 </tr>
 <tr>
@@ -174,6 +198,9 @@
  Next, the image is blurred using a gaussian kernel to emphasize edges. Then a laplacian kernel runs over
  the images assigning a 'sharpness' value to each pixel. The sharpest values are hard edges from black to white.
  
+</p><h3>Sharpen
+</h3><p> Sharpens image by sutracting Laplacian from blurred image
+
 </p><h3>CannyEdgeDetector
 </h3><p> Function for canny-based edge detection. First, we ensure that the image is grayscale. Then, the image is blurred, so that only
  strong edges remain. Then, a threshold is applied to the image in order to further reinforce strong edges. Finally, the canny
@@ -187,6 +214,9 @@
  in pairs. Reads first image into memory, then waits for second one, when it receives the second one, 
  subtract them.
  
+</p><h3>compute_image_stats
+</h3><p> OpenCV accelerated computation of Image statistics
+
 </p><h3>FindObjectCentroids
 </h3><p> Function for finding centroids of objects in an image. Useful for alignment of objects
  First, blur the object based on a certain blur degree (kernel size). Then threshold the image
