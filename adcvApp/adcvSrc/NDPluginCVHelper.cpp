@@ -1087,6 +1087,7 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
             status = laplacian_edge_detection(image, inputs, outputs);
             break;
          case ADCV_Sharpen:
+            status = downscale_image_8bit(image, camera_depth);
             status = sharpen_images(image, inputs, outputs);
             break;
             
