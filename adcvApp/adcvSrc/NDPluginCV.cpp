@@ -79,13 +79,13 @@ ADCVFrameFormat_t NDPluginCV::getCurrentImageFormat(NDDataType_t dataType, NDCol
             case NDUInt8:
                 return ADCV_Mono_U8;
             case NDInt8:
-                return ADCV_Mono_S8;
+                return ADCV_Mono_U8;
             case NDUInt16:
                 return ADCV_Mono_U16;
             case NDInt16:
-                return ADCV_Mono_S16;
+                return ADCV_Mono_U16;
             case NDInt32:
-                return ADCV_Mono_S32;
+                return ADCV_Mono_F32;
             case NDFloat32:
                 return ADCV_Mono_F32;
             case NDFloat64:
@@ -100,13 +100,13 @@ ADCVFrameFormat_t NDPluginCV::getCurrentImageFormat(NDDataType_t dataType, NDCol
             case NDUInt8:
                 return ADCV_RGB_U8;
             case NDInt8:
-                return ADCV_RGB_S8;
+                return ADCV_RGB_U8;
             case NDUInt16:
                 return ADCV_RGB_U16;
             case NDInt16:
-                return ADCV_RGB_S16;
+                return ADCV_RGB_U16;
             case NDInt32:
-                return ADCV_RGB_S32;
+                return ADCV_RGB_F32;
             case NDFloat32:
                 return ADCV_RGB_F32;
             case NDFloat64:
