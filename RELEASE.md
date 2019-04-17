@@ -9,11 +9,13 @@ Dependencies: ADCompVision requires opencv core, highgui, image processing, and 
 
 <!--RELEASE START-->
 
-## R1-1 (???-March-2019)
+## R1-1 (17-April-2019)
 
 * Computer Vision functions implemented:
     * Sharpening filter
     * Image subtraction
+    * Image statistics
+    * Distance between objects
 
 * Additional Feature changes
     * File saving temporarily removed due to crashing issues over ssh and additional dependency
@@ -26,7 +28,7 @@ Dependencies: ADCompVision requires opencv core, highgui, image processing, and 
     * Bug where certain PV would cause error at IOC startup
     * Fixed Image passthrough to work with any bit depth
     * Fixed colorspace of color images passed through
-    * Removed code that caused certain compiler warnings
+    * Removed code that caused certain compiler warnings - Cleaner compile
 
 ## R1-0 (14-January-2019)
 

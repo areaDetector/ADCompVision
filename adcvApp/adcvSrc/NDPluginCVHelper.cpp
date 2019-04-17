@@ -706,11 +706,11 @@ ADCVStatus_t NDPluginCVHelper::user_function(Mat &img, double* inputs, double* o
  * Function that computes bounding boxes between the two largest computed contours in the image,
  * checks the distance between them and sends an alarm if they are within a distance threshold.
  *
- * @inCount     -> 1
- * @inFormat    -> [[Distance Threshold (Int)]
+ * @inCount     -> 5
+ * @inFormat    -> [[Distance Threshold (Int), Blur Kernel Size (Int), Threshold (Int), Apply Blur (Toggle), Pixel Size Threshold (Int)]
  *
- * @outCount    -> 1
- * @outFormat   -> [Is Within Threshold (Binary Int)]
+ * @outCount    -> 2
+ * @outFormat   -> [Is Within Threshold (Binary Int), Distance in Pixels (Int)]
  */
 ADCVStatus_t NDPluginCVHelper::distance_between_ctrs(Mat &img, double* inputs, double* outputs){
     const char* functionName = "distance_between_ctrs";
