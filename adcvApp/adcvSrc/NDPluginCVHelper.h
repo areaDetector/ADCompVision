@@ -47,7 +47,7 @@ using namespace std;
  */ 
 #define N_FUNC_1                    6
 #define N_FUNC_2                    3
-#define N_FUNC_3                    3
+#define N_FUNC_3                    4
 
 
 
@@ -70,6 +70,7 @@ typedef enum {
     //ADCV_ObjIdentification    = 7,
     ADCV_UserDefined        = 8,
     ADCV_ImageStats         = 9,
+    ADCV_DistanceCheck      = 10,
 } ADCVFunction_t;
 
 
@@ -121,6 +122,9 @@ class NDPluginCVHelper {
 
         // Function that downscales image into 8 bit for functions that require it
         ADCVStatus_t downscale_image_8bit(Mat &img, ADCVCameraDepth_t camera_depth);
+
+        // Additional processing functions (used to clean up wrapper functions)
+        double compute_rect_distance(Rect r1, Rect r2);
  
 
         // OpenCV Wrapper functions
@@ -132,6 +136,7 @@ class NDPluginCVHelper {
         ADCVStatus_t subtract_consecutive_images(Mat &img, double* inputs, double* outputs);
         ADCVStatus_t compute_image_stats(Mat &img, double* inputs, double* outputs);
         ADCVStatus_t sharpen_images(Mat &img, double* inputs, double* outputs);
+        ADCVStatus_t distance_between_ctrs(Mat &img, double* inputs, double* outputs);
 
         // under development
         ADCVStatus_t movement_vectors(Mat &img, double* inputs, double* outputs);
@@ -152,6 +157,7 @@ class NDPluginCVHelper {
         ADCVStatus_t get_subtract_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_image_stats_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_sharpen_description(string* inputDesc, string* outputDesc, string* description);
+        ADCVStatus_t get_dist_between_description(string* inputDesc, string* outputDesc, string* description);
  
         // Under development
         ADCVStatus_t get_movement_vectors_description(string* inputDesc, string* outputDesc, string* description);
