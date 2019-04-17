@@ -46,7 +46,7 @@ using namespace std;
  * 
  */ 
 #define N_FUNC_1                    6
-#define N_FUNC_2                    3
+#define N_FUNC_2                    4
 #define N_FUNC_3                    4
 
 
@@ -65,12 +65,13 @@ typedef enum {
     ADCV_EdgeDetectionCanny = 5,
     ADCV_CentroidFinder     = 6,
     ADCV_Sharpen            = 7,
+    ADCV_ConvertFormat      = 8,
     //These two functions are not yet fully implemented
     //ADCV_MovementVectors    = 6,
     //ADCV_ObjIdentification    = 7,
-    ADCV_UserDefined        = 8,
-    ADCV_ImageStats         = 9,
-    ADCV_DistanceCheck      = 10,
+    ADCV_UserDefined        = 9,
+    ADCV_ImageStats         = 10,
+    ADCV_DistanceCheck      = 11,
 } ADCVFunction_t;
 
 
@@ -93,6 +94,7 @@ typedef enum {
     ADCV_14Bit              = 3,
     ADCV_16Bit              = 4,
 } ADCVCameraDepth_t;
+
 
 // Simple binary status enum
 typedef enum {
@@ -137,6 +139,7 @@ class NDPluginCVHelper {
         ADCVStatus_t compute_image_stats(Mat &img, double* inputs, double* outputs);
         ADCVStatus_t sharpen_images(Mat &img, double* inputs, double* outputs);
         ADCVStatus_t distance_between_ctrs(Mat &img, double* inputs, double* outputs);
+        ADCVStatus_t convert_image_format(Mat &img, double* inputs, double* outputs);
 
         // under development
         ADCVStatus_t movement_vectors(Mat &img, double* inputs, double* outputs);
@@ -158,6 +161,7 @@ class NDPluginCVHelper {
         ADCVStatus_t get_image_stats_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_sharpen_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_dist_between_description(string* inputDesc, string* outputDesc, string* description);
+        ADCVStatus_t get_convert_format_descripton(string* inputDesc, string* outputDesc, string* description);
  
         // Under development
         ADCVStatus_t get_movement_vectors_description(string* inputDesc, string* outputDesc, string* description);

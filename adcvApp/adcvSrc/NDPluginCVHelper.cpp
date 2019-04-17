@@ -764,6 +764,36 @@ ADCVStatus_t NDPluginCVHelper::distance_between_ctrs(Mat &img, double* inputs, d
     return status;
 }
 
+
+/**
+ * WRAPPER  ->  Convert Image Format
+ * Converts the format of the image to a different one for use with other AD Plugins. This is useful for 
+ * cameras that only support one format but a different one is required, ex. ADPluginDmtx needs 8bit rgb image, so 
+ * grayscale camera needs to be converted.
+ *
+ * @inCount     -> 2
+ * @inFormat    -> [To grayscale (Toggle), To rgb (Toggle)]
+ *
+ * @outCount    -> 0
+ * @outFormat   -> N/A
+ */
+ADCVStatus_t NDPluginCVHelper::convert_image_format(Mat &img, double* inputs, double* outputs){
+    const char* functionName = "convert_image_format";
+    ADCVStatus_t status = cvHelperSuccess;
+    int toGray = inputs[0];
+    int toRGB = inputs[1];
+    try{
+        if(toGray == 1 && img.channels() == 3) cvtColor(img, img, COLOR_BGR2GRAY);
+        else if(toRGB == 1 && img.channels() == 1) cvtColor(img, img, COLOR_GRAY2RGB);
+
+        cvHelperStatus = "Finished processing convert_image_format";
+    }catch(Exception &e){
+        print_cv_error(e, functionName);
+        status = cvHelperError;
+    }
+    return status;
+}
+
 //------------------------ End of OpenCV wrapper functions -------------------------------------------------
 
 /*
@@ -1158,6 +1188,26 @@ ADCVStatus_t NDPluginCVHelper::get_default_description(string* inputDesc, string
 }
 
 
+/**
+ * Function that sets the I/O descriptions for convert_image _format
+ * 
+ * @params[out]: inputDesc      -> array of input descriptions
+ * @params[out]: outputDesc     -> array of output descriptions
+ * @params[out]: description    -> overall function usage description
+ * @return: void
+ */
+ADCVStatus_t NDPluginCVHelper::get_convert_format_descripton(string* inputDesc, string* outputDesc, string* description){
+    ADCVStatus_t status = cvHelperSuccess;
+    int numInput = 2;
+    int numOutput = 0;
+    inputDesc[0] = "Toggle toGrayscale (0, 1)";
+    inputDesc[1] = "Toggle toRGB (0, 1)";
+    *description = "Converts image into a different color mode fomat";
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    return status;
+}
+
+
 /* ---------------------- Functions called from the EPICS Plugin implementation ----------------------- */
 
 
@@ -1199,7 +1249,10 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
             status = downscale_image_8bit(image, camera_depth);
             status = sharpen_images(image, inputs, outputs);
             break;
-            
+        case ADCV_ConvertFormat:
+            status = downscale_image_8bit(image, camera_depth);
+            status = convert_image_format(image, inputs, outputs);
+            break;
         case ADCV_Subtract:
             status = subtract_consecutive_images(image, inputs, outputs);
             break;
@@ -1268,7 +1321,9 @@ ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, s
         case ADCV_Sharpen:
             status = get_sharpen_description(inputDesc, outputDesc, description);
             break;
-          
+        case ADCV_ConvertFormat:
+            status = get_convert_format_descripton(inputDesc, outputDesc, description);
+            break;
         /*
         case ADCV_MovementVectors:
             status = get_movement_vectors_description(inputDesc, outputDesc, description);
