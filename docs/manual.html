@@ -180,6 +180,18 @@
 <th>[Param1 (Int), Param2 (Double) ...]
 </th>
 </tr>
+<tr>
+<th>Distancebetweencontours
+</th>
+<th>5
+</th>
+<th>[[Distance Threshold (Int), Blur Kernel Size (Int), Threshold (Int), Apply Blur (Toggle), Pixel Size Threshold (Int)]
+</th>
+<th>2
+</th>
+<th>[Is Within Threshold (Binary Int), Distance in Pixels (Int)]
+</th>
+</tr>
 
 </tbody>
 </table>
@@ -241,6 +253,10 @@
 </h3><p> This is an unimplemented wrapper function that has already been added to the PV database in order to
  simplify creating user defined functions. Simply implement this function and its description function,
  and then select 'User Function' in function set 3. 
+
+</p><h3>Distancebetweencontours
+</h3><p> Function that computes bounding boxes between the two largest computed contours in the image,
+ checks the distance between them and sends an alarm if they are within a distance threshold.
 
 </p>
 </body>

@@ -32,30 +32,33 @@ To add a new CV function there are several files you will need to edit. First, i
 
 Decide which of these sets your new function falls under, and add it to the Input and Output records.   
 
-**Note that for the easiest implementation, it is recommended to only add your function to the last position in function set 3.**  
 
-Next, in the NDPluginCVHelper.h file, change the N_FUNC_3 value to take into account the new number of functions in the CompVisionFunction3 PV, or replace the value for the set you inputted your function into.  
-Next, you will need to edit the NDPluginCVHelper.cpp and NDPluginCVHelper.h files. In NDPluginCVHelper.h, find the definition of ADCVFunction_t and add:
+Next, in the `NDPluginCVHelper.h` file, change the `N_FUNC_#` value to take into account the new number of functions in the `CompVisionFunction#` PV you add your function to.  
+Next, you will need to edit the `NDPluginCVHelper.cpp` and `NDPluginCVHelper.h` files. In `NDPluginCVHelper.h`, find the definition of `ADCVFunction_t` and add:
 ```
 // Some basic flag types
 typedef enum {
     ADCV_NoFunction         = 0,
-    ADCV_EdgeDetectionCanny = 1,
+    ADCV_GaussianBlur       = 1,
     ADCV_Threshold          = 2,
     .
     .
     .
-    ADCV_YOURFUNCTION       = n,
+    ADCV_YOURFUNCTION       = n,    <- Your function should be added in the appropriate location
+    .
+    .
+    .
+    ADCV_LastFunction       = 15,
 } ADCVFunction_t;
 ```
-where n is the next integer. If you added your function to any PV other than the last position in function set 3, you will need to find which value it should be assigned. NoFunction represents the first PV value in function set 1, and the rest count in order, going through set 1 -> set 2 -> set 3, disregarding the PVs for no function in set 2 and 3. Once you found the correct number add it to the enum, and fix any numbers that have changed. This will add the function to the list of possible functions handled by ADCompVision. Then, add the lines:
+Make sure to add your function type in the appropriate position, this is important for the conversion from PV value to function type. You will need to find which value it should be assigned. `ADCV_NoFunction` represents the first PV value in function set 1, and the rest count in order, going through set 1 -> set 2 -> set 3, disregarding the PVs for no function in set 2 and 3. Once you found the correct number add it to the enum, and fix any numbers that have changed. This will add the function to the list of possible functions handled by ADCompVision. Then, add the lines:
 
 ```
 ADCVStatus_t YOURFUNCTION(Mat &img, double* inputs, double* outputs);
 ADCVStatus_t get_YOURFUNCTION_description(string* inputDesc, string* outputDesc, string* description);
 ```
 in the 'public' portion of the class declaration. You may follow the standard set by the other functions.   
-Next, in the NDPluginCVHelper.cpp file, add your new function definitions. They should take the following form:
+Next, in the `NDPluginCVHelper.cpp` file, add your new function definitions. They should take the following form:
 
 **The Wrapper**
 ```
@@ -121,13 +124,13 @@ ADCVStatus_t NDPluginCVHelper::get_YOURFUNCTION_description(string* inputDesc, s
     return status
 }
 ```
-**NOTE** The commenting standard for these helper functions should be followed strictly, as it will allow for the provided python script to generate a manual for operation easily. Once you add the function and write the comment above it appropriately, you may run the createIOmanual.py script in the scripts/ directory with:
+**NOTE** The commenting standard for these helper functions should be followed strictly, as it will allow for the provided python script to generate a manual for operation easily. Once you add the function and write the comment above it appropriately, you may run the `createIOmanual.py` script in the scripts/ directory with:
 ```
 python3 createIOmanual.py
 ```
 This will create a manual (in docs/manual.html) describing the inputs and outputs of each of the functions including your new custom function along with a description of each function as provided in the comments.  
 
-Next, you must edit the 'getFunctionDescription' function in NDPluginCVHelper.cpp. Add a case to the switch statement as follows:
+Next, you must edit the `getFunctionDescription` function in `NDPluginCVHelper.cpp`. Add a case to the switch statement as follows:
 ```
 case ADCV_YOURFUNCTION:
     status = get_YOURFUNCTION_description(inputDesc, outputDesc, description);
@@ -135,7 +138,7 @@ case ADCV_YOURFUNCTION:
 ```
 This will allow NDPluginCV to update descriptions for each input and output in real time when you select your function.
 
-Finally, you need to edit the 'processImage' function in NDPluginCVHelper.cpp. In the switch statement, add a case as follows:
+Finally, you need to edit the `processImage` function in `NDPluginCVHelper.cpp`. In the switch statement, add a case as follows:
 
 ```
 case ADCV_YOURFUNCTION:
