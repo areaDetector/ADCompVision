@@ -51,6 +51,8 @@ using namespace std;
 const char* libraryName = "NDPluginCVHelper";
 
 
+// ------------------------ General Utility functions ---------------
+
 /**
  * Simple function that prints OpenCV error information.
  * Used in try/catch blocks
@@ -133,6 +135,20 @@ ADCVStatus_t NDPluginCVHelper::downscale_image_8bit(Mat &img, ADCVCameraDepth_t 
         status = cvHelperError;
     }
     return status;
+}
+
+
+double NDPluginCVHelper::compute_rect_distance(Rect r1, Rect r2){
+    double xDist= -1, yDist = -1;
+    if(r1.x > r2.x + r2.width) xDist = r1.x - (r2.x + r2.width);
+    else if(r2.x > r1.x + r1.width) xDist = r2.x - (r1.x + r1.width);
+
+    if(r1.y > r2.y + r2.height) yDist = r1.y - (r2.y + r2.height);
+    else if(r2.y > r1.y + r1.height) yDist = r2.y - (r1.y + r1.height);
+
+    if(xDist != -1 && yDist != -1) return xDist > yDist ? yDist : xDist;
+    else if(xDist != -1) return xDist;
+    else return yDist;
 }
 
 
@@ -435,6 +451,10 @@ ADCVStatus_t NDPluginCVHelper::compute_image_stats(Mat &img, double* inputs, dou
     const char* functionName = "compute_image_stats";
     ADCVStatus_t status = cvHelperSuccess;
     try{
+        //int roiX = inputs[0];
+        //int roiY = inputs[1];
+        //int width = inputs[2];
+        //int height = inputs[3];
         img.copyTo(this->temporaryImg);
         if(this->temporaryImg.channels() == 3) cvtColor(this->temporaryImg, this->temporaryImg, COLOR_BGR2GRAY);
         Scalar im_sum, mean, sigma;
@@ -680,6 +700,70 @@ ADCVStatus_t NDPluginCVHelper::user_function(Mat &img, double* inputs, double* o
     return status;
 }
 
+
+/**
+ * WRAPPER  ->  Distance between contours
+ * Function that computes bounding boxes between the two largest computed contours in the image,
+ * checks the distance between them and sends an alarm if they are within a distance threshold.
+ *
+ * @inCount     -> 1
+ * @inFormat    -> [[Distance Threshold (Int)]
+ *
+ * @outCount    -> 1
+ * @outFormat   -> [Is Within Threshold (Binary Int)]
+ */
+ADCVStatus_t NDPluginCVHelper::distance_between_ctrs(Mat &img, double* inputs, double* outputs){
+    const char* functionName = "distance_between_ctrs";
+    ADCVStatus_t status = cvHelperSuccess;
+    int distance_threshold = inputs[0];
+    int blurDegree = inputs[1];
+    int thresholdVal = inputs[2];
+    int applyBlur = inputs[3];
+    int contour_size_thresh = inputs[4];
+
+    try{
+        int largest_area = 0;
+        int second_area = 0;
+        Rect lbounding_rect, sbounding_rect;
+        if(applyBlur > 0) GaussianBlur(img, this->temporaryImg, Size(blurDegree, blurDegree), 0);
+        if(img.channels() == 3) cvtColor(this->temporaryImg, this->temporaryImg, COLOR_BGR2GRAY);
+        threshold(this->temporaryImg, this->temporaryImg, thresholdVal, 255, THRESH_BINARY);
+        vector<vector<Point> > contours;
+        findContours(this->temporaryImg, contours, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0,0));
+        if(contours.size() > 1){
+            for(unsigned int i = 0; i< contours.size(); i++){
+                double area = contourArea(contours[i]);
+                if(area < contour_size_thresh){
+                    if(area > largest_area){
+                        if(largest_area > second_area){
+                            second_area = largest_area;
+                            sbounding_rect = lbounding_rect;
+                        }
+                        largest_area = area;
+                        lbounding_rect = boundingRect(contours[i]);
+                    }
+                    else if( area > second_area){
+                        second_area = area;
+                        sbounding_rect = boundingRect(contours[i]);
+                    }
+                }
+            }
+            rectangle(img, lbounding_rect, Scalar(0, 255, 0), 3);
+            rectangle(img, sbounding_rect, Scalar(0, 255, 0), 3);
+            outputs[1] = compute_rect_distance(lbounding_rect, sbounding_rect);
+            if(outputs[1] < distance_threshold) outputs[0] = 1;
+            else outputs[0] = 0;
+            cvHelperStatus = "Finished processing distance between contours";
+        }
+        else cvHelperStatus = "Couldn't identify two or more contours";
+        this->temporaryImg.release();
+    }catch(Exception &e){
+        print_cv_error(e, functionName);
+        status = cvHelperError;
+    }
+    return status;
+}
+
 //------------------------ End of OpenCV wrapper functions -------------------------------------------------
 
 /*
@@ -812,7 +896,32 @@ ADCVStatus_t NDPluginCVHelper::get_laplacian_description(string* inputDesc, stri
     return status;
 }
 
-//------------- Template for wrapper I/O description function  -------------------
+
+/**
+ * Function that sets the I/O descriptions for Distance between check
+ * 
+ * @params[out]: inputDesc      -> array of input descriptions
+ * @params[out]: outputDesc     -> array of output descriptions
+ * @params[out]: description    -> overall function usage description
+ * @return: void
+ */
+ADCVStatus_t NDPluginCVHelper::get_dist_between_description(string* inputDesc, string* outputDesc, string* description){
+    ADCVStatus_t status = cvHelperSuccess;
+    int numInput = 5;
+    int numOutput = 2;
+    inputDesc[0] = "Distance Threshold [int]";
+    inputDesc[1] = "Blur Kernel Size [Odd int]";
+    inputDesc[2] = "Threshold Value [int < 255]";
+    inputDesc[3] = "Apply Blur [1 = yes, 0 = no]";
+    inputDesc[4] = "Size Threshold [int]";
+    outputDesc[0] = "Within Threshold Alarm";
+    outputDesc[1] = "Detected Min Pixel dist";
+    *description = "Description of Computes distance between contours";
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    return status;
+}
+
+
 
 
 /*
@@ -830,7 +939,7 @@ ADCVStatus_t NDPluginCVHelper::get_sharpen_description(string* inputDesc, string
     inputDesc[0] = "Gauss Blurr degree [int]";
     inputDesc[1] = "Laplace kernel size [int]";
     inputDesc[2] = "Laplace scale [int]";
-    inputDesc[3] = "Laplace delat [int]";
+    inputDesc[3] = "Laplace delta [int]";
 
     // outputDesc[0] = "Output 1 Description";
     // outputDesc[1] = "Output 2 Description";
@@ -1105,6 +1214,10 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
         case ADCV_UserDefined:
             status = user_function(image, inputs, outputs);
             break;
+        case ADCV_DistanceCheck:
+            //status = downscale_image_8bit(image, camera_depth);
+            status = distance_between_ctrs(image, inputs, outputs);
+            break;
         default:
             status = cvHelperError;
             break;
@@ -1114,7 +1227,6 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
 
     if(status == cvHelperError){
         printf("%s::%s Error in helper library\n", libraryName, functionName);
-        cvHelperStatus = "Error processing image";
     }
     return status;
 }
@@ -1167,6 +1279,9 @@ ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, s
             break;
         case ADCV_UserDefined:
             status = get_user_function_description(inputDesc, outputDesc, description);
+            break;
+        case ADCV_DistanceCheck:
+            status = get_dist_between_description(inputDesc, outputDesc, description);
             break;
         default:
             status = get_default_description(inputDesc, outputDesc, description);
