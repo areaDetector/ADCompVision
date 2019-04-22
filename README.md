@@ -1,8 +1,8 @@
 # ADCompVision
 
-Author: Jakub Wlodek
-Second Author: Kazimierz Gofron
-Copyright (c): Brookhaven National Laboratory 2018-19
+Author: Jakub Wlodek  
+Second Author: Kazimierz Gofron  
+Copyright (c): Brookhaven National Laboratory 2018-19  
 
 A plugin that will allow for a comprehensive implementation of Open CV based computer vision intergation with EPICS area detector
 
