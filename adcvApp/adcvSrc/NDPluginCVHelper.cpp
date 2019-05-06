@@ -62,8 +62,10 @@ const char* libraryName = "NDPluginCVHelper";
 void NDPluginCVHelper::print_cv_error(Exception &e, const char* functionName){
     //cout << "OpenCV error: " << e.err << " code: " << e.code << " file: " << e.file << endl;
     char buff[255];
+    char buffshort[255];
     sprintf(buff, "OpenCV Error in function %s: %s code: %d file: %s\n", functionName, e.err.c_str(), e.code, e.file.c_str());
-    cvHelperStatus = buff;
+    sprintf(buffshort, "OpenCV Error: %s, Error Code: %d", e.err.c_str(), e.code);
+    cvHelperStatus = buffshort;
     printf("%s\n", buff);
 }
 
@@ -83,7 +85,7 @@ ADCVStatus_t NDPluginCVHelper::fix_coloration(Mat &img){
         if(img.channels() == 3){
             cvtColor(img, img, COLOR_BGR2RGB);
         }
-        cvHelperStatus = "Image passed through";
+        // cvHelperStatus = "Image passed through";
     }catch(Exception &e){
         print_cv_error(e, functionName);
         status = cvHelperError;

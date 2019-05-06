@@ -501,6 +501,7 @@ asynStatus NDPluginCV::processImage(Mat &inputImg){
     
     if(visionFunction == ADCV_NoFunction){
         this->cvHelper->fix_coloration(inputImg);
+        cvHelper->cvHelperStatus = "Image passed through";
         status = asynDisabled;
     }
     // writeImageFile(inputImg);
