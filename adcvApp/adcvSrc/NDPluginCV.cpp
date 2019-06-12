@@ -715,14 +715,14 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
  * @params[in]: stackSize           -> size of the stack given to the plugin
  */
 NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallbacks,
-		    const char *NDArrayPort, int NDArrayAddr,
-		    int maxBuffers, size_t maxMemory,
-		    int priority, int stackSize)
-		    /* Invoke the base class constructor */
-		    : NDPluginDriver(portName, queueSize, blockingCallbacks,
-		    NDArrayPort, NDArrayAddr, 1, maxBuffers, maxMemory,
-		    asynInt32ArrayMask | asynFloat64ArrayMask | asynGenericPointerMask,
-		    asynInt32ArrayMask | asynFloat64ArrayMask | asynGenericPointerMask,
+            const char *NDArrayPort, int NDArrayAddr,
+            int maxBuffers, size_t maxMemory,
+            int priority, int stackSize)
+            /* Invoke the base class constructor */
+            : NDPluginDriver(portName, queueSize, blockingCallbacks,
+            NDArrayPort, NDArrayAddr, 1, maxBuffers, maxMemory,
+            asynInt32ArrayMask | asynFloat64ArrayMask | asynGenericPointerMask,
+            asynInt32ArrayMask | asynFloat64ArrayMask | asynGenericPointerMask,
             ASYN_MULTIDEVICE, 1, priority, stackSize, 1)
 {
     const char* functionName = "NDPluginCV";
@@ -782,6 +782,11 @@ NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallback
     createParam(NDPluginCVOutput9DescriptionString,             asynParamOctet,     &NDPluginCVOutput9Description);
     createParam(NDPluginCVOutput10DescriptionString,            asynParamOctet,     &NDPluginCVOutput10Description);
 
+    createParam(NDPluginCVStringInputString,                    asynParamOctet,     &NDPluginCVStringInput);
+    createParam(NDPluginCVStringInputStringDescription,         asynParamOctet,     &NDPluginCVStringInputDescription);
+    createParam(NDPluginCVStringOutputString,                   asynParamOctet,     &NDPluginCVStringOutput);
+    createParam(NDPluginCVStringOutputStringDescription,        asynParamOctet,     &NDPluginCVStringOutputDescription);
+
     // createParam(NDPluginCVWriteFileString,                      asynParamInt32,     &NDPluginCVWriteFile);
     // createParam(NDPluginCVFilenameString,                       asynParamOctet,     &NDPluginCVFilename);
 
@@ -817,11 +822,11 @@ NDPluginCV::~NDPluginCV(){
 /* External function that is called in the IOC shell to create the plugin object */
 extern "C" int NDCVConfigure(const char *portName, int queueSize, int blockingCallbacks, const char *NDArrayPort, 
     int NDArrayAddr, int maxBuffers, size_t maxMemory, int priority, int stackSize){
-	
+
     // calls the plugin constructor
     NDPluginCV *pPlugin = new NDPluginCV(portName, queueSize, blockingCallbacks, NDArrayPort, NDArrayAddr,
-	    maxBuffers, maxMemory, priority, stackSize);
-	
+        maxBuffers, maxMemory, priority, stackSize);
+
     // starts the plugin
     return pPlugin->start();
 }
@@ -838,14 +843,14 @@ static const iocshArg initArg6 = { "maxMemory",iocshArgInt};
 static const iocshArg initArg7 = { "priority",iocshArgInt};
 static const iocshArg initArg8 = { "stackSize",iocshArgInt};
 static const iocshArg * const initArgs[] = {&initArg0,
-					&initArg1,
-					&initArg2,
-					&initArg3,
-					&initArg4,
-					&initArg5,
-					&initArg6,
-					&initArg7,
-					&initArg8};
+                    &initArg1,
+                    &initArg2,
+                    &initArg3,
+                    &initArg4,
+                    &initArg5,
+                    &initArg6,
+                    &initArg7,
+                    &initArg8};
 
 
 /* defines the configuration function for Initializing the plugin */
@@ -854,19 +859,19 @@ static const iocshFuncDef initFuncDef = {"NDCVConfigure",9,initArgs};
 
 /* Init call function for the IOC shell */
 static void initCallFunc(const iocshArgBuf *args){
-	NDCVConfigure(args[0].sval, args[1].ival, args[2].ival,
-			args[3].sval, args[4].ival, args[5].ival,
-			args[6].ival, args[7].ival, args[8].ival);
+    NDCVConfigure(args[0].sval, args[1].ival, args[2].ival,
+            args[3].sval, args[4].ival, args[5].ival,
+            args[6].ival, args[7].ival, args[8].ival);
 }
 
 
 /* Registration of NDPluginCV for PV autosaving and into the IOC shell command set*/
 extern "C" void NDCVRegister(void){
-	iocshRegister(&initFuncDef, initCallFunc);
+    iocshRegister(&initFuncDef, initCallFunc);
 }
 
 
 /* Extern C function called from IOC startup script */
 extern "C" {
-	epicsExportRegistrar(NDCVRegister);
+    epicsExportRegistrar(NDCVRegister);
 }

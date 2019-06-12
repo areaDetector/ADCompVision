@@ -90,6 +90,12 @@ using namespace cv;
 #define NDPluginCVOutput9DescriptionString          "NDCV_OUT_DESCRIPTION9"     //asynParamOctet
 #define NDPluginCVOutput10DescriptionString         "NDCV_OUT_DESCRIPTION10"    //asynParamOctet
 
+// String Input/Output PVs -  allow for more complex inputs and returns
+#define NDPluginCVStringInputString                 "NDCV_STRINGIN"             //asynParamOctet
+#define NDPluginCVStringInputDescriptionString      "NDCV_STRINGIN_DESC"        //asynParamOctet
+#define NDPluginCVStringOutputString                "NDCV_STRINGOUT"            //asynParamOctet
+#define NDPluginCVStringOutputDescriptionString     "NDCV_STRINGOUT_DESC"       //asynParamOctet
+
 // File Saving PVs - Currently Unused
 // #define NDPluginCVWriteFileString                   "NDCV_FILE"                 //asynParamInt32
 // #define NDPluginCVFilenameString                    "NDCV_FILENAME"             //asynParamOctet
@@ -231,6 +237,13 @@ class NDPluginCV : public NDPluginDriver{
         int NDPluginCVOutput8Description;
         int NDPluginCVOutput9Description;
         int NDPluginCVOutput10Description;
+
+        // database values for string Input/Output
+        int NDPluginCVStringInput;
+        int NDPluginCVStringInputDescription;
+        int NDPluginCVStringOutput;
+        int NDPluginCVStringOutputDescription;
+
 
         // File writing db vals - Currently Unused
         // int NDPluginCVWriteFile;
