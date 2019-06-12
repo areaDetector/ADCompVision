@@ -1,3 +1,41 @@
 # Nothing extra needed beyond NDPluginBase_settings.req for now
 file "NDPluginBase_settings.req", P=$(P), R=$(R)
 
+# Save the selected function
+$(P)$(R)CompVisionFunction1
+$(P)$(R)CompVisionFunction2
+$(P)$(R)CompVisionFunction3
+
+# Save the input values + descriptions
+$(P)$(R)Input1
+$(P)$(R)Input2
+$(P)$(R)Input3
+$(P)$(R)Input4
+$(P)$(R)Input5
+$(P)$(R)Input6
+$(P)$(R)Input7
+$(P)$(R)Input8
+$(P)$(R)Input9
+$(P)$(R)Input10
+$(P)$(R)Input1Description_RBV
+$(P)$(R)Input2Description_RBV
+$(P)$(R)Input3Description_RBV
+$(P)$(R)Input4Description_RBV
+$(P)$(R)Input5Description_RBV
+$(P)$(R)Input6Description_RBV
+$(P)$(R)Input7Description_RBV
+$(P)$(R)Input8Description_RBV
+$(P)$(R)Input9Description_RBV
+$(P)$(R)Input10Description_RBV
+
+# Save the output descriptions
+$(P)$(R)Output1Description_RBV
+$(P)$(R)Output2Description_RBV
+$(P)$(R)Output3Description_RBV
+$(P)$(R)Output4Description_RBV
+$(P)$(R)Output5Description_RBV
+$(P)$(R)Output6Description_RBV
+$(P)$(R)Output7Description_RBV
+$(P)$(R)Output8Description_RBV
+$(P)$(R)Output9Description_RBV
+$(P)$(R)Output10Description_RBV
