@@ -47,7 +47,7 @@ using namespace std;
  */ 
 #define N_FUNC_1                    6
 #define N_FUNC_2                    4
-#define N_FUNC_3                    4
+#define N_FUNC_3                    5
 
 
 
@@ -72,6 +72,7 @@ typedef enum {
     ADCV_UserDefined        = 9,
     ADCV_ImageStats         = 10,
     ADCV_DistanceCheck      = 11,
+    ADCV_VideoRecord        = 12,
 } ADCVFunction_t;
 
 
@@ -127,6 +128,8 @@ class NDPluginCVHelper {
 
         // Additional processing functions (used to clean up wrapper functions)
         double compute_rect_distance(Rect r1, Rect r2);
+
+        void update_str_in(string* str_in);
  
 
         // OpenCV Wrapper functions
@@ -140,6 +143,7 @@ class NDPluginCVHelper {
         ADCVStatus_t sharpen_images(Mat &img, double* inputs, double* outputs);
         ADCVStatus_t distance_between_ctrs(Mat &img, double* inputs, double* outputs);
         ADCVStatus_t convert_image_format(Mat &img, double* inputs, double* outputs);
+        ADCVStatus_t video_record(Mat &img, double* inputs, double* outputs);
 
         // under development
         ADCVStatus_t movement_vectors(Mat &img, double* inputs, double* outputs);
@@ -147,32 +151,33 @@ class NDPluginCVHelper {
 
 
         // IO description helper functions
-        void populate_remaining_descriptions(string* inputDesc, string* outputDesc, int nIn, int nOut);
-        ADCVStatus_t get_default_description(string* inputDesc, string* outputDesc, string* description);
+        void populate_remaining_descriptions(string* inputDesc, string* outputDesc, int nIn, int nOut, string* str_in, string* str_out, bool use_str);
+        ADCVStatus_t get_default_description(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out);
 
 
         // Wrapper function IO descriptions
-        ADCVStatus_t get_threshold_description(string* inputDesc, string* outputDesc, string* description);
-        ADCVStatus_t get_gaussian_blur_description(string* inputDesc, string* outputDesc, string* description);
-        ADCVStatus_t get_laplacian_description(string* inputDesc, string* outputDesc, string* description);
-        ADCVStatus_t get_canny_edge_description(string* inputDesc, string* outputDesc, string* description);
-        ADCVStatus_t get_centroid_finder_description(string* inputDesc, string* outputDesc, string* description);
-        ADCVStatus_t get_subtract_description(string* inputDesc, string* outputDesc, string* description);
-        ADCVStatus_t get_image_stats_description(string* inputDesc, string* outputDesc, string* description);
-        ADCVStatus_t get_sharpen_description(string* inputDesc, string* outputDesc, string* description);
-        ADCVStatus_t get_dist_between_description(string* inputDesc, string* outputDesc, string* description);
-        ADCVStatus_t get_convert_format_descripton(string* inputDesc, string* outputDesc, string* description);
+        ADCVStatus_t get_threshold_description(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out);
+        ADCVStatus_t get_gaussian_blur_description(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out);
+        ADCVStatus_t get_laplacian_description(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out);
+        ADCVStatus_t get_canny_edge_description(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out);
+        ADCVStatus_t get_centroid_finder_description(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out);
+        ADCVStatus_t get_subtract_description(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out);
+        ADCVStatus_t get_image_stats_description(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out);
+        ADCVStatus_t get_sharpen_description(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out);
+        ADCVStatus_t get_dist_between_description(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out);
+        ADCVStatus_t get_convert_format_descripton(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out);
+        ADCVStatus_t get_video_record_description(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out);
  
         // Under development
-        ADCVStatus_t get_movement_vectors_description(string* inputDesc, string* outputDesc, string* description);
-        ADCVStatus_t get_obj_identification_description(string* inputDesc, string* outputDesc, string* description);
+        ADCVStatus_t get_movement_vectors_description(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out);
+        ADCVStatus_t get_obj_identification_description(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out);
         
         // User defined function. Implement these functions in NDPluginCVHelper.cpp to be able to use them within the plugin
-        ADCVStatus_t get_user_function_description(string* inputDesc, string* outputDesc, string* description);
+        ADCVStatus_t get_user_function_description(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out);
         ADCVStatus_t user_function(Mat& img, double* inputs, double* outputs);
 
         // Functions called from the Plugin itself
-        ADCVStatus_t getFunctionDescription(ADCVFunction_t function, string* inputDesc, string* outputDesc, string* description);
+        ADCVStatus_t getFunctionDescription(ADCVFunction_t function, string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out);
         ADCVStatus_t processImage(Mat &image, ADCVFunction_t function, ADCVCameraDepth_t camera_depth, double* inputs, double* outputs);
         //ADCVStatus_t writeImage(Mat &image, string filename, ADCVFileFormat_t fileFormat);
 
@@ -186,11 +191,16 @@ class NDPluginCVHelper {
         // image stats net counter
         double overall_total = 0;
 
+        string str_in;
+
 
         // movement vector variables (Currently Unused/untested)
         int frameCounter = 0;
         bool wasComputed = false;
         Mat temporaryImg;
+
+        VideoWriter video;
+        bool isRecording = false;
 
 };
 #endif

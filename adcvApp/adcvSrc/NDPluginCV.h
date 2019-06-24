@@ -32,7 +32,7 @@ using namespace cv;
 
 // version numbers
 #define NDPluginCV_VERSION          1
-#define NDPluginCV_REVISION         0
+#define NDPluginCV_REVISION         2
 #define NDPluginCV_MODIFICATION     0
 
 /* Definitions of parameters */
@@ -164,7 +164,7 @@ class NDPluginCV : public NDPluginDriver{
 
         // Constructor/Destructor declarations
         NDPluginCV(const char *portName, int queueSize, int blockingCallbacks,
-			const char* NDArrayPort, int NDArrayAddr, int maxBuffers,
+            const char* NDArrayPort, int NDArrayAddr, int maxBuffers,
             size_t maxMemory, int priority, int stackSize);
 
         ~NDPluginCV();
@@ -174,6 +174,7 @@ class NDPluginCV : public NDPluginDriver{
 
         //virtual functions that overwrite PluginDriver functions
         virtual asynStatus writeInt32(asynUser* pasynUser, epicsInt32 value);
+        virtual asynStatus writeOctet(asynUser* pasynUser, const char* value, size_t nChars, size_t* nActual);
         //virtual asynStatus writeFloat64(asynUser* pasynUser, epicsFloat64 value);
 
         // Data type conversion functions (in public because I am working on unit tests)

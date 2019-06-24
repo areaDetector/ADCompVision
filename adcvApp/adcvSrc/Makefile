@@ -10,7 +10,7 @@ include $(TOP)/configure/CONFIG
 # so we get automatic template instantiation.
 # This is what we want for the source files that define template functions.
 ifeq (vxWorks,$(findstring vxWorks, $(T_A)))
-	CODE_CXXFLAGS=
+    CODE_CXXFLAGS=
 endif
 
 DBD += NDPluginCV.dbd
@@ -26,10 +26,10 @@ NDPluginCV_SRCS += NDPluginCVHelper.cpp
 #Must link Opencv here
 
 ifdef OPENCV_INCLUDE
-	USR_INCLUDES += -I$(OPENCV_INCLUDE)
+    USR_INCLUDES += -I$(OPENCV_INCLUDE)
 endif
 ifdef OPENCV_LIB
-	NDPluginCV_DIR += $(OPENCV_LIB)
+    NDPluginCV_DIR += $(OPENCV_LIB)
 endif
 
 

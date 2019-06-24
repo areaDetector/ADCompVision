@@ -154,6 +154,12 @@ double NDPluginCVHelper::compute_rect_distance(Rect r1, Rect r2){
 }
 
 
+void NDPluginCVHelper::update_str_in(string* str_in){
+    this->str_in = *str_in;
+    this->cvHelperStatus = "Updated string input";
+}
+
+
 /*
 #############################################################################
 #                                                                           #
@@ -484,6 +490,67 @@ ADCVStatus_t NDPluginCVHelper::compute_image_stats(Mat &img, double* inputs, dou
     }
     return status;
 }
+
+
+/**
+ * WRAPPER  ->  video_record
+ * This function uses the opencv_video and opencv_videoio libraries for writing a video from areaDetector cameras.
+ *
+ * @inCount     -> 2
+ * @inFormat    -> [Framerate (Int), Start/Stop (1 or 0)]
+ *
+ * @outCount    -> 1
+ * @outFormat   -> [Filepath valid (Int)]
+ */
+ADCVStatus_t NDPluginCVHelper::video_record(Mat &img, double* inputs, double* outputs){
+    const char* functionName = "video_record";
+    ADCVStatus_t status = cvHelperSuccess;
+    double outputFramerate = inputs[0];
+    int start_stop = inputs[1];
+
+    try{
+        if(!this->isRecording && start_stop == 1){
+            this->isRecording = true;
+            if(this->str_in == NULL){
+                outputs[0] = 0;
+                this->cvHelperStatus = "Error, no entered file path";
+            }
+            else{
+                string temp = this->str_in + "/temp";
+                FILE* test = fopen(temp.c_str(), "w");
+                if(test == NULL){
+                    outputs[0] = 0;
+                    this->cvHelperStatus = "Error, invalid file path.";
+                }
+                else{
+                    outputs[0] = 1;
+                    fclose(test);
+                    time_t t = time(0);
+                    tm* now = localtime(&t);
+                    char output_file[256];
+                    sprintf(output_file, "%s/CV_Output_Vid_%d-%d-%d::%d:%d:%d", this->str_in.c_str(), now->tm_year, now->tm_mon, now->tm_mday, now->tm_hour, now->tm_min, now->tm_sec);
+                    this->video = VideoWriter(output_file, CV_FOURCC('M', 'J', 'P', 'G'), outputFramerate, Size(img.cols, img.rows));
+                }
+            }
+        }
+        if(this->isRecording){
+            this->video.write(img);
+            if(start_stop == 0){
+                this->isRecording = false;
+                this->video.release();
+                cvHelperStatus = "Finished recording video";
+            }
+            else{
+                cvHelperStatus = "Recording...";
+            }
+        }
+    }catch(Exception &e){
+        print_cv_error(e, functionName);
+        status = cvHelperError;
+    }
+    return status;
+}
+
 
 
 /**
@@ -855,13 +922,17 @@ ADCVStatus_t NDPluginCVHelper::get_YOURFUNCTION_description(string* inputDesc, s
  * @params[in]:  nOut           -> number of outputs
  * @return: void
  */
-void NDPluginCVHelper::populate_remaining_descriptions(string* inputDesc, string* outputDesc, int nIn, int nOut){
+void NDPluginCVHelper::populate_remaining_descriptions(string* inputDesc, string* outputDesc, int nIn, int nOut, string* str_in, string* str_out, bool str_used){
     int i, j;
     for(i = nIn; i< NUM_INPUTS; i++){
         inputDesc[i] = "Not Used";
     }
     for(j = nOut; j< NUM_OUTPUTS; j++){
         outputDesc[j] = "Not Used";
+    }
+    if(!str_used){
+        *str_in = "Not Used";
+        *str_out = "Not Used";
     }
     cvHelperStatus = "Populated Input and output descriptions";
 }
@@ -875,14 +946,14 @@ void NDPluginCVHelper::populate_remaining_descriptions(string* inputDesc, string
  * @params[out]: description    -> overall function usage description
  * @return: void
  */
-ADCVStatus_t NDPluginCVHelper::get_threshold_description(string* inputDesc, string* outputDesc, string* description){
+ADCVStatus_t NDPluginCVHelper::get_threshold_description(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out){
     ADCVStatus_t status = cvHelperSuccess;
     int numInput = 2;
     int numOutput = 0;
     inputDesc[0] = "Threshold Value (Int)";
     inputDesc[1] = "Max Pixel Value (Int)";
     *description = "Will create binary image with cutoff at Threshold Val";
-    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput, str_in, str_out, false);
     return status;
 }
 
@@ -895,13 +966,13 @@ ADCVStatus_t NDPluginCVHelper::get_threshold_description(string* inputDesc, stri
  * @params[out]: description    -> overall function usage description
  * @return: void
  */
-ADCVStatus_t NDPluginCVHelper::get_gaussian_blur_description(string* inputDesc, string* outputDesc, string* description){
+ADCVStatus_t NDPluginCVHelper::get_gaussian_blur_description(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out){
     ADCVStatus_t status = cvHelperSuccess;
     int numInput = 1;
     int numOutput = 0;
     inputDesc[0] = "Blur Degree (Int)";
     *description = "Will blur image based on certain kernel blur degree (odd number int)";
-    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput, str_in, str_out, false);
     return status;
 }
 
@@ -914,7 +985,7 @@ ADCVStatus_t NDPluginCVHelper::get_gaussian_blur_description(string* inputDesc, 
  * @params[out]: description    -> overall function usage description
  * @return: void
  */
-ADCVStatus_t NDPluginCVHelper::get_laplacian_description(string* inputDesc, string* outputDesc, string* description){
+ADCVStatus_t NDPluginCVHelper::get_laplacian_description(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out){
     ADCVStatus_t status = cvHelperSuccess;
     int numInput = 4;
     int numOutput = 0;
@@ -924,7 +995,7 @@ ADCVStatus_t NDPluginCVHelper::get_laplacian_description(string* inputDesc, stri
     inputDesc[3] = "Laplace delat [int]";
 
     *description = "Edge detection using a combination of a Gaussian Blur kernel and a Laplacian kernel";
-    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput, str_in, str_out, false);
     return status;
 }
 
@@ -937,7 +1008,7 @@ ADCVStatus_t NDPluginCVHelper::get_laplacian_description(string* inputDesc, stri
  * @params[out]: description    -> overall function usage description
  * @return: void
  */
-ADCVStatus_t NDPluginCVHelper::get_dist_between_description(string* inputDesc, string* outputDesc, string* description){
+ADCVStatus_t NDPluginCVHelper::get_dist_between_description(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out){
     ADCVStatus_t status = cvHelperSuccess;
     int numInput = 5;
     int numOutput = 2;
@@ -949,7 +1020,7 @@ ADCVStatus_t NDPluginCVHelper::get_dist_between_description(string* inputDesc, s
     outputDesc[0] = "Within Threshold Alarm";
     outputDesc[1] = "Detected Min Pixel dist";
     *description = "Description of Computes distance between contours";
-    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput, str_in, str_out, false);
     return status;
 }
 
@@ -964,7 +1035,7 @@ ADCVStatus_t NDPluginCVHelper::get_dist_between_description(string* inputDesc, s
  * @params[out]: description    -> overall function usage description
  * @return: void
  */
-ADCVStatus_t NDPluginCVHelper::get_sharpen_description(string* inputDesc, string* outputDesc, string* description){
+ADCVStatus_t NDPluginCVHelper::get_sharpen_description(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out){
     ADCVStatus_t status = cvHelperSuccess;
     int numInput = 4;
     int numOutput = 0;
@@ -977,7 +1048,7 @@ ADCVStatus_t NDPluginCVHelper::get_sharpen_description(string* inputDesc, string
     // outputDesc[1] = "Output 2 Description";
  
     *description = "Sharpen images using laplacian";
-    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput, str_in, str_out, false);
     return status;
 }
 
@@ -989,12 +1060,12 @@ ADCVStatus_t NDPluginCVHelper::get_sharpen_description(string* inputDesc, string
  * @params[out]: description    -> overall function usage description
  * @return: void
  */
-ADCVStatus_t NDPluginCVHelper::get_subtract_description(string* inputDesc, string* outputDesc, string* description){
+ADCVStatus_t NDPluginCVHelper::get_subtract_description(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out){
     ADCVStatus_t status = cvHelperSuccess;
     int numInput = 0;
     int numOutput = 0;
     *description = "Subtracts consecutive images. Used in certain implementations of Dual Thresholding";
-    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput, str_in, str_out, false);
     return status;
 }
 
@@ -1007,7 +1078,7 @@ ADCVStatus_t NDPluginCVHelper::get_subtract_description(string* inputDesc, strin
  * @params[out]: description    -> overall function usage description
  * @return: void
  */
-ADCVStatus_t NDPluginCVHelper::get_image_stats_description(string* inputDesc, string* outputDesc, string* description){
+ADCVStatus_t NDPluginCVHelper::get_image_stats_description(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out){
     ADCVStatus_t status = cvHelperSuccess;
     int numInput = 0;
     int numOutput = 9;
@@ -1021,7 +1092,7 @@ ADCVStatus_t NDPluginCVHelper::get_image_stats_description(string* inputDesc, st
     outputDesc[7] = "Mean";
     outputDesc[8] = "Sigma";
     *description = "Compute image statistics";
-    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput, str_in, str_out, false);
     return status;
 }
 
@@ -1034,7 +1105,7 @@ ADCVStatus_t NDPluginCVHelper::get_image_stats_description(string* inputDesc, st
  * @params[out]: description    -> overall function usage description
  * @return: void
  */
-ADCVStatus_t NDPluginCVHelper::get_canny_edge_description(string* inputDesc, string* outputDesc, string* description){
+ADCVStatus_t NDPluginCVHelper::get_canny_edge_description(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out){
     ADCVStatus_t status = cvHelperSuccess;
     int numInput = 4;
     int numOutput = 8;
@@ -1051,7 +1122,7 @@ ADCVStatus_t NDPluginCVHelper::get_canny_edge_description(string* inputDesc, str
     outputDesc[6] = "Left Pixel";
     outputDesc[7] = "Right Pixel";
     *description = "Edge detection using the 'Canny' function. First blurs the image, then thresholds, then runs the canny algorithm.";
-    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput, str_in, str_out, false);
     return status;
 }
 
@@ -1064,7 +1135,7 @@ ADCVStatus_t NDPluginCVHelper::get_canny_edge_description(string* inputDesc, str
  * @params[out]: description    -> overall function usage description
  * @return: void
  */
-ADCVStatus_t NDPluginCVHelper::get_centroid_finder_description(string* inputDesc, string* outputDesc, string* description){
+ADCVStatus_t NDPluginCVHelper::get_centroid_finder_description(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out){
     ADCVStatus_t status = cvHelperSuccess;
     int numInput = 5;
     int numOutput = 10;
@@ -1084,7 +1155,7 @@ ADCVStatus_t NDPluginCVHelper::get_centroid_finder_description(string* inputDesc
     outputDesc[8] = "Centroid 5 X";
     outputDesc[9] = "Centroid 5 Y";
     *description = "Centroid computation. Thresholds, then finds centroid. Thresholds used to remove contours by area";
-    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput, str_in, str_out, false);
     return status;
 }
 
@@ -1097,7 +1168,7 @@ ADCVStatus_t NDPluginCVHelper::get_centroid_finder_description(string* inputDesc
  * @params[out]: description    -> overall function usage description
  * @return: void
  */
-ADCVStatus_t NDPluginCVHelper::get_movement_vectors_description(string* inputDesc, string* outputDesc, string* description){
+ADCVStatus_t NDPluginCVHelper::get_movement_vectors_description(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out){
     ADCVStatus_t status = cvHelperSuccess;
     int numInput = 2;
     int numOutput = 8;
@@ -1112,7 +1183,7 @@ ADCVStatus_t NDPluginCVHelper::get_movement_vectors_description(string* inputDes
     outputDesc[6] = "Vector 2 End X";
     outputDesc[7] = "Vector 2 End Y";
     *description = "Function that tracks movement of objects between two images separated by a certain number of frames. Not fully implemented";
-    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput, str_in, str_out, false);
     return status;
 }
 
@@ -1126,7 +1197,7 @@ ADCVStatus_t NDPluginCVHelper::get_movement_vectors_description(string* inputDes
  * @params[out]: description    -> overall function usage description
  * @return: void
  */
-ADCVStatus_t NDPluginCVHelper::get_obj_identification_description(string* inputDesc, string* outputDesc, string* description){
+ADCVStatus_t NDPluginCVHelper::get_obj_identification_description(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out){
     ADCVStatus_t status = cvHelperSuccess;
     int numInput = 4;
     int numOutput = 10;
@@ -1145,7 +1216,7 @@ ADCVStatus_t NDPluginCVHelper::get_obj_identification_description(string* inputD
     outputDesc[8] = "Min Enclosing Circle Y";
     outputDesc[9] = "Orientation";
     *description = "Identify object contours and list information";
-    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput, str_in, str_out, false);
     return status;
 }
 
@@ -1158,12 +1229,12 @@ ADCVStatus_t NDPluginCVHelper::get_obj_identification_description(string* inputD
  * @params[out]: description    -> overall function usage description
  * @return: void
  */
-ADCVStatus_t NDPluginCVHelper::get_user_function_description(string* inputDesc, string* outputDesc, string* description){
+ADCVStatus_t NDPluginCVHelper::get_user_function_description(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out){
     ADCVStatus_t status = cvHelperSuccess;
     int numInput = 0;
     int numOutput = 0;
     *description = "Describe what your function does here";
-    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput, str_in, str_out, false);
     return status;
 }
 
@@ -1176,7 +1247,7 @@ ADCVStatus_t NDPluginCVHelper::get_user_function_description(string* inputDesc, 
  * @params[out]: description    -> overall function usage description
  * @return: void
  */
-ADCVStatus_t NDPluginCVHelper::get_default_description(string* inputDesc, string* outputDesc, string* description){
+ADCVStatus_t NDPluginCVHelper::get_default_description(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out){
     ADCVStatus_t status = cvHelperError;
     int i, j;
     for(i = 0; i< NUM_INPUTS; i++){
@@ -1186,6 +1257,8 @@ ADCVStatus_t NDPluginCVHelper::get_default_description(string* inputDesc, string
         outputDesc[j] = "Not Available";
     }
     *description = "None Available";
+    *str_in = "Not Available";
+    *str_out = "Not Available";
     return status;
 }
 
@@ -1198,14 +1271,37 @@ ADCVStatus_t NDPluginCVHelper::get_default_description(string* inputDesc, string
  * @params[out]: description    -> overall function usage description
  * @return: void
  */
-ADCVStatus_t NDPluginCVHelper::get_convert_format_descripton(string* inputDesc, string* outputDesc, string* description){
+ADCVStatus_t NDPluginCVHelper::get_convert_format_descripton(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out){
     ADCVStatus_t status = cvHelperSuccess;
     int numInput = 2;
     int numOutput = 0;
     inputDesc[0] = "Toggle toGrayscale (0, 1)";
     inputDesc[1] = "Toggle toRGB (0, 1)";
     *description = "Converts image into a different color mode fomat";
-    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput, str_in, str_out, false);
+    return status;
+}
+
+
+/**
+ * Function that sets the I/O descriptions for video_record
+ * 
+ * @params[out]: inputDesc      -> array of input descriptions
+ * @params[out]: outputDesc     -> array of output descriptions
+ * @params[out]: description    -> overall function usage description
+ * @return: void
+ */
+ADCVStatus_t NDPluginCVHelper::get_video_record_description(string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out){
+    ADCVStatus_t status = cvHelperSuccess;
+    int numInput = 2;
+    int numOutput = 1;
+    inputDesc[0] = "Output Framerate (Int)";
+    inputDesc[1] = "Start(1)/Stop(0)";
+    outputDesc[0] = "FilePath valid (0 = No, 1 = Yes)";
+    *description = "Function that allows for recording video using areaDetector";
+    *str_in = "Video save file path";
+    *str_out = "Not Used";
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput, str_in, str_out, true);
     return status;
 }
 
@@ -1273,6 +1369,9 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
             //status = downscale_image_8bit(image, camera_depth);
             status = distance_between_ctrs(image, inputs, outputs);
             break;
+        case ADCV_VideoRecord:
+            status = video_record(image, inputs, outputs);
+            break;
         default:
             status = cvHelperError;
             break;
@@ -1297,34 +1396,34 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
  * @params[out]: description    -> Description of the function
  * @return: cvHelperSuccess if function desc defined, otherwise cvHelperError
  */
-ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, string* inputDesc, string* outputDesc, string* description){
+ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, string* inputDesc, string* outputDesc, string* description, string* str_in, string* str_out){
     //const char* functionName = "getFunctionDescription";
     ADCVStatus_t status;
 
     switch(function){
         case ADCV_Threshold:
-            status = get_threshold_description(inputDesc, outputDesc, description);
+            status = get_threshold_description(inputDesc, outputDesc, description, str_in, str_out);
             break;
         case ADCV_GaussianBlur:
-            status = get_gaussian_blur_description(inputDesc, outputDesc, description);
+            status = get_gaussian_blur_description(inputDesc, outputDesc, description, str_in, str_out);
             break;
         case ADCV_Subtract:
-            status = get_subtract_description(inputDesc, outputDesc, description);
+            status = get_subtract_description(inputDesc, outputDesc, description, str_in, str_out);
             break;
         case ADCV_Laplacian:
-            status = get_laplacian_description(inputDesc, outputDesc, description);
+            status = get_laplacian_description(inputDesc, outputDesc, description, str_in, str_out);
             break;
         case ADCV_EdgeDetectionCanny:
-            status = get_canny_edge_description(inputDesc, outputDesc, description);
+            status = get_canny_edge_description(inputDesc, outputDesc, description, str_in, str_out);
             break;
         case ADCV_CentroidFinder:
-            status = get_centroid_finder_description(inputDesc, outputDesc, description);
+            status = get_centroid_finder_description(inputDesc, outputDesc, description, str_in, str_out);
             break;
         case ADCV_Sharpen:
-            status = get_sharpen_description(inputDesc, outputDesc, description);
+            status = get_sharpen_description(inputDesc, outputDesc, description, str_in, str_out);
             break;
         case ADCV_ConvertFormat:
-            status = get_convert_format_descripton(inputDesc, outputDesc, description);
+            status = get_convert_format_descripton(inputDesc, outputDesc, description, str_in, str_out);
             break;
         /*
         case ADCV_MovementVectors:
@@ -1332,16 +1431,19 @@ ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, s
             break;
         */
         case ADCV_ImageStats:
-            status = get_image_stats_description(inputDesc, outputDesc, description);
+            status = get_image_stats_description(inputDesc, outputDesc, description, str_in, str_out);
             break;
         case ADCV_UserDefined:
-            status = get_user_function_description(inputDesc, outputDesc, description);
+            status = get_user_function_description(inputDesc, outputDesc, description, str_in, str_out);
             break;
         case ADCV_DistanceCheck:
-            status = get_dist_between_description(inputDesc, outputDesc, description);
+            status = get_dist_between_description(inputDesc, outputDesc, description, str_in, str_out);
+            break;
+        case ADCV_VideoRecord:
+            status = get_video_record_description(inputDesc, outputDesc, description, str_in, str_out);
             break;
         default:
-            status = get_default_description(inputDesc, outputDesc, description);
+            status = get_default_description(inputDesc, outputDesc, description, str_in, str_out);
             break;
     }
     if(function == ADCV_NoFunction) cvHelperStatus = "No function selected";
