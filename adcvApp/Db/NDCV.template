@@ -111,6 +111,8 @@ record(mbbo, "$(P)$(R)CompVisionFunction3")
     field(TWVL, "2")
     field(THST, "Dist. Check")
     field(THVL, "3")
+    field(FRST, "Video Record")
+    field(FRVL, "4")
     field(VAL, "0")
     info(autosaveFields, "VAL")
 }
@@ -127,6 +129,8 @@ record(mbbi, "$(P)$(R)CompVisionFunction3_RBV")
     field(TWVL, "2")
     field(THST, "Dist. Check")
     field(THVL, "3")
+    field(FRST, "Video Record")
+    field(FRVL, "4")
     field(VAL, "0")
     field(SCAN, "I/O Intr")
 }
@@ -629,7 +633,7 @@ record(stringin, "$(P)$(R)Output10Description_RBV"){
 record(waveform, "$(P)$(R)StringInput"){
     field(PINI, "YES")
     field(DTYP, "asynOctetWrite")
-    field(OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_STRINGIN")
+    field(INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_STRINGIN")
     field(FTVL, "CHAR")
     field(NELM, "256")
     field(autosaveFields, "VAL")
@@ -648,7 +652,6 @@ record(waveform, "$(P)$(R)StringInputDescription_RBV"){
     field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_STRINGIN_DESC")
     field(FTVL, "CHAR")
     field(NELM, "256")
-    field(VAL, "String Input Desc.")
     field(SCAN, "I/O Intr")
 }
 
@@ -657,9 +660,10 @@ record(waveform, "$(P)$(R)StringInputDescription_RBV"){
 record(waveform, "$(P)$(R)StringOutput"){
     field(PINI, "YES")
     field(DTYP, "asynOctetWrite")
-    field(OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_STRINGOUT")
+    field(INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_STRINGOUT")
     field(FTVL, "CHAR")
     field(NELM, "256")
+    field(VAL, "Not Used")
     field(autosaveFields, "VAL")
 }
 
