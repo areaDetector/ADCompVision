@@ -1,11 +1,13 @@
 ADCompVision Documentation
 ==========================
 
-Author: Jakub Wlodek
-~~~~~~~~~~~~~~~~~~~~
+:Author: Jakub Wlodek
 
-Corresponding Author: Kazimierz Gofron
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:Corresponding Author: Kazimierz Gofron
+
+:Created: November 2018
+
+:Last Updated: June 2019
 
 Installing the plugin
 ~~~~~~~~~~~~~~~~~~~~~
@@ -52,6 +54,27 @@ image1 ArrayData. Some examples are shown below:
 
 Release Notes
 ^^^^^^^^^^^^^
+
+R1-2 (???-June-2019)
+^^^^^^^^^^^^^^^^^^^^
+
+-  Computer Vision functions implemented
+
+    -  Video Record - allows for video recording with areaDetector
+    -  Convert Format - Converts color format and Data type of input image.
+
+-  Additional Feature changes
+    -  Added filepath PV
+    -  Added filepath exists PV
+    -  Added opencv_video and opencv_videoio as library dependancies
+    -  New medm, edm, and adl screens (Courtesy of Mark Rivers)
+    -  New rst documentation pages (Courtesy of Mark Rivers
+
+-  Bug Fixes
+    -  Edited mat2NDArray function to remove potential memory leak
+    -  Comment + documentation updates
+
+
 
 R1-1 (17-April-2019)
 ^^^^^^^^^^^^^^^^^^^^
