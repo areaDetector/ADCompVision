@@ -91,10 +91,11 @@ using namespace cv;
 #define NDPluginCVOutput10DescriptionString         "NDCV_OUT_DESCRIPTION10"    //asynParamOctet
 
 // String Input/Output PVs -  allow for more complex inputs and returns
-#define NDPluginCVStringInputString                 "NDCV_STRINGIN"             //asynParamOctet
-#define NDPluginCVStringInputDescriptionString      "NDCV_STRINGIN_DESC"        //asynParamOctet
-#define NDPluginCVStringOutputString                "NDCV_STRINGOUT"            //asynParamOctet
-#define NDPluginCVStringOutputDescriptionString     "NDCV_STRINGOUT_DESC"       //asynParamOctet
+#define NDPluginCVFilePathString                    "NDCV_FILEPATH"             //asynParamOctet
+#define NDPluginCVPathExistsString                  "NDCV_PATH_EXISTS"          //asynParamInt32
+
+//#define NDPluginCVStringOutputString                "NDCV_STRINGOUT"            //asynParamOctet
+//#define NDPluginCVStringOutputDescriptionString     "NDCV_STRINGOUT_DESC"       //asynParamOctet
 
 // File Saving PVs - Currently Unused
 // #define NDPluginCVWriteFileString                   "NDCV_FILE"                 //asynParamInt32
@@ -239,11 +240,13 @@ class NDPluginCV : public NDPluginDriver{
         int NDPluginCVOutput9Description;
         int NDPluginCVOutput10Description;
 
+        // filepath PVs
+        int NDPluginCVFilePath;
+        int NDPluginCVPathExists;
+
         // database values for string Input/Output
-        int NDPluginCVStringInput;
-        int NDPluginCVStringInputDescription;
-        int NDPluginCVStringOutput;
-        int NDPluginCVStringOutputDescription;
+        //int NDPluginCVStringOutput;
+        //int NDPluginCVStringOutputDescription;
 
 
         // File writing db vals - Currently Unused
@@ -275,6 +278,7 @@ class NDPluginCV : public NDPluginDriver{
         void assignOutputs();
         void assignInputDescriptions();
         void assignOutputDescriptions();
+        bool checkFilepathValid(const char* filepath);
 
         // gets function from PV values
         ADCVFunction_t get_function_from_pv(int pvValue, int functionSet);
