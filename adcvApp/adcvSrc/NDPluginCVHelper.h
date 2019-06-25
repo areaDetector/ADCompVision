@@ -179,8 +179,6 @@ class NDPluginCVHelper {
         // Functions called from the Plugin itself
         ADCVStatus_t getFunctionDescription(ADCVFunction_t function, string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t processImage(Mat &image, ADCVFunction_t function, ADCVCameraDepth_t camera_depth, double* inputs, double* outputs);
-        //ADCVStatus_t writeImage(Mat &image, string filename, ADCVFileFormat_t fileFormat);
-
 
     protected:
 
@@ -191,6 +189,7 @@ class NDPluginCVHelper {
         // image stats net counter
         double overall_total = 0;
 
+        // general filepath for use with video recording and image saving.
         string filepath = "";
 
 
@@ -199,6 +198,7 @@ class NDPluginCVHelper {
         bool wasComputed = false;
         Mat temporaryImg;
 
+        // variables used for video recording
         VideoWriter video;
         bool isRecording = false;
 

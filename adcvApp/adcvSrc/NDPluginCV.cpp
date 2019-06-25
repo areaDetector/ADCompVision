@@ -537,41 +537,12 @@ asynStatus NDPluginCV::updateFunctionDescriptions(ADCVFunction_t function){
 }
 
 
-// File writing temporarily disabled
-
 /**
- * Function responsible for getting filewriting information from appropriate PVs,
- * then calling the appropriate helper function
+ * Checks if given file path is valid by simply attempting to open up a temp file in write mode in the given path
  * 
- * @params[in]: inputImg    -> image to be saved
- * @return: asynSuccess if saved successfully, otherwise asynError
- *
-asynStatus NDPluginCV::writeImageFile(Mat &inputImg){
-    const char* functionName = "writeImageFile";
-    //asynStatus status;
-    ADCVStatus_t libStatus;
-    char buff[255];
-    string filename;
-    int format;
-    getIntegerParam(NDPluginCVWriteFile, &format);
-    if((ADCVFileFormat_t) format == ADCV_FileDisable){
-        return asynSuccess;
-    }
-    else{
-        getStringParam(NDPluginCVFilename, 255, buff);
-        filename = buff;
-        libStatus = cvHelper->writeImage(inputImg, filename, (ADCVFileFormat_t) format);
-        if(libStatus == cvHelperError){
-            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error writing image\n", pluginName, functionName);
-            return asynError;
-        }
-        else{
-            return asynSuccess;
-        }
-    }
-}
-*/
-
+ * @params[in]: filepath    -> filepath entered by user
+ * @return true if the path was valid, false otherwise
+ */
 bool NDPluginCV::checkFilepathValid(const char* filepath){
     const char* functionName = "checkFilepathValid";
     printf("%s::%s - %s\n", pluginName, functionName, filepath);
@@ -844,9 +815,6 @@ NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallback
 
     //createParam(NDPluginCVStringOutputString,                   asynParamOctet,     &NDPluginCVStringOutput);
     //createParam(NDPluginCVStringOutputDescriptionString,        asynParamOctet,     &NDPluginCVStringOutputDescription);
-
-    // createParam(NDPluginCVWriteFileString,                      asynParamInt32,     &NDPluginCVWriteFile);
-    // createParam(NDPluginCVFilenameString,                       asynParamOctet,     &NDPluginCVFilename);
 
     createParam(NDPluginCVCameraDepthString,                    asynParamInt32,     &NDPluginCVCameraDepth);
 

@@ -508,9 +508,12 @@ ADCVStatus_t NDPluginCVHelper::compute_image_stats(Mat &img, double* inputs, dou
 /**
  * WRAPPER  ->  video_record
  * This function uses the opencv_video and opencv_videoio libraries for writing a video from areaDetector cameras.
+ * A valid file path is required. Output video framerate should be set to the camera framerate if a real time video
+ * is desired. Supported encodings are: H264, MPEG, DIVX, and LAGS. Not all encodings will be present on each machine,
+ * thus some experimentation may be required. The output video will $FILEPATH/CV_Output_Vid_$DATETIME.mp4
  *
- * @inCount     -> 2
- * @inFormat    -> [Framerate (Int), Start/Stop (1 or 0)]
+ * @inCount     -> 4
+ * @inFormat    -> [Framerate (Int), Start/Stop (1 or 0), color (1 or 0), encoding (1-4), Output File Type (1 or 0)]
  *
  * @outCount    -> 0
  * @outFormat   -> N/A
@@ -520,13 +523,21 @@ ADCVStatus_t NDPluginCVHelper::video_record(Mat &img, double* inputs, double* ou
     ADCVStatus_t status = cvHelperSuccess;
     double outputFramerate = inputs[0];
     int start_stop = inputs[1];
-
+    int color = inputs[2];
+    bool color_bool = true;
+    if(color == 1) color_bool = false;
+    int encoding = inputs[3];
+    int outputType = inputs[4];
+    const char* file_ext = ".avi";
+    if(outputType == 1) file_ext = ".mp4";
     try{
         if(!this->isRecording && start_stop == 1){
             time_t t = time(0);
             tm* now = localtime(&t);
             char output_file[256];
-            sprintf(output_file, "%s/CV_Output_Vid_%d-%d-%d::%d:%d:%d.avi", this->filepath.c_str(), (now->tm_year - 100), now->tm_mon, now->tm_mday, now->tm_hour, now->tm_min, now->tm_sec);
+            // collect full filename
+            sprintf(output_file, "%s/CV_Output_Vid_%d-%d-%d::%d:%d:%d%s", this->filepath.c_str(), 
+                (now->tm_year - 100), now->tm_mon, now->tm_mday, now->tm_hour, now->tm_min, now->tm_sec, file_ext);
             //printf("%s\n", output_file);
             this->isRecording = true;
             if(this->filepath == ""){
@@ -534,12 +545,18 @@ ADCVStatus_t NDPluginCVHelper::video_record(Mat &img, double* inputs, double* ou
                 this->isRecording = false;
             }
             else{
-                this->video = VideoWriter(output_file, CV_FOURCC('M', 'J', 'P', 'G'), outputFramerate, Size(img.cols, img.rows));
+                // select appropriate encoding
+                int fourcc = CV_FOURCC('H', '2', '6', '4');
+                if(encoding == 1) fourcc = CV_FOURCC('M', 'P', 'E', 'G');
+                else if(encoding == 2) fourcc = CV_FOURCC('D', 'I', 'V', 'X');
+                else if(encoding == 3) fourcc = CV_FOURCC('m', 'p', '4', 'v');
+                this->video = VideoWriter(output_file, fourcc, outputFramerate, Size(img.cols, img.rows), color_bool);
             }
         }
         if(this->isRecording){
             this->video.write(img);
             if(start_stop == 0){
+                // save the video and release memory
                 this->isRecording = false;
                 this->video.release();
                 this->cvHelperStatus = "Finished recording video";
@@ -1291,11 +1308,14 @@ ADCVStatus_t NDPluginCVHelper::get_convert_format_descripton(string* inputDesc, 
  */
 ADCVStatus_t NDPluginCVHelper::get_video_record_description(string* inputDesc, string* outputDesc, string* description){
     ADCVStatus_t status = cvHelperSuccess;
-    int numInput = 2;
+    int numInput = 5;
     int numOutput = 0;
     inputDesc[0] = "Output Framerate (Int)";
     inputDesc[1] = "Start(1)/Stop(0)";
-    *description = "Function that allows for recording video using areaDetector";
+    inputDesc[2] = "Color(0)/Mono(1)";
+    inputDesc[3] = "H264(0)/MPEG(1)/DIVX(2)/MP4(3)";
+    inputDesc[4] = ".avi(0)/.mp4(1)";
+    *description = "Function that allows for recording video using areaDetector. Requires valid file path";
     populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
     return status;
 }
@@ -1365,6 +1385,8 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
             status = distance_between_ctrs(image, inputs, outputs);
             break;
         case ADCV_VideoRecord:
+            if(image.channels() != 3)
+                status = downscale_image_8bit(image, camera_depth);
             status = video_record(image, inputs, outputs);
             break;
         default:
@@ -1447,55 +1469,6 @@ ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, s
     }
     return status;
 }
-
-
-// File writing temporarily disabled
-
-/**
- * This function is called fom the ADCompVision plugin. It takes an image and then saves it in the specified format
- * with the specified filename. 
- * 
- * @params[in]: image       -> image to be saved
- * @params[in]: filename    -> filename of saved image
- * @params[in]: format      -> file format in which to save image
- * @return: cvHelperSuccess if file saved correctly, otherwise cvHelperError
- *
-ADCVStatus_t NDPluginCVHelper::writeImage(Mat &image, string filename, ADCVFileFormat_t format){
-    const char* functionName = "writeImage";
-    ADCVStatus_t status = cvHelperError;
-
-    if(filename[0] != '/'){
-        cvHelperStatus = "Please use absolute path name starting with /";
-        return status;
-    }
-    
-    switch(format){
-        case ADCV_FileDisable:
-            status = cvHelperSuccess;
-            break;
-        case ADCV_FileJPEG:
-            filename = filename + ".jpg";
-            break;
-        case ADCV_FilePNG:
-            filename = filename + ".png";
-            break;
-        case ADCV_FileTIF:
-            filename = filename + ".tif";
-            break;
-        default:
-            cvHelperStatus = "Error in helper library invalid selected file format";
-            break;
-    }
-    if(status == cvHelperSuccess) return status;
-    try{
-        imwrite(filename, image);
-    }catch(Exception &e){
-        print_cv_error(e, functionName);
-        return cvHelperError;
-    }
-    return cvHelperSuccess;
-}
-*/
 
 /* Basic constructor/destructor, used by plugin to call processImage */
 
