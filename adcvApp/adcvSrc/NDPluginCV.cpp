@@ -545,7 +545,7 @@ asynStatus NDPluginCV::updateFunctionDescriptions(ADCVFunction_t function){
  */
 bool NDPluginCV::checkFilepathValid(const char* filepath){
     const char* functionName = "checkFilepathValid";
-    printf("%s::%s - %s\n", pluginName, functionName, filepath);
+    //printf("%s::%s - %s\n", pluginName, functionName, filepath);
     char ext_buff[256];
     sprintf(ext_buff, "%s/%s", filepath, "/__NDCV_temp__");
     FILE* temp = fopen(ext_buff, "w");
@@ -576,14 +576,14 @@ asynStatus NDPluginCV::writeOctet(asynUser* pasynUser, const char* value, size_t
     int function = pasynUser->reason;
     asynStatus status = asynSuccess;
     status = setStringParam(function, value);
-    printf("Entering writeOctet\n");
+    //printf("Entering writeOctet\n");
     if(function == NDPluginCVFilePath){
         char buff[256];
         getStringParam(NDPluginCVFilePath, sizeof(buff), buff);
         bool check = checkFilepathValid(buff);
         if(check){
             string input = buff;
-            printf("%s\n", input.c_str());
+            //printf("%s\n", input.c_str());
             this->cvHelper->update_str_in(&input);
             setIntegerParam(NDPluginCVPathExists, 1);
         }

@@ -838,8 +838,8 @@ ADCVStatus_t NDPluginCVHelper::distance_between_ctrs(Mat &img, double* inputs, d
                     }
                 }
             }
-            rectangle(img, lbounding_rect, Scalar(0, 255, 0), 3);
-            rectangle(img, sbounding_rect, Scalar(0, 255, 0), 3);
+            cv::rectangle(img, lbounding_rect, Scalar(0, 255, 0), 3);
+            cv::rectangle(img, sbounding_rect, Scalar(0, 255, 0), 3);
             outputs[1] = compute_rect_distance(lbounding_rect, sbounding_rect);
             if(outputs[1] < distance_threshold) outputs[0] = 1;
             else outputs[0] = 0;
