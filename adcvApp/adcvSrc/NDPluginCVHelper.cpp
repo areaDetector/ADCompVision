@@ -228,7 +228,7 @@ ADCVStatus_t NDPluginCVHelper::YOURFUNCTION(Mat &img, double* inputs, double* ou
 
 
 /**
- * WRAPPER  ->  gaussian_blur
+ * WRAPPER  ->  Gaussian Blur
  * Blurs image based on a gaussian kernel. A gaussian kernel is simply a matrix of a set size that
  * fills Gaussian properties.
  *
@@ -263,7 +263,7 @@ ADCVStatus_t NDPluginCVHelper::gaussian_blur(Mat &img, double* inputs, double* o
  * @inFormat    -> [Threshhold Value (Int), Max Pixel Value (Int)]
  * 
  * @outCount    -> 0
- * @outFormat   -> None
+ * @outFormat   -> N/A
  */
 ADCVStatus_t NDPluginCVHelper::threshold_image(Mat &img, double* inputs, double* outputs){
     const char* functionName = "threshold_image";
@@ -291,7 +291,7 @@ ADCVStatus_t NDPluginCVHelper::threshold_image(Mat &img, double* inputs, double*
  * @inFormat    -> [Blur degree (Int)]
  * 
  * @outCount    -> 0
- * @outFormat   -> None
+ * @outFormat   -> N/A
  */
 ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat &img, double* inputs, double* outputs){
     const char* functionName = "laplacian_edge_detection";
@@ -323,7 +323,7 @@ ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat &img, double* inputs
  * @inFormat    -> [Gaussian blurr (Int), Laplacian kernel size (Int), Laplacian scale (Int), Laplacian delat (Int) ]
  *
  * @outCount    -> 0
- * @outFormat   -> []
+ * @outFormat   -> N/A
  */
 ADCVStatus_t NDPluginCVHelper::sharpen_images(Mat &img, double* inputs, double* outputs){
     const char* functionName = "sharpen_images";
@@ -429,10 +429,10 @@ ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat &img, double* inputs, do
  * subtract them.
  * 
  * @inCount     -> 0
- * @inFormat    -> 
+ * @inFormat    -> N/A
  * 
  * @outCount    -> 0
- * @outFormat   -> 
+ * @outFormat   -> N/A
  */
 ADCVStatus_t NDPluginCVHelper::subtract_consecutive_images(Mat &img, double* inputs, double* outputs){
     const char* functionName = "subtract_consecutive_images";
@@ -459,11 +459,11 @@ ADCVStatus_t NDPluginCVHelper::subtract_consecutive_images(Mat &img, double* inp
 
 
 /**
- * WRAPPER  ->  compute_image_stats
+ * WRAPPER  ->  ComputeImageStats
  * OpenCV accelerated computation of Image statistics
  *
  * @inCount     -> 0
- * @inFormat    -> []
+ * @inFormat    -> N/A
  *
  * @outCount    -> 9
  * @outFormat   -> [total, min, min x, min y, max, max x, max y, mean, sigma]
@@ -506,7 +506,7 @@ ADCVStatus_t NDPluginCVHelper::compute_image_stats(Mat &img, double* inputs, dou
 
 
 /**
- * WRAPPER  ->  video_record
+ * WRAPPER  ->  VideoRecord
  * This function uses the opencv_video and opencv_videoio libraries for writing a video from areaDetector cameras.
  * A valid file path is required. Output video framerate should be set to the camera framerate if a real time video
  * is desired. Supported encodings are: H264, MPEG, DIVX, and LAGS. Not all encodings will be present on each machine,
@@ -667,7 +667,7 @@ ADCVStatus_t NDPluginCVHelper::find_centroids(Mat &img, double* inputs, double* 
 
 
 /**
- * WRAPPER  ->  movement_vectors
+ * WRAPPER  ->  Movement Vectors (Testing)
  * Function that does feature detection on images a set number of frames apart, and attempts to calculate the 
  * movement vector for the calculated key points. It uses ORB feature detection and vector flow
  * 
@@ -712,7 +712,7 @@ ADCVStatus_t NDPluginCVHelper::movement_vectors(Mat &img, double* inputs, double
 
 
 /**
- * WRAPPER  ->  Object Identification
+ * WRAPPER  ->  Object Identification (Testing)
  * Function that detects contours in an image and returns information regarding said contours
  * 
  * NOT YET IMPLEMENTED/TESTED
@@ -792,7 +792,7 @@ ADCVStatus_t NDPluginCVHelper::user_function(Mat &img, double* inputs, double* o
 
 
 /**
- * WRAPPER  ->  Distance between contours
+ * WRAPPER  ->  Distance Between Contours
  * Function that computes bounding boxes between the two largest computed contours in the image,
  * checks the distance between them and sends an alarm if they are within a distance threshold.
  *
