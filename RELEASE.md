@@ -25,6 +25,7 @@ Dependencies: ADCompVision requires opencv core, highgui, image processing, and 
 * Bug Fixes
     * Edited mat2NDArray function to remove potential memory leak
     * Comment + documentation updates
+    * Fixed bug where input pArray data would be placed into the Mat - which would result in data overwrite.
 
 ## R1-1 (17-April-2019)
 

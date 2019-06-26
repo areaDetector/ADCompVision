@@ -87,6 +87,7 @@ R1-2 (???-June-2019)
 
    -  Edited mat2NDArray function to remove potential memory leak
    -  Comment + documentation updates
+   -  Fixed bug where input pArray data would be placed into the Mat - which would result in data overwrite.
 
 R1-1 (17-April-2019)
 ^^^^^^^^^^^^^^^^^^^^
