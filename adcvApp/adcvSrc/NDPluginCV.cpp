@@ -202,7 +202,12 @@ asynStatus NDPluginCV::ndArray2Mat(NDArray* pArray, Mat &pMat, NDDataType_t data
         //otherwise generate an OpenCV mat of the appropriate size and insert the data
         pArray->getInfo(&arrayInfo);
         //set value at pointer
-        pMat = Mat(arrayInfo.ySize, arrayInfo.xSize, matFormat, pArray->pData);
+        //void* temp = malloc(arrayInfo.totalBytes);
+        //memcpy(temp, pArray->pData, arrayInfo.totalBytes);
+        Mat pMatTemp = Mat(arrayInfo.ySize, arrayInfo.xSize, matFormat, pArray->pData);
+        pMat = pMatTemp.clone();
+        pMatTemp.release();
+        
         if(colorMode == NDColorModeRGB1){
             //if it is color convert to BGR openCV functions use bgr as default
             cvtColor(pMat, pMat, COLOR_RGB2BGR);
@@ -267,10 +272,10 @@ asynStatus NDPluginCV::mat2NDArray(Mat &pMat, NDDataType_t dataType, NDColorMode
             getAttributes(pScratch->pAttributeList);
             callParamCallbacks();
             doCallbacksGenericPointer(pScratch, NDArrayData, 0);
-            //pMat.release();
-            pScratch->release();
             status = asynSuccess;
         }
+        pMat.release();
+        pScratch->release();
     }
     return status;
 }
@@ -537,44 +542,72 @@ asynStatus NDPluginCV::updateFunctionDescriptions(ADCVFunction_t function){
 }
 
 
-// File writing temporarily disabled
-
 /**
- * Function responsible for getting filewriting information from appropriate PVs,
- * then calling the appropriate helper function
+ * Checks if given file path is valid by simply attempting to open up a temp file in write mode in the given path
  * 
- * @params[in]: inputImg    -> image to be saved
- * @return: asynSuccess if saved successfully, otherwise asynError
- *
-asynStatus NDPluginCV::writeImageFile(Mat &inputImg){
-    const char* functionName = "writeImageFile";
-    //asynStatus status;
-    ADCVStatus_t libStatus;
-    char buff[255];
-    string filename;
-    int format;
-    getIntegerParam(NDPluginCVWriteFile, &format);
-    if((ADCVFileFormat_t) format == ADCV_FileDisable){
-        return asynSuccess;
+ * @params[in]: filepath    -> filepath entered by user
+ * @return true if the path was valid, false otherwise
+ */
+bool NDPluginCV::checkFilepathValid(const char* filepath){
+    const char* functionName = "checkFilepathValid";
+    //printf("%s::%s - %s\n", pluginName, functionName, filepath);
+    char ext_buff[256];
+    sprintf(ext_buff, "%s/%s", filepath, "/__NDCV_temp__");
+    FILE* temp = fopen(ext_buff, "w");
+    if(temp == NULL){
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Inputted file path is invalid.\n", pluginName, functionName);
+        return false;
     }
-    else{
-        getStringParam(NDPluginCVFilename, 255, buff);
-        filename = buff;
-        libStatus = cvHelper->writeImage(inputImg, filename, (ADCVFileFormat_t) format);
-        if(libStatus == cvHelperError){
-            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error writing image\n", pluginName, functionName);
-            return asynError;
-        }
-        else{
-            return asynSuccess;
-        }
-    }
+    fclose(temp);
+    return true;
 }
-*/
 
 //----------------------------------------------------------------------------
 //---------------- Overwrites of NDPluginDriver Functions --------------------
 //----------------------------------------------------------------------------
+
+
+/**
+ * Function that overwrites the NDPluginDriver function. This function is called when an octet PV is
+ * changed in EPICS
+ * 
+ * @params[in]: pasynUser       -> the thread/user that made the PV change
+ * @params[in]: value           -> the value assigned to the PV
+ * @params[in]: nChars          -> number of characters
+ * @params[in]: nActual         -> actual number of bytes transferred
+ * @return: status          -> success or failure
+ */
+asynStatus NDPluginCV::writeOctet(asynUser* pasynUser, const char* value, size_t nChars, size_t* nActual){
+    const char* functionName = "writeOctet";
+    int function = pasynUser->reason;
+    asynStatus status = asynSuccess;
+    status = setStringParam(function, value);
+    //printf("Entering writeOctet\n");
+    if(function == NDPluginCVFilePath){
+        char buff[256];
+        getStringParam(NDPluginCVFilePath, sizeof(buff), buff);
+        bool check = checkFilepathValid(buff);
+        if(check){
+            string input = buff;
+            //printf("%s\n", input.c_str());
+            this->cvHelper->update_str_in(&input);
+            setIntegerParam(NDPluginCVPathExists, 1);
+        }
+        else{
+            setIntegerParam(NDPluginCVPathExists, 0);
+        }
+    }
+    else if(function < NDCV_FIRST_PARAM){
+        status = NDPluginDriver::writeOctet(pasynUser, value, nChars, nActual);
+    }
+
+    if(status){
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error writing Octet val to PV\n", pluginName, functionName);
+    }
+    else asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DRIVER, "%s::%s function = %d value=%s\n", pluginName, functionName, function, value);
+    callParamCallbacks();
+    return status;
+}
 
 
 /**
@@ -782,13 +815,12 @@ NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallback
     createParam(NDPluginCVOutput9DescriptionString,             asynParamOctet,     &NDPluginCVOutput9Description);
     createParam(NDPluginCVOutput10DescriptionString,            asynParamOctet,     &NDPluginCVOutput10Description);
 
-    createParam(NDPluginCVStringInputString,                    asynParamOctet,     &NDPluginCVStringInput);
-    createParam(NDPluginCVStringInputStringDescription,         asynParamOctet,     &NDPluginCVStringInputDescription);
-    createParam(NDPluginCVStringOutputString,                   asynParamOctet,     &NDPluginCVStringOutput);
-    createParam(NDPluginCVStringOutputStringDescription,        asynParamOctet,     &NDPluginCVStringOutputDescription);
+    createParam(NDPluginCVFilePathString,                       asynParamOctet,     &NDPluginCVFilePath);
+    createParam(NDPluginCVPathExistsString,                     asynParamInt32,     &NDPluginCVPathExists);
 
-    // createParam(NDPluginCVWriteFileString,                      asynParamInt32,     &NDPluginCVWriteFile);
-    // createParam(NDPluginCVFilenameString,                       asynParamOctet,     &NDPluginCVFilename);
+
+    //createParam(NDPluginCVStringOutputString,                   asynParamOctet,     &NDPluginCVStringOutput);
+    //createParam(NDPluginCVStringOutputDescriptionString,        asynParamOctet,     &NDPluginCVStringOutputDescription);
 
     createParam(NDPluginCVCameraDepthString,                    asynParamInt32,     &NDPluginCVCameraDepth);
 
@@ -805,6 +837,7 @@ NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallback
     setStringParam(NDPluginDriverPluginType, functionName);
     epicsSnprintf(versionString, sizeof(versionString), "%d.%d.%d", NDPluginCV_VERSION, NDPluginCV_REVISION, NDPluginCV_MODIFICATION);
     setStringParam(NDDriverVersion, versionString);
+
 
     // This object will be the helper that will do the actual image processing 
     cvHelper = new NDPluginCVHelper();

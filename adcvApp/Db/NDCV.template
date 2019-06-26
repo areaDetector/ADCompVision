@@ -111,6 +111,8 @@ record(mbbo, "$(P)$(R)CompVisionFunction3")
     field(TWVL, "2")
     field(THST, "Dist. Check")
     field(THVL, "3")
+    field(FRST, "Video Record")
+    field(FRVL, "4")
     field(VAL, "0")
     info(autosaveFields, "VAL")
 }
@@ -127,6 +129,8 @@ record(mbbi, "$(P)$(R)CompVisionFunction3_RBV")
     field(TWVL, "2")
     field(THST, "Dist. Check")
     field(THVL, "3")
+    field(FRST, "Video Record")
+    field(FRVL, "4")
     field(VAL, "0")
     field(SCAN, "I/O Intr")
 }
@@ -623,63 +627,66 @@ record(stringin, "$(P)$(R)Output10Description_RBV"){
 
 
 #################################################################
-# String input/outputs - allow for more complex functions       #
+# File Path - allows for certain functions to save files.       #
 #################################################################
 
-record(waveform, "$(P)$(R)StringInput"){
+record(waveform, "$(P)$(R)FilePath"){
     field(PINI, "YES")
     field(DTYP, "asynOctetWrite")
-    field(OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_STRINGIN")
+    field(INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FILEPATH")
     field(FTVL, "CHAR")
     field(NELM, "256")
     field(autosaveFields, "VAL")
 }
 
-record(waveform, "$(P)$(R)StringInput_RBV"){
+record(waveform, "$(P)$(R)FilePath_RBV"){
     field(DTYP, "asynOctetRead")
-    field(INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_STRINGIN")
+    field(INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FILEPATH")
     field(FTVL, "CHAR")
     field(NELM, "256")
     field(SCAN, "I/O Intr")
 }
 
-record(waveform, "$(P)$(R)StringInputDescription_RBV"){
-    field(DTYP, "asynOctetRead")
-    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_STRINGIN_DESC")
-    field(FTVL, "CHAR")
-    field(NELM, "256")
-    field(VAL, "String Input Desc.")
+record(bi, "$(P)$(R)FilePathExists_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_PATH_EXISTS")
+    field(ZNAM, "No")
+    field(ZSV,  "MAJOR")
+    field(ONAM, "Yes")
+    field(OSV,  "NO_ALARM")
     field(SCAN, "I/O Intr")
 }
 
 #-----------------------------------------------------------------------
-
-record(waveform, "$(P)$(R)StringOutput"){
-    field(PINI, "YES")
-    field(DTYP, "asynOctetWrite")
-    field(OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_STRINGOUT")
-    field(FTVL, "CHAR")
-    field(NELM, "256")
-    field(autosaveFields, "VAL")
-}
-
-record(waveform, "$(P)$(R)StringOutput_RBV"){
-    field(DTYP, "asynOctetRead")
-    field(INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_STRINGOUT")
-    field(FTVL, "CHAR")
-    field(NELM, "256")
-    field(SCAN, "I/O Intr")
-}
-
-record(waveform, "$(P)$(R)StringOutputDescription_RBV"){
-    field(DTYP, "asynOctetRead")
-    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_STRINGOUT_DESC")
-    field(FTVL, "CHAR")
-    field(NELM, "256")
-    field(VAL, "String Output Desc.")
-    field(SCAN, "I/O Intr")
-}
-
+#
+#record(waveform, "$(P)$(R)StringOutput"){
+#    field(PINI, "YES")
+#    field(DTYP, "asynOctetWrite")
+#    field(INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_STRINGOUT")
+#    field(FTVL, "CHAR")
+#    field(NELM, "256")
+#    field(VAL, "Not Used")
+#    field(autosaveFields, "VAL")
+#}
+#
+#record(waveform, "$(P)$(R)StringOutput_RBV"){
+#    field(DTYP, "asynOctetRead")
+#    field(INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_STRINGOUT")
+#    field(FTVL, "CHAR")
+#    field(NELM, "256")
+#    field(SCAN, "I/O Intr")
+#}
+#
+#record(waveform, "$(P)$(R)StringOutputDescription_RBV"){
+#    field(DTYP, "asynOctetRead")
+#    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))NDCV_STRINGOUT_DESC")
+#    field(FTVL, "CHAR")
+#    field(NELM, "256")
+#    field(VAL, "String Output Desc.")
+#    field(SCAN, "I/O Intr")
+#}
+#
 #################################################################
 # File Writing records - Currently unused                       #
 #################################################################

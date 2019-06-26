@@ -19,7 +19,7 @@ The easier solution, and the one recommended if only one custom function is requ
 * user_function
 * get_user_function_description
 
-Implement both of these functions following the standards set by the other Wrapper functions, and you should be able to access your implementation from CSS by selecting 'User Function' from Vision function set 3.
+Implement both of these functions following the standards set by the other Wrapper functions, and you should be able to access your implementation from your EPICS client by selecting 'User Function' from Vision function set 3.
 
 ### Adding a brand new CV function
 

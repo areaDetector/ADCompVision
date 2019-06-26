@@ -3,11 +3,29 @@
 Author: Jakub Wlodek
 Corresponding Author: Kazimierz Gofron
 
-Dependencies: ADCompVision requires opencv core, highgui, image processing, and image codecs.
+Dependencies: ADCompVision requires opencv core, highgui, image processing, and image codecs, opencv_video, opencv_videoio.
 
 # Release Notes
 
 <!--RELEASE START-->
+
+## R1-2 (???-June-2019)
+
+* Computer Vision functions implemented
+    * Video Record - allows for video recording with areaDetector
+    * Convert Format - Converts color format and Data type of input image.
+
+* Additional Feature changes
+    * Added filepath PV
+    * Added filepath exists PV
+    * Added opencv_video and opencv_videoio as library dependancies
+    * New medm, edm, and adl screens (Courtesy of Mark Rivers)
+    * New rst documentation pages (Courtesy of Mark Rivers
+
+* Bug Fixes
+    * Edited mat2NDArray function to remove potential memory leak
+    * Comment + documentation updates
+    * Fixed bug where input pArray data would be placed into the Mat - which would result in data overwrite.
 
 ## R1-1 (17-April-2019)
 
