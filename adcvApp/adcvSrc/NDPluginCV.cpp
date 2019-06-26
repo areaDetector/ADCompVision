@@ -202,7 +202,9 @@ asynStatus NDPluginCV::ndArray2Mat(NDArray* pArray, Mat &pMat, NDDataType_t data
         //otherwise generate an OpenCV mat of the appropriate size and insert the data
         pArray->getInfo(&arrayInfo);
         //set value at pointer
-        pMat = Mat(arrayInfo.ySize, arrayInfo.xSize, matFormat, pArray->pData);
+        void* temp = malloc(arrayInfo.totalBytes);
+        memcpy(temp, pArray->pData, arrayInfo.totalBytes);
+        pMat = Mat(arrayInfo.ySize, arrayInfo.xSize, matFormat, temp);
         if(colorMode == NDColorModeRGB1){
             //if it is color convert to BGR openCV functions use bgr as default
             cvtColor(pMat, pMat, COLOR_RGB2BGR);
