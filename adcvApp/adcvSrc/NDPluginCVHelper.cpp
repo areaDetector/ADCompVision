@@ -331,21 +331,22 @@ ADCVStatus_t NDPluginCVHelper::sharpen_images(Mat &img, double* inputs, double* 
     int kernel_size = inputs[1];
     int scale       = inputs[2];
     int delta       = inputs[3];
+    Mat temp;
     
     ADCVStatus_t status = cvHelperSuccess;
     
     try{
-        img.copyTo(this->temporaryImg);
+        img.copyTo(temp);
 
         GaussianBlur(img, img, Size(blurDegree, blurDegree),1, 0, BORDER_DEFAULT );
-//        cvtColor(img, img, COLOR_BGR2GRAY); // Convert the image to grayscale
+        //cvtColor(img, img, COLOR_BGR2GRAY); // Convert the image to grayscale
         int depth = img.depth();
         Laplacian(img, img, depth, kernel_size, scale, delta, BORDER_DEFAULT );
         convertScaleAbs(img, img);
         cvHelperStatus = "Detected laplacian edges";
                     
-        subtract(this->temporaryImg, img, img);
-        this->temporaryImg.release();
+        subtract(temp, img, img);
+        temp.release();
 
     }catch(Exception &e){
         print_cv_error(e, functionName);
@@ -437,6 +438,7 @@ ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat &img, double* inputs, do
 ADCVStatus_t NDPluginCVHelper::subtract_consecutive_images(Mat &img, double* inputs, double* outputs){
     const char* functionName = "subtract_consecutive_images";
     ADCVStatus_t status = cvHelperSuccess;
+    int order = (int) inputs[0];
     try{
         if(this->wasComputed == false){
             img.copyTo(this->temporaryImg);
@@ -445,7 +447,10 @@ ADCVStatus_t NDPluginCVHelper::subtract_consecutive_images(Mat &img, double* inp
             this->cvHelperStatus = "Waiting for next image to subtract";
         }
         else{
-            subtract(this->temporaryImg, img, img);
+            if(order == 1)
+                subtract(img, this->temporaryImg, img);
+            else
+                subtract(this->temporaryImg, img, img);
             this->temporaryImg.release();
             this->wasComputed = false;
             this->cvHelperStatus = "Finished Subtracting images";
@@ -476,14 +481,15 @@ ADCVStatus_t NDPluginCVHelper::compute_image_stats(Mat &img, double* inputs, dou
         //int roiY = inputs[1];
         //int width = inputs[2];
         //int height = inputs[3];
-        img.copyTo(this->temporaryImg);
-        if(this->temporaryImg.channels() == 3) cvtColor(this->temporaryImg, this->temporaryImg, COLOR_BGR2GRAY);
+        Mat temp;
+        img.copyTo(temp);
+        if(temp.channels() == 3) cvtColor(temp, temp, COLOR_BGR2GRAY);
         Scalar im_sum, mean, sigma;
         double max, min;
         Point min_point, max_point;
-        minMaxLoc(this->temporaryImg, &min, &max, &min_point, &max_point);
-        im_sum = sum(this->temporaryImg);
-        meanStdDev(this->temporaryImg, mean, sigma);
+        minMaxLoc(temp, &min, &max, &min_point, &max_point);
+        im_sum = sum(temp);
+        meanStdDev(temp, mean, sigma);
 
         outputs[0] = *im_sum.val;
         outputs[1] = min;
@@ -495,7 +501,7 @@ ADCVStatus_t NDPluginCVHelper::compute_image_stats(Mat &img, double* inputs, dou
         outputs[7] = *mean.val;
         outputs[8] = *sigma.val;
 
-        this->temporaryImg.release();
+        temp.release();
         cvHelperStatus = "Finished processing computing image stats";
     }catch(Exception &e){
         print_cv_error(e, functionName);
@@ -810,16 +816,17 @@ ADCVStatus_t NDPluginCVHelper::distance_between_ctrs(Mat &img, double* inputs, d
     int thresholdVal = inputs[2];
     int applyBlur = inputs[3];
     int contour_size_thresh = inputs[4];
+    Mat temp;
 
     try{
         int largest_area = 0;
         int second_area = 0;
         Rect lbounding_rect, sbounding_rect;
-        if(applyBlur > 0) GaussianBlur(img, this->temporaryImg, Size(blurDegree, blurDegree), 0);
-        if(img.channels() == 3) cvtColor(this->temporaryImg, this->temporaryImg, COLOR_BGR2GRAY);
-        threshold(this->temporaryImg, this->temporaryImg, thresholdVal, 255, THRESH_BINARY);
+        if(applyBlur > 0) GaussianBlur(img, temp, Size(blurDegree, blurDegree), 0);
+        if(img.channels() == 3) cvtColor(temp, temp, COLOR_BGR2GRAY);
+        threshold(temp, temp, thresholdVal, 255, THRESH_BINARY);
         vector<vector<Point> > contours;
-        findContours(this->temporaryImg, contours, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0,0));
+        findContours(temp, contours, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0,0));
         if(contours.size() > 1){
             for(unsigned int i = 0; i< contours.size(); i++){
                 double area = contourArea(contours[i]);
@@ -846,7 +853,7 @@ ADCVStatus_t NDPluginCVHelper::distance_between_ctrs(Mat &img, double* inputs, d
             cvHelperStatus = "Finished processing distance between contours";
         }
         else cvHelperStatus = "Couldn't identify two or more contours";
-        this->temporaryImg.release();
+        temp.release();
     }catch(Exception &e){
         print_cv_error(e, functionName);
         status = cvHelperError;
@@ -1079,8 +1086,9 @@ ADCVStatus_t NDPluginCVHelper::get_sharpen_description(string* inputDesc, string
  */
 ADCVStatus_t NDPluginCVHelper::get_subtract_description(string* inputDesc, string* outputDesc, string* description){
     ADCVStatus_t status = cvHelperSuccess;
-    int numInput = 0;
+    int numInput = 1;
     int numOutput = 0;
+    inputDesc[0] = "2nd - 1st(0)/1st - 2nd(1)";
     *description = "Subtracts consecutive images. Used in certain implementations of Dual Thresholding";
     populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
     return status;

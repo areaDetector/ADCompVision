@@ -185,9 +185,6 @@ class NDPluginCVHelper {
     private:
 
         // Variables if function requires some information to be stored for multiple function calls
-        
-        // image stats net counter
-        double overall_total = 0;
 
         // general filepath for use with video recording and image saving.
         string filepath = "";
@@ -195,6 +192,8 @@ class NDPluginCVHelper {
 
         // movement vector variables (Currently Unused/untested)
         int frameCounter = 0;
+
+        // Temp Mat used by image subtraction. Subtracts one mat from next one
         bool wasComputed = false;
         Mat temporaryImg;
 
