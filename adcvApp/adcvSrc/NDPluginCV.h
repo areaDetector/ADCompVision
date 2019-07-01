@@ -156,6 +156,8 @@ typedef enum {
     ADCV_UnsupportedColor,
 } ADCVColorFormat_t;
 
+// list of functions that perform non-thread safe operations, and thus should not be processed on multiple threads.
+static ADCVFunction_t nonThreadSafeFunctions[] = {ADCV_VideoRecord, ADCV_Subtract};
 
 /* NDPluginCV class that extends base NDPluginDriver class */
 
@@ -279,6 +281,7 @@ class NDPluginCV : public NDPluginDriver{
         void assignInputDescriptions();
         void assignOutputDescriptions();
         bool checkFilepathValid(const char* filepath);
+        bool isThreadSafe(ADCVFunction_t visionFunction);
 
         // gets function from PV values
         ADCVFunction_t get_function_from_pv(int pvValue, int functionSet);
@@ -286,7 +289,7 @@ class NDPluginCV : public NDPluginDriver{
 
         // Conversion functions
         asynStatus ndArray2Mat(NDArray* pArray, Mat &pMat, NDDataType_t dataType, NDColorMode_t colorMode);
-        asynStatus mat2NDArray(Mat &pMat, NDDataType_t dataType, NDColorMode_t colorMode);
+        asynStatus mat2NDArray(Mat &pMat, NDArray* pScratch);
 
         // function that gets input parameters
         asynStatus getRequiredParams(double* inputs);

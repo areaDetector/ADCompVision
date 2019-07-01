@@ -222,61 +222,31 @@ asynStatus NDPluginCV::ndArray2Mat(NDArray* pArray, Mat &pMat, NDDataType_t data
  * Detector does not replace the original pArray, because otherwise 
  *
  * @params[in]: pMat        -> pointer to opencv Mat object after processing
- * @params[in]: dataType    -> data type of output array
- * @params[in]: colorMode   -> color mode of output array
+ * @params[out]: pScratch   -> Temporary NDArray that will be outputted by the plugin
  * @return: status -> success if converted correctly, otherwise error
  */
-asynStatus NDPluginCV::mat2NDArray(Mat &pMat, NDDataType_t dataType, NDColorMode_t colorMode){
+asynStatus NDPluginCV::mat2NDArray(Mat &pMat, NDArray* pScratch){
     const char* functionName = "mat2NDArray";
     asynStatus status;
-    int ndims;
-    Size matSize = pMat.size();
-    NDArray* pScratch;
-    if(colorMode == NDColorModeMono){
-        ndims = 2;
-    }
-    else{
-        ndims = 3;
-    }
-    size_t dims[ndims];
-    if(ndims == 3){
-        dims[0] = 3;
-        dims[1] = matSize.width;
-        dims[2] = matSize.height;
-    }
-    else{
-        dims[0] = matSize.width;
-        dims[1] = matSize.height;
-    }
-    pScratch = pNDArrayPool->alloc(ndims, dims, dataType, 0, NULL);
-    if(pScratch == NULL){
-        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Unable to allocate temp frame\n", pluginName, functionName);
+    unsigned char* dataStart = pMat.data;
+    NDArrayInfo arrayInfo;
+    pScratch->getInfo(&arrayInfo);
+    // This way of finding the number of bytes in the mat must be used in case of possible limitations on the 
+    // number of bytes allowed by the system in a row of the image
+    size_t dataSize = pMat.step[0] * pMat.rows;
+    if(dataSize != arrayInfo.totalBytes){
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error converting from mat to NDArray\n", pluginName, functionName);
         status = asynError;
     }
     else{
-        unsigned char* dataStart = pMat.data;
-        NDArrayInfo arrayInfo;
-        pScratch->getInfo(&arrayInfo);
-        // This way of finding the number of bytes in the mat must be used in case of possible limitations on the 
-        // number of bytes allowed by the system in a row of the image
-        size_t dataSize = pMat.step[0] * pMat.rows;
-        if(dataSize != arrayInfo.totalBytes){
-            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error converting from mat to NDArray\n", pluginName, functionName);
-            status = asynError;
-        }
-        else{
-            //copy image into NDArray
-            memcpy((unsigned char*) pScratch->pData, dataStart, arrayInfo.totalBytes);
-            pScratch->pAttributeList->add("ColorMode", "Color Mode", NDAttrInt32, &colorMode);
-            pScratch->pAttributeList->add("DataType", "Data Type", NDAttrInt32, &dataType);
-            getAttributes(pScratch->pAttributeList);
-            callParamCallbacks();
-            doCallbacksGenericPointer(pScratch, NDArrayData, 0);
-            status = asynSuccess;
-        }
-        pMat.release();
-        pScratch->release();
+        //copy image into NDArray
+        memcpy((unsigned char*) pScratch->pData, dataStart, arrayInfo.totalBytes);
+        //callParamCallbacks();
+        //doCallbacksGenericPointer(pScratch, NDArrayData, 0);
+        status = asynSuccess;
     }
+    pMat.release();
+    //pScratch->release();
     return status;
 }
 
@@ -388,6 +358,25 @@ ADCVFunction_t NDPluginCV::get_function_from_pv(int pvValue, int functionSet){
 
 
 /**
+ * Function that checks whether the selected function can be processed on multiple threads in a safe manner.
+ * Several functions use previous frames during processing and thus require external variables. it is possible 
+ * that in the future this will be fixed through mutexes/semaphores
+ * 
+ * @params[in]: visionFunction -> the user selected vision function
+ * @returns: true if it is not in the list of non thread safe functions, false otherwise
+ */
+bool NDPluginCV::isThreadSafe(ADCVFunction_t visionFunction){
+    bool threadSafe = true;
+    int i;
+    int len = (int) (sizeof(nonThreadSafeFunctions) / sizeof(ADCVFunction_t));
+    for(i = 0; i< len; i++){
+        if(visionFunction == nonThreadSafeFunctions[i]) threadSafe = false;
+    }
+    return threadSafe;
+}
+
+
+/**
  * Function that pulls the input values from the PVs and puts them into an array
  * 
  * @params[out]: inputs -> a pointer that is populated by the values stored in the input PVs.
@@ -491,7 +480,14 @@ asynStatus NDPluginCV::processImage(Mat &inputImg){
     
     status = getRequiredParams(inputs);
     if(status != asynError && visionFunction != ADCV_NoFunction){
+
+        // if the vision function is thread safe, we can unlock the mutex for the process portion
+        if(!isThreadSafe(visionFunction)) this->lock();
+
         libStatus = cvHelper->processImage(inputImg, visionFunction, camera_depth, inputs, outputs);
+        
+        if(!isThreadSafe(visionFunction)) this->unlock();
+
         if(libStatus == cvHelperError){
             asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error processing image in library\n", pluginName, functionName);
             status  = asynError;
@@ -676,7 +672,6 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
 
     asynStatus status;
     NDArrayInfo arrayInfo;
-    // temp array so we don't overwrite the pArray passed to us from the camera
 
     pArray->getInfo(&arrayInfo);
 
@@ -698,8 +693,10 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
 
         NDPluginDriver::beginProcessCallbacks(pArray);
 
-        // Function that calls on helper library
+        // Function that calls on helper library - unlock for multi-thread processing
+        this->unlock();
         status = processImage(img);
+        this->lock();
 
         if(status == asynError){
             asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error Processing image\n", pluginName, functionName);
@@ -717,11 +714,40 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
         status = getDataTypeFromMat(matFormat, &finalDataType);
         status = getColorModeFromMat(colorFormat, &finalColorMode);
         // copy from the output to the pScratch array
-        status = mat2NDArray(img, finalDataType, finalColorMode);
+        // temp array so we don't overwrite the pArray passed to us from the camera
+        int ndims;
+        Size matSize = img.size();
+        if(finalColorMode == NDColorModeMono)
+            ndims = 2;
+        else
+            ndims = 3;
+        size_t dims[ndims];
+        if(ndims == 3){
+            dims[0] = 3;
+            dims[1] = matSize.width;
+            dims[2] = matSize.height;
+        }
+        else{
+            dims[0] = matSize.width;
+            dims[1] = matSize.height;
+        }
+        NDArray* pScratch = pNDArrayPool->alloc(ndims, dims, finalDataType, 0, NULL);
+        if(pScratch == NULL){
+            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Unable to allocate temp frame\n", pluginName, functionName);
+            status = asynError;
+            return;
+        }
+        status = mat2NDArray(img, pScratch);
         if(status == asynError){
             asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Error copying from Mat to NDArray\n", pluginName, functionName);
+            return;
         }
-        // refresh the PV values, and push the output image to NDArrayData. then release the memory for pScratch
+
+        if(finalColorMode != arrayInfo.colorMode) pScratch->pAttributeList->add("ColorMode", "Color Mode", NDAttrInt32, &finalColorMode);
+        pScratch->uniqueId = pArray->uniqueId;
+
+        // refresh the PV values, and push the output image to NDArrayData
+        NDPluginDriver::endProcessCallbacks(pScratch, false, true);
         callParamCallbacks();
     }
 }
@@ -750,13 +776,13 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
 NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallbacks,
             const char *NDArrayPort, int NDArrayAddr,
             int maxBuffers, size_t maxMemory,
-            int priority, int stackSize)
+            int priority, int stackSize, int maxThreads)
             /* Invoke the base class constructor */
             : NDPluginDriver(portName, queueSize, blockingCallbacks,
-            NDArrayPort, NDArrayAddr, 1, maxBuffers, maxMemory,
+            NDArrayPort, NDArrayAddr, 2, maxBuffers, maxMemory,
             asynInt32ArrayMask | asynFloat64ArrayMask | asynGenericPointerMask,
             asynInt32ArrayMask | asynFloat64ArrayMask | asynGenericPointerMask,
-            ASYN_MULTIDEVICE, 1, priority, stackSize, 1)
+            0, 1, priority, stackSize, maxThreads)
 {
     const char* functionName = "NDPluginCV";
     char versionString[25];
@@ -854,11 +880,11 @@ NDPluginCV::~NDPluginCV(){
 
 /* External function that is called in the IOC shell to create the plugin object */
 extern "C" int NDCVConfigure(const char *portName, int queueSize, int blockingCallbacks, const char *NDArrayPort, 
-    int NDArrayAddr, int maxBuffers, size_t maxMemory, int priority, int stackSize){
+    int NDArrayAddr, int maxBuffers, size_t maxMemory, int priority, int stackSize, int maxThreads){
 
     // calls the plugin constructor
     NDPluginCV *pPlugin = new NDPluginCV(portName, queueSize, blockingCallbacks, NDArrayPort, NDArrayAddr,
-        maxBuffers, maxMemory, priority, stackSize);
+        maxBuffers, maxMemory, priority, stackSize, maxThreads);
 
     // starts the plugin
     return pPlugin->start();
@@ -875,6 +901,7 @@ static const iocshArg initArg5 = { "maxBuffers",iocshArgInt};
 static const iocshArg initArg6 = { "maxMemory",iocshArgInt};
 static const iocshArg initArg7 = { "priority",iocshArgInt};
 static const iocshArg initArg8 = { "stackSize",iocshArgInt};
+static const iocshArg initArg9 = { "maxThreads",iocshArgInt};
 static const iocshArg * const initArgs[] = {&initArg0,
                     &initArg1,
                     &initArg2,
@@ -883,18 +910,19 @@ static const iocshArg * const initArgs[] = {&initArg0,
                     &initArg5,
                     &initArg6,
                     &initArg7,
-                    &initArg8};
+                    &initArg8,
+                    &initArg9};
 
 
 /* defines the configuration function for Initializing the plugin */
-static const iocshFuncDef initFuncDef = {"NDCVConfigure",9,initArgs};
+static const iocshFuncDef initFuncDef = {"NDCVConfigure",10,initArgs};
 
 
 /* Init call function for the IOC shell */
 static void initCallFunc(const iocshArgBuf *args){
     NDCVConfigure(args[0].sval, args[1].ival, args[2].ival,
             args[3].sval, args[4].ival, args[5].ival,
-            args[6].ival, args[7].ival, args[8].ival);
+            args[6].ival, args[7].ival, args[8].ival, args[9].ival);
 }
 
 
