@@ -168,7 +168,7 @@ class NDPluginCV : public NDPluginDriver{
         // Constructor/Destructor declarations
         NDPluginCV(const char *portName, int queueSize, int blockingCallbacks,
             const char* NDArrayPort, int NDArrayAddr, int maxBuffers,
-            size_t maxMemory, int priority, int stackSize);
+            size_t maxMemory, int priority, int stackSize, int maxThreads);
 
         ~NDPluginCV();
 

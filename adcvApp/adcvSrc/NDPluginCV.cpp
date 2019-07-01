@@ -481,7 +481,9 @@ asynStatus NDPluginCV::processImage(Mat &inputImg){
     status = getRequiredParams(inputs);
     if(status != asynError && visionFunction != ADCV_NoFunction){
 
-        // if the vision function is thread safe, we can unlock the mutex for the process portion
+        // if the vision function is thread safe, we can leave the mutex unlocked. If it isn't we need to lock it back up
+        // For example, video recording and consecutive image subtraction functions are not thread safe because they rely
+        // on NDPluginCVHelper classwide variables
         if(!isThreadSafe(visionFunction)) this->lock();
 
         libStatus = cvHelper->processImage(inputImg, visionFunction, camera_depth, inputs, outputs);
