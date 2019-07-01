@@ -44,7 +44,7 @@
 
     <!--RELEASE START-->
 
-<h4>R1-2 (???-June-2019)</h4>
+<h4>R1-2 (???-July-2019)</h4>
 <ul>
 <li>
 <p>Computer Vision functions implemented</p>
@@ -59,6 +59,7 @@
 <li>Added filepath PV</li>
 <li>Added filepath exists PV</li>
 <li>Added opencv_video and opencv_videoio as library dependancies</li>
+<li>Added support for multithreading for certain functions</li>
 <li>New medm, edm, and adl screens (Courtesy of Mark Rivers)</li>
 <li>New rst documentation pages (Courtesy of Mark Rivers</li>
 </ul>
@@ -69,6 +70,9 @@
 <li>Edited mat2NDArray function to remove potential memory leak</li>
 <li>Comment + documentation updates</li>
 <li>Fixed bug where input pArray data would be placed into the Mat - which would result in data overwrite.</li>
+<li>removed call that added unnecessary DataType attribute</li>
+<li>Changed <code>doCallbacksGenericPointer</code> to <code>endProcessCallbacks</code></li>
+<li>Cleanup of `mat2NDArray` function</li>
 </ul>
 </li>
 </ul>

@@ -66,7 +66,7 @@ has an NDDataType of NDUInt16.
 Release Notes
 ^^^^^^^^^^^^^
 
-R1-2 (???-June-2019)
+R1-2 (???-July-2019)
 ^^^^^^^^^^^^^^^^^^^^
 
 -  Computer Vision functions implemented
@@ -80,6 +80,7 @@ R1-2 (???-June-2019)
    -  Added filepath PV
    -  Added filepath exists PV
    -  Added opencv\_video and opencv\_videoio as library dependancies
+   -  Added support for multithreading for certain functions
    -  New medm, edm, and adl screens (Courtesy of Mark Rivers)
    -  New rst documentation pages (Courtesy of Mark Rivers
 
@@ -88,6 +89,9 @@ R1-2 (???-June-2019)
    -  Edited mat2NDArray function to remove potential memory leak
    -  Comment + documentation updates
    -  Fixed bug where input pArray data would be placed into the Mat - which would result in data overwrite.
+   -  Removed call that added unnecessary DataType attribute
+   -  Changed `doCallbacksGenericPointer` to`endProcessCallbacks`
+   -  Cleanup of `mat2NDArray` function
 
 R1-1 (17-April-2019)
 ^^^^^^^^^^^^^^^^^^^^

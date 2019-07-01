@@ -42,7 +42,7 @@ OPENCV          = /usr
 ```
 6. We are now done with the configure directory, so back out and enter ADCore/iocBoot. Here, open the commonPlugins.cmd file, and add commands to load the NDPluginCV plugin at IOC startup.
 ```
-NDCVConfigure("CV1", $(QSIZE), 0, "$(PORT)", 0, 0, 0, 0)
+NDCVConfigure("CV1", $(QSIZE), 0, "$(PORT)", 0, 0, 0, 0, 0, $(MAX_THREADS=5))
 dbLoadRecords("$(ADCOMPVISION)/db/NDCV.template", "P=$(PREFIX), R=CV1:, PORT=CV1, ADDR=0, TIMEOUT=1, NDARRAY_PORT=$(PORT), NAME=CV1, NCHANS=$(XSIZE)")
 set_requestfile_path("$(ADCOMPVISION)/adcvApp/Db")
 ```

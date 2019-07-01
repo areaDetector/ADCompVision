@@ -147,4 +147,6 @@ case ADCV_YOURFUNCTION:
 ```
 This will tell ADCompVision which function to process when your function is requested.
 
+Finally, the last remaining thing you must do, is to make sure that your function is thread safe. If it is not, you must add it to the array in `NDPluginCV.h` called `nonThreadSafeFunctions`. Note that in this case, multiple threads will not affect the performance of the plugin when such a function is selected.
+
 Your function should now be implemented into ADCompVision and is ready to be tested.

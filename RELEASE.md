@@ -9,7 +9,7 @@ Dependencies: ADCompVision requires opencv core, highgui, image processing, and 
 
 <!--RELEASE START-->
 
-## R1-2 (???-June-2019)
+## R1-2 (???-July-2019)
 
 * Computer Vision functions implemented
     * Video Record - allows for video recording with areaDetector
@@ -19,6 +19,7 @@ Dependencies: ADCompVision requires opencv core, highgui, image processing, and 
     * Added filepath PV
     * Added filepath exists PV
     * Added opencv_video and opencv_videoio as library dependancies
+    * Added support for multithreading for certain functions
     * New medm, edm, and adl screens (Courtesy of Mark Rivers)
     * New rst documentation pages (Courtesy of Mark Rivers
 
@@ -26,6 +27,9 @@ Dependencies: ADCompVision requires opencv core, highgui, image processing, and 
     * Edited mat2NDArray function to remove potential memory leak
     * Comment + documentation updates
     * Fixed bug where input pArray data would be placed into the Mat - which would result in data overwrite.
+    * Removed call that added unnecessary DataType attribute
+    * Changed `doCallbacksGenericPointer` to`endProcessCallbacks`
+    * Cleanup of `mat2NDArray` function
 
 ## R1-1 (17-April-2019)
 
