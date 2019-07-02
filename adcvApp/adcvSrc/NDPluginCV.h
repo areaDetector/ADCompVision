@@ -32,7 +32,7 @@ using namespace cv;
 
 // version numbers
 #define NDPluginCV_VERSION          1
-#define NDPluginCV_REVISION         0
+#define NDPluginCV_REVISION         2
 #define NDPluginCV_MODIFICATION     0
 
 /* Definitions of parameters */
@@ -89,6 +89,13 @@ using namespace cv;
 #define NDPluginCVOutput8DescriptionString          "NDCV_OUT_DESCRIPTION8"     //asynParamOctet
 #define NDPluginCVOutput9DescriptionString          "NDCV_OUT_DESCRIPTION9"     //asynParamOctet
 #define NDPluginCVOutput10DescriptionString         "NDCV_OUT_DESCRIPTION10"    //asynParamOctet
+
+// String Input/Output PVs -  allow for more complex inputs and returns
+#define NDPluginCVFilePathString                    "NDCV_FILEPATH"             //asynParamOctet
+#define NDPluginCVPathExistsString                  "NDCV_PATH_EXISTS"          //asynParamInt32
+
+//#define NDPluginCVStringOutputString                "NDCV_STRINGOUT"            //asynParamOctet
+//#define NDPluginCVStringOutputDescriptionString     "NDCV_STRINGOUT_DESC"       //asynParamOctet
 
 // File Saving PVs - Currently Unused
 // #define NDPluginCVWriteFileString                   "NDCV_FILE"                 //asynParamInt32
@@ -149,6 +156,8 @@ typedef enum {
     ADCV_UnsupportedColor,
 } ADCVColorFormat_t;
 
+// list of functions that perform non-thread safe operations, and thus should not be processed on multiple threads.
+static ADCVFunction_t nonThreadSafeFunctions[] = {ADCV_VideoRecord, ADCV_Subtract};
 
 /* NDPluginCV class that extends base NDPluginDriver class */
 
@@ -158,8 +167,8 @@ class NDPluginCV : public NDPluginDriver{
 
         // Constructor/Destructor declarations
         NDPluginCV(const char *portName, int queueSize, int blockingCallbacks,
-			const char* NDArrayPort, int NDArrayAddr, int maxBuffers,
-            size_t maxMemory, int priority, int stackSize);
+            const char* NDArrayPort, int NDArrayAddr, int maxBuffers,
+            size_t maxMemory, int priority, int stackSize, int maxThreads);
 
         ~NDPluginCV();
 
@@ -168,6 +177,7 @@ class NDPluginCV : public NDPluginDriver{
 
         //virtual functions that overwrite PluginDriver functions
         virtual asynStatus writeInt32(asynUser* pasynUser, epicsInt32 value);
+        virtual asynStatus writeOctet(asynUser* pasynUser, const char* value, size_t nChars, size_t* nActual);
         //virtual asynStatus writeFloat64(asynUser* pasynUser, epicsFloat64 value);
 
         // Data type conversion functions (in public because I am working on unit tests)
@@ -232,6 +242,15 @@ class NDPluginCV : public NDPluginDriver{
         int NDPluginCVOutput9Description;
         int NDPluginCVOutput10Description;
 
+        // filepath PVs
+        int NDPluginCVFilePath;
+        int NDPluginCVPathExists;
+
+        // database values for string Input/Output
+        //int NDPluginCVStringOutput;
+        //int NDPluginCVStringOutputDescription;
+
+
         // File writing db vals - Currently Unused
         // int NDPluginCVWriteFile;
         // int NDPluginCVFilename;
@@ -261,6 +280,8 @@ class NDPluginCV : public NDPluginDriver{
         void assignOutputs();
         void assignInputDescriptions();
         void assignOutputDescriptions();
+        bool checkFilepathValid(const char* filepath);
+        bool isThreadSafe(ADCVFunction_t visionFunction);
 
         // gets function from PV values
         ADCVFunction_t get_function_from_pv(int pvValue, int functionSet);
@@ -268,7 +289,7 @@ class NDPluginCV : public NDPluginDriver{
 
         // Conversion functions
         asynStatus ndArray2Mat(NDArray* pArray, Mat &pMat, NDDataType_t dataType, NDColorMode_t colorMode);
-        asynStatus mat2NDArray(Mat &pMat, NDDataType_t dataType, NDColorMode_t colorMode);
+        asynStatus mat2NDArray(Mat &pMat, NDArray* pScratch);
 
         // function that gets input parameters
         asynStatus getRequiredParams(double* inputs);

@@ -5,6 +5,8 @@ ADCompVision area detector plugin Input/output manual/guide
 
 :date: November 21, 2018
 
+:updated: June 25, 2019
+
 | `Return <ADCompVision.html>`__
 
 .. contents:: Contents
@@ -42,7 +44,7 @@ function, along with descriptions for each function
       <th>
         Output value format</th>
   </tr><tr>
-  <th>gaussian_blur
+  <th>GaussianBlur
   </th>
   <th>1
   </th>
@@ -50,7 +52,7 @@ function, along with descriptions for each function
   </th>
   <th>0
   </th>
-  <th>None
+  <th>N/A
   </th>
   </tr>
   <tr>
@@ -62,7 +64,7 @@ function, along with descriptions for each function
   </th>
   <th>0
   </th>
-  <th>None
+  <th>N/A
   </th>
   </tr>
   <tr>
@@ -86,7 +88,7 @@ function, along with descriptions for each function
   </th>
   <th>0
   </th>
-  <th>[]
+  <th>N/A
   </th>
   </tr>
   <tr>
@@ -106,23 +108,35 @@ function, along with descriptions for each function
   </th>
   <th>0
   </th>
-  <th>
+  <th>N/A
   </th>
   <th>0
   </th>
-  <th>
+  <th>N/A
   </th>
   </tr>
   <tr>
-  <th>compute_image_stats
+  <th>ComputeImageStats
   </th>
   <th>0
   </th>
-  <th>[]
+  <th>N/A
   </th>
   <th>9
   </th>
   <th>[total, min, min x, min y, max, max x, max y, mean, sigma]
+  </th>
+  </tr>
+  <tr>
+  <th>VideoRecord
+  </th>
+  <th>4
+  </th>
+  <th>[Framerate (Int), Start/Stop (1 or 0), color (1 or 0), encoding (1-4), Output File Type (1 or 0)]
+  </th>
+  <th>0
+  </th>
+  <th>N/A
   </th>
   </tr>
   <tr>
@@ -138,7 +152,7 @@ function, along with descriptions for each function
   </th>
   </tr>
   <tr>
-  <th>movement_vectors
+  <th>MovementVectors(Testing)
   </th>
   <th>2
   </th>
@@ -174,15 +188,27 @@ function, along with descriptions for each function
   </th>
   </tr>
   <tr>
-  <th>Distancebetweencontours
+  <th>DistanceBetweenContours
   </th>
   <th>5
   </th>
-  <th>[[Distance Threshold (Int), Blur Kernel Size (Int), Threshold (Int), Apply Blur (Toggle), Pixel Size Threshold (Int)]
+  <th>[Distance Threshold (Int), Blur Kernel Size (Int), Threshold (Int), Apply Blur (Toggle), Pixel Size Threshold (Int)]
   </th>
   <th>2
   </th>
   <th>[Is Within Threshold (Binary Int), Distance in Pixels (Int)]
+  </th>
+  </tr>
+  <tr>
+  <th>ConvertImageFormat
+  </th>
+  <th>2
+  </th>
+  <th>[To grayscale (Toggle), To rgb (Toggle)]
+  </th>
+  <th>0
+  </th>
+  <th>N/A
   </th>
   </tr>
   
@@ -192,7 +218,7 @@ function, along with descriptions for each function
 Function descriptions
 ---------------------
 
-gaussian\_blur
+GaussianBlur
 ~~~~~~~~~~~~~~
 
 Blurs image based on a gaussian kernel. A gaussian kernel is simply a
@@ -242,10 +268,18 @@ area detector and subtract them in pairs. Reads first image into memory,
 then waits for second one, when it receives the second one, subtract
 them.
 
-compute\_image\_stats
+ComputeImageStats
 ~~~~~~~~~~~~~~~~~~~~~
 
 OpenCV accelerated computation of Image statistics
+
+VideoRecord
+~~~~~~~~~~~
+
+This function uses the opencv_video and opencv_videoio libraries for writing a video from areaDetector cameras.
+A valid file path is required. Output video framerate should be set to the camera framerate if a real time video
+is desired. Supported encodings are: H264, MPEG, DIVX, and LAGS. Not all encodings will be present on each machine,
+thus some experimentation may be required. The output video will $FILEPATH/CV\_Output\_Vid\_$DATETIME.mp4
 
 FindObjectCentroids
 ~~~~~~~~~~~~~~~~~~~
@@ -261,7 +295,7 @@ used to remove contours that are too large, removing contours that span
 the entire size of the image. Any contour with area > upper threshold is
 removed, and any lower than lower threshold
 
-movement\_vectors
+MovementVectors (Testing)
 ~~~~~~~~~~~~~~~~~
 
 Function that does feature detection on images a set number of frames
@@ -269,7 +303,7 @@ apart, and attempts to calculate the movement vector for the calculated
 key points. It uses ORB feature detection and vector flow NOT YET
 IMPLEMENTED/TESTED
 
-ObjectIdentification
+ObjectIdentification (Testing)
 ~~~~~~~~~~~~~~~~~~~~
 
 Function that detects contours in an image and returns information
@@ -289,3 +323,10 @@ Distancebetweencontours
 Function that computes bounding boxes between the two largest computed
 contours in the image, checks the distance between them and sends an
 alarm if they are within a distance threshold.
+
+ConvertImageFormat
+~~~~~~~~~~~~~~~~~~
+
+Converts the format of the image to a different one for use with other AD Plugins. This is useful for 
+cameras that only support one format but a different one is required, ex. ADPluginDmtx needs 8bit rgb image, so 
+grayscale camera needs to be converted.

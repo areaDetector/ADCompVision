@@ -6,7 +6,7 @@ Copyright (c): Brookhaven National Laboratory 2018-19
 
 A plugin that will allow for a comprehensive implementation of Open CV based computer vision intergation with EPICS area detector
 
-Check the RELEASE.md file or the website https://jwlodek.github.io/ADCompVision for release notes on current versions.
+Check the RELEASE.md file or the [website](https://areadetector.github.io/master/ADCompVision/ADCompVision.html) for release notes on current versions.
 
 ### Installation
 
@@ -26,13 +26,12 @@ git clone https://github.com/jwlodek/ADCompVision
 ```
 ADCOMPVISION=$(AREA_DETECTOR)/ADCompVision
 ```
-4. Open the CONFIG_SITE.local directory, and ensure that areaDetector builds with OpenCV. To do this, find the following code block and make sure that WITH_OPENCV and OPENCV_EXTERNAL are both set to YES
+4. Open the CONFIG_SITE.local directory, and ensure that areaDetector builds with OpenCV. To do this, find the following code block and make sure that WITH_OPENCV and OPENCV_EXTERNAL are both set to YES. If not using a system version of openCV, make sure that the opencv_include and opencv_lib variables are set to the directories with opencv include files and compiled binary libraries (.lib/.dll on windows, .so/.a on linux).
 ```
 WITH_OPENCV     = YES
 OPENCV_EXTERNAL = YES
 #OPENCV_INCLUDE =
 #OPENCV_LIB     =
-
 ```
 5. Next, open CONFIG_SITE.local.EPICS_ARCH, and make sure you set the following. If you built OpenCV from source pass the appropriate values for LIB and INCLUDE
 ```
@@ -43,7 +42,7 @@ OPENCV          = /usr
 ```
 6. We are now done with the configure directory, so back out and enter ADCore/iocBoot. Here, open the commonPlugins.cmd file, and add commands to load the NDPluginCV plugin at IOC startup.
 ```
-NDCVConfigure("CV1", $(QSIZE), 0, "$(PORT)", 0, 0, 0, 0)
+NDCVConfigure("CV1", $(QSIZE), 0, "$(PORT)", 0, 0, 0, 0, 0, $(MAX_THREADS=5))
 dbLoadRecords("$(ADCOMPVISION)/db/NDCV.template", "P=$(PREFIX), R=CV1:, PORT=CV1, ADDR=0, TIMEOUT=1, NDARRAY_PORT=$(PORT), NAME=CV1, NCHANS=$(XSIZE)")
 set_requestfile_path("$(ADCOMPVISION)/adcvApp/Db")
 ```
@@ -54,9 +53,9 @@ ifdef ADCOMPVISION
   PROD_LIBS     += NDPluginCV
   ifdef OPENCV_LIB
     opencv_core_DIR += $(OPENCV_LIB)
-    PROD_LIBS       += opencv_core opencv_imgproc opencv_highgui
+    PROD_LIBS       += opencv_core opencv_imgproc opencv_highgui opencv_video opencv_videoio
   else
-    PROD_SYS_LIBS   += opencv_core opencv_imgproc opencv_highgui
+    PROD_SYS_LIBS   += opencv_core opencv_imgproc opencv_highgui opencv_video opencv_videoio
   endif 
 endif
 ```
@@ -72,7 +71,7 @@ ADCompVision is now installed and ready for use.
 
 ### Setting up the U.I.
 
-Two screens are provided for use with ADCompVision. The first is the main screen for use with the plugin. It extends the NDPluginBase screen. The second is a line for use with the commonPlugins screen. Simply add the line to the commonPluginsScreen, and link the 'more' button to the main NDPluginCV screen. UI screenshots and usage is explained further in the docs: https://jwlodek.github.io/ADCompVision
+Two screens are provided for use with ADCompVision. The first is the main screen for use with the plugin. It extends the NDPluginBase screen. The second is a line for use with the commonPlugins screen. Simply add the line to the commonPluginsScreen, and link the 'more' button to the main NDPluginCV screen. UI screenshots and usage is explained further in the docs: https://areadetector.github.io/master/ADCompVision/ADCompVision.html
 
 ### Usage
 
@@ -80,12 +79,4 @@ Two screens are provided for use with ADCompVision. The first is the main screen
 
 ADCompVision is meant to be a comprehensive implementation of OpenCV functionality into areaDetector. As a result, because of the quantity of different functionality with different input and output parameters, having a Process Variable (PV) for every one of them would not have been reasonable. As a result, the plugin uses 10 generic input PVs and 10 generic output PVs. Each function accepts different parameters, and relationship between the generic inputs and these parameters can be seen in the user manual. In addition, when a function is selected, an input and output guide are displayed. This generic input and output system makes ADCompVision flexible and easy to adapt into any workflow, as new custom functions can be written and implemented into the plugin without ever touching the functions that interface with EPICS and areaDetector, meaning that all that is required to add to the functionality of ADCompVision is a knowledge of C++ and OpenCV.
 
-### File saving
-
-**File saving has been disabled until problems with using the feature over ssh are resolved**
-
-ADCompVision offers some generic file saving support for jpeg, png, and tif images. Please give a valid absolute path for the filename PV and select the format. No extentions are necessary as these will be added by the plugin.
-
-For further file saving functionality, you may pass the CV1 asyn port to one of the NDFile plugins.
-
-Further usage and the I/O instruction manual can be found at https://jwlodek.github.io/ADCompVision
+Further usage and the I/O instruction manual can be found at https://areadetector.github.io/master/ADCompVision/ADCompVisionManual.html
