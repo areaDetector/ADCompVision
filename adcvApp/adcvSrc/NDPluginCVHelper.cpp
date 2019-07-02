@@ -43,6 +43,8 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/core/core.hpp>
+#include <opencv2/video.hpp>
+#include <opencv2/videoio.hpp>
 
 using namespace cv;
 using namespace std;
@@ -168,7 +170,6 @@ double NDPluginCVHelper::compute_rect_distance(Rect r1, Rect r2){
  */
 void NDPluginCVHelper::update_str_in(string* new_filepath){
     this->filepath = *new_filepath;
-    printf("Entering here, %s\n", this->filepath.c_str());
     this->cvHelperStatus = "Updated filepath";
 }
 
@@ -519,7 +520,7 @@ ADCVStatus_t NDPluginCVHelper::compute_image_stats(Mat &img, double* inputs, dou
  * thus some experimentation may be required. The output video will $FILEPATH/CV_Output_Vid_$DATETIME.mp4
  *
  * @inCount     -> 4
- * @inFormat    -> [Framerate (Int), Start/Stop (1 or 0), color (1 or 0), encoding (1-4), Output File Type (1 or 0)]
+ * @inFormat    -> [Framerate (Int), Start/Stop (1 or 0), encoding (1-4), Output File Type (1 or 0)]
  *
  * @outCount    -> 0
  * @outFormat   -> N/A
@@ -527,16 +528,15 @@ ADCVStatus_t NDPluginCVHelper::compute_image_stats(Mat &img, double* inputs, dou
 ADCVStatus_t NDPluginCVHelper::video_record(Mat &img, double* inputs, double* outputs){
     const char* functionName = "video_record";
     ADCVStatus_t status = cvHelperSuccess;
-    double outputFramerate = inputs[0];
-    int start_stop = inputs[1];
-    int color = inputs[2];
-    bool color_bool = true;
-    if(color == 1) color_bool = false;
-    int encoding = inputs[3];
-    int outputType = inputs[4];
-    const char* file_ext = ".avi";
+    double outputFramerate  = inputs[0];
+    int start_stop          = (int) inputs[1];
+    int encoding            = (int) inputs[2];
+    int outputType          = (int) inputs[3];
+    bool color_bool         = true;
+    const char* file_ext    = ".avi";
     if(outputType == 1) file_ext = ".mp4";
     try{
+        if(img.channels() != 3) color_bool = false;
         if(!this->isRecording && start_stop == 1){
             time_t t = time(0);
             tm* now = localtime(&t);
@@ -1393,8 +1393,6 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
             status = distance_between_ctrs(image, inputs, outputs);
             break;
         case ADCV_VideoRecord:
-            if(image.channels() != 3)
-                status = downscale_image_8bit(image, camera_depth);
             status = video_record(image, inputs, outputs);
             break;
         default:

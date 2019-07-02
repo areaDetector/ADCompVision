@@ -27,6 +27,8 @@
 
 //OpenCV is used for image manipulation
 #include <opencv2/opencv.hpp>
+#include <opencv2/video.hpp>
+#include <opencv2/videoio.hpp>
 
 // use standard and opencv namespaces
 using namespace cv;

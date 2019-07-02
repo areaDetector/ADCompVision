@@ -579,7 +579,10 @@ asynStatus NDPluginCV::writeOctet(asynUser* pasynUser, const char* value, size_t
     const char* functionName = "writeOctet";
     int function = pasynUser->reason;
     asynStatus status = asynSuccess;
-    status = setStringParam(function, value);
+    int addr = 0;
+    status = getAddress(pasynUser, &addr); if (status != asynSuccess) return(status);
+    status = (asynStatus)setStringParam(function, (char*) value);
+    if (status != asynSuccess) return(status);
     //printf("Entering writeOctet\n");
     if(function == NDPluginCVFilePath){
         char buff[256];
@@ -604,6 +607,7 @@ asynStatus NDPluginCV::writeOctet(asynUser* pasynUser, const char* value, size_t
     }
     else asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DRIVER, "%s::%s function = %d value=%s\n", pluginName, functionName, function, value);
     callParamCallbacks();
+    *nActual = nChars;
     return status;
 }
 
@@ -711,6 +715,7 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
             return;
         }
 
+        // convert the data type and color format
         ADCVDataFormat_t matFormat = (ADCVDataFormat_t) img.depth();
         ADCVColorFormat_t colorFormat = (ADCVColorFormat_t) img.channels();
         status = getDataTypeFromMat(matFormat, &finalDataType);
@@ -745,7 +750,7 @@ void NDPluginCV::processCallbacks(NDArray *pArray){
             return;
         }
 
-        if(finalColorMode != arrayInfo.colorMode) pScratch->pAttributeList->add("ColorMode", "Color Mode", NDAttrInt32, &finalColorMode);
+        pScratch->pAttributeList->add("ColorMode", "Color Mode", NDAttrInt32, &finalColorMode);
         pScratch->uniqueId = pArray->uniqueId;
 
         // refresh the PV values, and push the output image to NDArrayData
