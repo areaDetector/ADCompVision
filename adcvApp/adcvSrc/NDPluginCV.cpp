@@ -553,7 +553,7 @@ bool NDPluginCV::checkFilepathValid(const char* filepath){
     sprintf(ext_buff, "%s/%s", filepath, "/__NDCV_temp__");
     FILE* temp = fopen(ext_buff, "w");
     if(temp == NULL){
-        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s Inputted file path is invalid.\n", pluginName, functionName);
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s::%s Inputted file path is invalid.\n", pluginName, functionName);
         return false;
     }
     fclose(temp);
