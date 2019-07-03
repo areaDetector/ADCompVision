@@ -91,8 +91,8 @@ using namespace cv;
 #define NDPluginCVOutput10DescriptionString         "NDCV_OUT_DESCRIPTION10"    //asynParamOctet
 
 // String Input/Output PVs -  allow for more complex inputs and returns
-#define NDPluginCVFilePathString                    "NDCV_FILEPATH"             //asynParamOctet
-#define NDPluginCVPathExistsString                  "NDCV_PATH_EXISTS"          //asynParamInt32
+//#define NDPluginCVFilePathString                    "NDCV_FILEPATH"             //asynParamOctet
+//#define NDPluginCVPathExistsString                  "NDCV_PATH_EXISTS"          //asynParamInt32
 
 //#define NDPluginCVStringOutputString                "NDCV_STRINGOUT"            //asynParamOctet
 //#define NDPluginCVStringOutputDescriptionString     "NDCV_STRINGOUT_DESC"       //asynParamOctet
@@ -243,8 +243,8 @@ class NDPluginCV : public NDPluginDriver{
         int NDPluginCVOutput10Description;
 
         // filepath PVs
-        int NDPluginCVFilePath;
-        int NDPluginCVPathExists;
+        //int NDPluginCVFilePath;
+        //int NDPluginCVPathExists;
 
         // database values for string Input/Output
         //int NDPluginCVStringOutput;

@@ -584,18 +584,18 @@ asynStatus NDPluginCV::writeOctet(asynUser* pasynUser, const char* value, size_t
     status = (asynStatus)setStringParam(function, (char*) value);
     if (status != asynSuccess) return(status);
     //printf("Entering writeOctet\n");
-    if(function == NDPluginCVFilePath){
+    if(function == NDFilePath){
         char buff[256];
-        getStringParam(NDPluginCVFilePath, sizeof(buff), buff);
+        getStringParam(NDFilePath, sizeof(buff), buff);
         bool check = checkFilepathValid(buff);
         if(check){
             string input = buff;
             //printf("%s\n", input.c_str());
             this->cvHelper->update_str_in(&input);
-            setIntegerParam(NDPluginCVPathExists, 1);
+            setIntegerParam(NDFilePathExists, 1);
         }
         else{
-            setIntegerParam(NDPluginCVPathExists, 0);
+            setIntegerParam(NDFilePathExists, 0);
         }
     }
     else if(function < NDCV_FIRST_PARAM){
@@ -848,8 +848,8 @@ NDPluginCV::NDPluginCV(const char *portName, int queueSize, int blockingCallback
     createParam(NDPluginCVOutput9DescriptionString,             asynParamOctet,     &NDPluginCVOutput9Description);
     createParam(NDPluginCVOutput10DescriptionString,            asynParamOctet,     &NDPluginCVOutput10Description);
 
-    createParam(NDPluginCVFilePathString,                       asynParamOctet,     &NDPluginCVFilePath);
-    createParam(NDPluginCVPathExistsString,                     asynParamInt32,     &NDPluginCVPathExists);
+    //createParam(NDPluginCVFilePathString,                       asynParamOctet,     &NDPluginCVFilePath);
+    //createParam(NDPluginCVPathExistsString,                     asynParamInt32,     &NDPluginCVPathExists);
 
 
     //createParam(NDPluginCVStringOutputString,                   asynParamOctet,     &NDPluginCVStringOutput);
