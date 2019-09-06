@@ -27,8 +27,11 @@
 
 //OpenCV is used for image manipulation
 #include <opencv2/opencv.hpp>
+
+#ifdef NDCV_WITH_VIDEO
 #include <opencv2/video.hpp>
 #include <opencv2/videoio.hpp>
+#endif
 
 // use standard and opencv namespaces
 using namespace cv;
@@ -200,8 +203,10 @@ class NDPluginCVHelper {
         Mat temporaryImg;
 
         // variables used for video recording
+        #ifdef NDCV_WITH_VIDEO
         VideoWriter video;
         bool isRecording = false;
+        #endif
 
 };
 #endif
