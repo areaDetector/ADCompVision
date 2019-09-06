@@ -43,8 +43,11 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/core/core.hpp>
+
+#ifdef NDVC_WITH_VIDEO
 #include <opencv2/video.hpp>
 #include <opencv2/videoio.hpp>
+#endif
 
 using namespace cv;
 using namespace std;
@@ -528,6 +531,7 @@ ADCVStatus_t NDPluginCVHelper::compute_image_stats(Mat &img, double* inputs, dou
 ADCVStatus_t NDPluginCVHelper::video_record(Mat &img, double* inputs, double* outputs){
     const char* functionName = "video_record";
     ADCVStatus_t status = cvHelperSuccess;
+    #ifdef NDCV_WITH_VIDEO
     double outputFramerate  = inputs[0];
     int start_stop          = (int) inputs[1];
     int encoding            = (int) inputs[2];
@@ -575,6 +579,7 @@ ADCVStatus_t NDPluginCVHelper::video_record(Mat &img, double* inputs, double* ou
         print_cv_error(e, functionName);
         status = cvHelperError;
     }
+    #endif
     return status;
 }
 
@@ -1316,14 +1321,18 @@ ADCVStatus_t NDPluginCVHelper::get_convert_format_descripton(string* inputDesc, 
  */
 ADCVStatus_t NDPluginCVHelper::get_video_record_description(string* inputDesc, string* outputDesc, string* description){
     ADCVStatus_t status = cvHelperSuccess;
-    int numInput = 5;
+    int numInput = 0;
     int numOutput = 0;
+    *description = "Video functions not built into ADCompVision. Set OPENCV_WITH_VIDEO=YES in Makefile and rebuild.";
+    #ifdef NDCV_WITH_VIDEO
+    numInput = 5;
     inputDesc[0] = "Output Framerate (Int)";
     inputDesc[1] = "Start(1)/Stop(0)";
     inputDesc[2] = "Color(0)/Mono(1)";
     inputDesc[3] = "H264(0)/MPEG(1)/DIVX(2)/MP4(3)";
     inputDesc[4] = ".avi(0)/.mp4(1)";
     *description = "Function that allows for recording video using areaDetector. Requires valid file path";
+    #endif
     populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
     return status;
 }

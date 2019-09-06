@@ -32,6 +32,9 @@ ifdef OPENCV_LIB
     NDPluginCV_DIR += $(OPENCV_LIB)
 endif
 
+ifeq ($(WITH_OPENCV_VIDEO), YES)
+    USR_CPPFLAGS += -D NDCV_WITH_VIDEO
+endif
 
 include $(AREA_DETECTOR)/ADCore/ADApp/commonLibraryMakefile
 
