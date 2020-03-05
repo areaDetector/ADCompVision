@@ -546,9 +546,9 @@ ADCVStatus_t NDPluginCVHelper::video_record(Mat &img, double* inputs, double* ou
             tm* now = localtime(&t);
             char output_file[256];
             // collect full filename
-            sprintf(output_file, "%s/CV_Output_Vid_%d-%d-%d::%d:%d:%d%s", this->filepath.c_str(), 
-                (now->tm_year - 100), now->tm_mon, now->tm_mday, now->tm_hour, now->tm_min, now->tm_sec, file_ext);
-            //printf("%s\n", output_file);
+            sprintf(output_file, "%s/CV_Output_Vid_%d-%d-%d_%d_%d_%d%s", this->filepath.c_str(), 
+                (now->tm_year - 100), now->tm_mon + 1, now->tm_mday, now->tm_hour, now->tm_min, now->tm_sec, file_ext);
+//            printf("%s\n", output_file);
             this->isRecording = true;
             if(this->filepath == ""){
                 this->cvHelperStatus = "Error, no entered file path";
@@ -560,7 +560,9 @@ ADCVStatus_t NDPluginCVHelper::video_record(Mat &img, double* inputs, double* ou
                 if(encoding == 1) fourcc = CV_FOURCC('M', 'P', 'E', 'G');
                 else if(encoding == 2) fourcc = CV_FOURCC('D', 'I', 'V', 'X');
                 else if(encoding == 3) fourcc = CV_FOURCC('m', 'p', '4', 'v');
-                this->video = VideoWriter(output_file, fourcc, outputFramerate, Size(img.cols, img.rows), color_bool);
+                else if(encoding == 4) fourcc = CV_FOURCC('M', 'J', 'P', 'G');
+
+		this->video = VideoWriter(output_file, fourcc, outputFramerate, Size(img.cols, img.rows), color_bool);
             }
         }
         if(this->isRecording){
@@ -1325,12 +1327,11 @@ ADCVStatus_t NDPluginCVHelper::get_video_record_description(string* inputDesc, s
     int numOutput = 0;
     *description = "Video functions not built into ADCompVision. Set OPENCV_WITH_VIDEO=YES in Makefile and rebuild.";
     #ifdef NDCV_WITH_VIDEO
-    numInput = 5;
+    numInput = 4;
     inputDesc[0] = "Output Framerate (Int)";
     inputDesc[1] = "Start(1)/Stop(0)";
-    inputDesc[2] = "Color(0)/Mono(1)";
-    inputDesc[3] = "H264(0)/MPEG(1)/DIVX(2)/MP4(3)";
-    inputDesc[4] = ".avi(0)/.mp4(1)";
+    inputDesc[2] = "H264/MPEG/DIVX/MP4/MJPG (0-4)";
+    inputDesc[3] = ".avi(0)/.mp4(1)";
     *description = "Function that allows for recording video using areaDetector. Requires valid file path";
     #endif
     populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
