@@ -49,7 +49,7 @@
         <th>
           Output value format</th>
     </tr><tr>
-<th>gaussian_blur
+<th>GaussianBlur
 </th>
 <th>1
 </th>
@@ -69,7 +69,7 @@
 </th>
 <th>0
 </th>
-<th>None
+<th>N/A
 </th>
 </tr>
 <tr>
@@ -81,7 +81,7 @@
 </th>
 <th>0
 </th>
-<th>None
+<th>N/A
 </th>
 </tr>
 <tr>
@@ -93,7 +93,7 @@
 </th>
 <th>0
 </th>
-<th>[]
+<th>N/A
 </th>
 </tr>
 <tr>
@@ -113,23 +113,35 @@
 </th>
 <th>0
 </th>
-<th>
+<th>N/A
 </th>
 <th>0
 </th>
-<th>
+<th>N/A
 </th>
 </tr>
 <tr>
-<th>compute_image_stats
+<th>ComputeImageStats
 </th>
 <th>0
 </th>
-<th>[]
+<th>N/A
 </th>
 <th>9
 </th>
 <th>[total, min, min x, min y, max, max x, max y, mean, sigma]
+</th>
+</tr>
+<tr>
+<th>VideoRecord
+</th>
+<th>4
+</th>
+<th>[Framerate (Int), Start/Stop (1 or 0), color (1 or 0), encoding (1-4), Output File Type (1 or 0)]
+</th>
+<th>0
+</th>
+<th>N/A
 </th>
 </tr>
 <tr>
@@ -145,7 +157,7 @@
 </th>
 </tr>
 <tr>
-<th>movement_vectors
+<th>MovementVectors(Testing)
 </th>
 <th>2
 </th>
@@ -157,7 +169,7 @@
 </th>
 </tr>
 <tr>
-<th>ObjectIdentification
+<th>ObjectIdentification(Testing)
 </th>
 <th>4
 </th>
@@ -181,7 +193,7 @@
 </th>
 </tr>
 <tr>
-<th>Distancebetweencontours
+<th>DistanceBetweenContours
 </th>
 <th>5
 </th>
@@ -192,11 +204,23 @@
 <th>[Is Within Threshold (Binary Int), Distance in Pixels (Int)]
 </th>
 </tr>
+<tr>
+<th>ConvertImageFormat
+</th>
+<th>2
+</th>
+<th>[To grayscale (Toggle), To rgb (Toggle)]
+</th>
+<th>0
+</th>
+<th>N/A
+</th>
+</tr>
 
 </tbody>
 </table>
 <h2>Function descriptions</h2>
-<h3>gaussian_blur
+<h3>GaussianBlur
 </h3><p> Blurs image based on a gaussian kernel. A gaussian kernel is simply a matrix of a set size that
  fills Gaussian properties.
 
@@ -226,8 +250,14 @@
  in pairs. Reads first image into memory, then waits for second one, when it receives the second one, 
  subtract them.
  
-</p><h3>compute_image_stats
+</p><h3>ComputeImageStats
 </h3><p> OpenCV accelerated computation of Image statistics
+
+</p><h3>VideoRecord
+</h3><p> This function uses the opencv_video and opencv_videoio libraries for writing a video from areaDetector cameras.
+ A valid file path is required. Output video framerate should be set to the camera framerate if a real time video
+ is desired. Supported encodings are: H264, MPEG, DIVX, and LAGS. Not all encodings will be present on each machine,
+ thus some experimentation may be required. The output video will $FILEPATH/CV_Output_Vid_$DATETIME.mp4
 
 </p><h3>FindObjectCentroids
 </h3><p> Function for finding centroids of objects in an image. Useful for alignment of objects
@@ -238,13 +268,13 @@
  be used to remove contours that are too large, removing contours that span the entire size of
  the image. Any contour with area > upper threshold is removed, and any lower than lower threshold
  
-</p><h3>movement_vectors
+</p><h3>MovementVectors(Testing)
 </h3><p> Function that does feature detection on images a set number of frames apart, and attempts to calculate the 
  movement vector for the calculated key points. It uses ORB feature detection and vector flow
  
  NOT YET IMPLEMENTED/TESTED
 
-</p><h3>ObjectIdentification
+</p><h3>ObjectIdentification(Testing)
 </h3><p> Function that detects contours in an image and returns information regarding said contours
  
  NOT YET IMPLEMENTED/TESTED
@@ -254,9 +284,14 @@
  simplify creating user defined functions. Simply implement this function and its description function,
  and then select 'User Function' in function set 3. 
 
-</p><h3>Distancebetweencontours
+</p><h3>DistanceBetweenContours
 </h3><p> Function that computes bounding boxes between the two largest computed contours in the image,
  checks the distance between them and sends an alarm if they are within a distance threshold.
+
+</p><h3>ConvertImageFormat
+</h3><p> Converts the format of the image to a different one for use with other AD Plugins. This is useful for 
+ cameras that only support one format but a different one is required, ex. ADPluginDmtx needs 8bit rgb image, so 
+ grayscale camera needs to be converted.
 
 </p>
 </body>

@@ -12,3 +12,6 @@ envPaths*
 .vscode/
 adcvTests/
 O.linux-x86_64/
+opencv/
+os/
+OLD_FILES/

@@ -19,7 +19,7 @@ The easier solution, and the one recommended if only one custom function is requ
 * user_function
 * get_user_function_description
 
-Implement both of these functions following the standards set by the other Wrapper functions, and you should be able to access your implementation from CSS by selecting 'User Function' from Vision function set 3.
+Implement both of these functions following the standards set by the other Wrapper functions, and you should be able to access your implementation from your EPICS client by selecting 'User Function' from Vision function set 3.
 
 ### Adding a brand new CV function
 
@@ -146,5 +146,7 @@ case ADCV_YOURFUNCTION:
     break;
 ```
 This will tell ADCompVision which function to process when your function is requested.
+
+Finally, the last remaining thing you must do, is to make sure that your function is thread safe. If it is not, you must add it to the array in `NDPluginCV.h` called `nonThreadSafeFunctions`. Note that in this case, multiple threads will not affect the performance of the plugin when such a function is selected.
 
 Your function should now be implemented into ADCompVision and is ready to be tested.

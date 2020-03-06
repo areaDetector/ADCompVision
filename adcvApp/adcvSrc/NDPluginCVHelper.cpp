@@ -44,6 +44,11 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/core/core.hpp>
 
+#ifdef NDVC_WITH_VIDEO
+#include <opencv2/video.hpp>
+#include <opencv2/videoio.hpp>
+#endif
+
 using namespace cv;
 using namespace std;
 
@@ -140,6 +145,13 @@ ADCVStatus_t NDPluginCVHelper::downscale_image_8bit(Mat &img, ADCVCameraDepth_t 
 }
 
 
+/**
+ * Helper function that computes pixel distance between two OpenCV Rect objects
+ * 
+ * @params[in]: r1  -> The first rectangle
+ * @params[in]: r2  -> The second rectangle
+ * @return x-pixel distance if it is shorter, y-pixel distance if that is shorter
+ */
 double NDPluginCVHelper::compute_rect_distance(Rect r1, Rect r2){
     double xDist= -1, yDist = -1;
     if(r1.x > r2.x + r2.width) xDist = r1.x - (r2.x + r2.width);
@@ -151,6 +163,17 @@ double NDPluginCVHelper::compute_rect_distance(Rect r1, Rect r2){
     if(xDist != -1 && yDist != -1) return xDist > yDist ? yDist : xDist;
     else if(xDist != -1) return xDist;
     else return yDist;
+}
+
+
+/**
+ * Function that updates the filepath for NDPluginCVHelper
+ * 
+ * @params[in]: new_filepath    -> new filepath inputted into EPICS
+ */
+void NDPluginCVHelper::update_str_in(string* new_filepath){
+    this->filepath = *new_filepath;
+    this->cvHelperStatus = "Updated filepath";
 }
 
 
@@ -209,7 +232,7 @@ ADCVStatus_t NDPluginCVHelper::YOURFUNCTION(Mat &img, double* inputs, double* ou
 
 
 /**
- * WRAPPER  ->  gaussian_blur
+ * WRAPPER  ->  Gaussian Blur
  * Blurs image based on a gaussian kernel. A gaussian kernel is simply a matrix of a set size that
  * fills Gaussian properties.
  *
@@ -244,7 +267,7 @@ ADCVStatus_t NDPluginCVHelper::gaussian_blur(Mat &img, double* inputs, double* o
  * @inFormat    -> [Threshhold Value (Int), Max Pixel Value (Int)]
  * 
  * @outCount    -> 0
- * @outFormat   -> None
+ * @outFormat   -> N/A
  */
 ADCVStatus_t NDPluginCVHelper::threshold_image(Mat &img, double* inputs, double* outputs){
     const char* functionName = "threshold_image";
@@ -272,7 +295,7 @@ ADCVStatus_t NDPluginCVHelper::threshold_image(Mat &img, double* inputs, double*
  * @inFormat    -> [Blur degree (Int)]
  * 
  * @outCount    -> 0
- * @outFormat   -> None
+ * @outFormat   -> N/A
  */
 ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat &img, double* inputs, double* outputs){
     const char* functionName = "laplacian_edge_detection";
@@ -304,7 +327,7 @@ ADCVStatus_t NDPluginCVHelper::laplacian_edge_detection(Mat &img, double* inputs
  * @inFormat    -> [Gaussian blurr (Int), Laplacian kernel size (Int), Laplacian scale (Int), Laplacian delat (Int) ]
  *
  * @outCount    -> 0
- * @outFormat   -> []
+ * @outFormat   -> N/A
  */
 ADCVStatus_t NDPluginCVHelper::sharpen_images(Mat &img, double* inputs, double* outputs){
     const char* functionName = "sharpen_images";
@@ -312,21 +335,22 @@ ADCVStatus_t NDPluginCVHelper::sharpen_images(Mat &img, double* inputs, double* 
     int kernel_size = inputs[1];
     int scale       = inputs[2];
     int delta       = inputs[3];
+    Mat temp;
     
     ADCVStatus_t status = cvHelperSuccess;
     
     try{
-        img.copyTo(this->temporaryImg);
+        img.copyTo(temp);
 
         GaussianBlur(img, img, Size(blurDegree, blurDegree),1, 0, BORDER_DEFAULT );
-//        cvtColor(img, img, COLOR_BGR2GRAY); // Convert the image to grayscale
+        //cvtColor(img, img, COLOR_BGR2GRAY); // Convert the image to grayscale
         int depth = img.depth();
         Laplacian(img, img, depth, kernel_size, scale, delta, BORDER_DEFAULT );
         convertScaleAbs(img, img);
         cvHelperStatus = "Detected laplacian edges";
                     
-        subtract(this->temporaryImg, img, img);
-        this->temporaryImg.release();
+        subtract(temp, img, img);
+        temp.release();
 
     }catch(Exception &e){
         print_cv_error(e, functionName);
@@ -410,14 +434,15 @@ ADCVStatus_t NDPluginCVHelper::canny_edge_detection(Mat &img, double* inputs, do
  * subtract them.
  * 
  * @inCount     -> 0
- * @inFormat    -> 
+ * @inFormat    -> N/A
  * 
  * @outCount    -> 0
- * @outFormat   -> 
+ * @outFormat   -> N/A
  */
 ADCVStatus_t NDPluginCVHelper::subtract_consecutive_images(Mat &img, double* inputs, double* outputs){
     const char* functionName = "subtract_consecutive_images";
     ADCVStatus_t status = cvHelperSuccess;
+    int order = (int) inputs[0];
     try{
         if(this->wasComputed == false){
             img.copyTo(this->temporaryImg);
@@ -426,7 +451,10 @@ ADCVStatus_t NDPluginCVHelper::subtract_consecutive_images(Mat &img, double* inp
             this->cvHelperStatus = "Waiting for next image to subtract";
         }
         else{
-            subtract(this->temporaryImg, img, img);
+            if(order == 1)
+                subtract(img, this->temporaryImg, img);
+            else
+                subtract(this->temporaryImg, img, img);
             this->temporaryImg.release();
             this->wasComputed = false;
             this->cvHelperStatus = "Finished Subtracting images";
@@ -440,11 +468,11 @@ ADCVStatus_t NDPluginCVHelper::subtract_consecutive_images(Mat &img, double* inp
 
 
 /**
- * WRAPPER  ->  compute_image_stats
+ * WRAPPER  ->  ComputeImageStats
  * OpenCV accelerated computation of Image statistics
  *
  * @inCount     -> 0
- * @inFormat    -> []
+ * @inFormat    -> N/A
  *
  * @outCount    -> 9
  * @outFormat   -> [total, min, min x, min y, max, max x, max y, mean, sigma]
@@ -457,14 +485,15 @@ ADCVStatus_t NDPluginCVHelper::compute_image_stats(Mat &img, double* inputs, dou
         //int roiY = inputs[1];
         //int width = inputs[2];
         //int height = inputs[3];
-        img.copyTo(this->temporaryImg);
-        if(this->temporaryImg.channels() == 3) cvtColor(this->temporaryImg, this->temporaryImg, COLOR_BGR2GRAY);
+        Mat temp;
+        img.copyTo(temp);
+        if(temp.channels() == 3) cvtColor(temp, temp, COLOR_BGR2GRAY);
         Scalar im_sum, mean, sigma;
         double max, min;
         Point min_point, max_point;
-        minMaxLoc(this->temporaryImg, &min, &max, &min_point, &max_point);
-        im_sum = sum(this->temporaryImg);
-        meanStdDev(this->temporaryImg, mean, sigma);
+        minMaxLoc(temp, &min, &max, &min_point, &max_point);
+        im_sum = sum(temp);
+        meanStdDev(temp, mean, sigma);
 
         outputs[0] = *im_sum.val;
         outputs[1] = min;
@@ -476,7 +505,7 @@ ADCVStatus_t NDPluginCVHelper::compute_image_stats(Mat &img, double* inputs, dou
         outputs[7] = *mean.val;
         outputs[8] = *sigma.val;
 
-        this->temporaryImg.release();
+        temp.release();
         cvHelperStatus = "Finished processing computing image stats";
     }catch(Exception &e){
         print_cv_error(e, functionName);
@@ -484,6 +513,78 @@ ADCVStatus_t NDPluginCVHelper::compute_image_stats(Mat &img, double* inputs, dou
     }
     return status;
 }
+
+
+/**
+ * WRAPPER  ->  VideoRecord
+ * This function uses the opencv_video and opencv_videoio libraries for writing a video from areaDetector cameras.
+ * A valid file path is required. Output video framerate should be set to the camera framerate if a real time video
+ * is desired. Supported encodings are: H264, MPEG, DIVX, and LAGS. Not all encodings will be present on each machine,
+ * thus some experimentation may be required. The output video will $FILEPATH/CV_Output_Vid_$DATETIME.mp4
+ *
+ * @inCount     -> 4
+ * @inFormat    -> [Framerate (Int), Start/Stop (1 or 0), encoding (1-4), Output File Type (1 or 0)]
+ *
+ * @outCount    -> 0
+ * @outFormat   -> N/A
+ */
+ADCVStatus_t NDPluginCVHelper::video_record(Mat &img, double* inputs, double* outputs){
+    const char* functionName = "video_record";
+    ADCVStatus_t status = cvHelperSuccess;
+    #ifdef NDCV_WITH_VIDEO
+    double outputFramerate  = inputs[0];
+    int start_stop          = (int) inputs[1];
+    int encoding            = (int) inputs[2];
+    int outputType          = (int) inputs[3];
+    bool color_bool         = true;
+    const char* file_ext    = ".avi";
+    if(outputType == 1) file_ext = ".mp4";
+    try{
+        if(img.channels() != 3) color_bool = false;
+        if(!this->isRecording && start_stop == 1){
+            time_t t = time(0);
+            tm* now = localtime(&t);
+            char output_file[256];
+            // collect full filename
+            sprintf(output_file, "%s/CV_Output_Vid_%d-%d-%d_%d_%d_%d%s", this->filepath.c_str(), 
+                (now->tm_year - 100), now->tm_mon + 1, now->tm_mday, now->tm_hour, now->tm_min, now->tm_sec, file_ext);
+//            printf("%s\n", output_file);
+            this->isRecording = true;
+            if(this->filepath == ""){
+                this->cvHelperStatus = "Error, no entered file path";
+                this->isRecording = false;
+            }
+            else{
+                // select appropriate encoding
+                int fourcc = CV_FOURCC('H', '2', '6', '4');
+                if(encoding == 1) fourcc = CV_FOURCC('M', 'P', 'E', 'G');
+                else if(encoding == 2) fourcc = CV_FOURCC('D', 'I', 'V', 'X');
+                else if(encoding == 3) fourcc = CV_FOURCC('m', 'p', '4', 'v');
+                else if(encoding == 4) fourcc = CV_FOURCC('M', 'J', 'P', 'G');
+
+		this->video = VideoWriter(output_file, fourcc, outputFramerate, Size(img.cols, img.rows), color_bool);
+            }
+        }
+        if(this->isRecording){
+            this->video.write(img);
+            if(start_stop == 0){
+                // save the video and release memory
+                this->isRecording = false;
+                this->video.release();
+                this->cvHelperStatus = "Finished recording video";
+            }
+            else{
+                this->cvHelperStatus = "Recording...";
+            }
+        }
+    }catch(Exception &e){
+        print_cv_error(e, functionName);
+        status = cvHelperError;
+    }
+    #endif
+    return status;
+}
+
 
 
 /**
@@ -579,7 +680,7 @@ ADCVStatus_t NDPluginCVHelper::find_centroids(Mat &img, double* inputs, double* 
 
 
 /**
- * WRAPPER  ->  movement_vectors
+ * WRAPPER  ->  Movement Vectors (Testing)
  * Function that does feature detection on images a set number of frames apart, and attempts to calculate the 
  * movement vector for the calculated key points. It uses ORB feature detection and vector flow
  * 
@@ -624,7 +725,7 @@ ADCVStatus_t NDPluginCVHelper::movement_vectors(Mat &img, double* inputs, double
 
 
 /**
- * WRAPPER  ->  Object Identification
+ * WRAPPER  ->  Object Identification (Testing)
  * Function that detects contours in an image and returns information regarding said contours
  * 
  * NOT YET IMPLEMENTED/TESTED
@@ -704,7 +805,7 @@ ADCVStatus_t NDPluginCVHelper::user_function(Mat &img, double* inputs, double* o
 
 
 /**
- * WRAPPER  ->  Distance between contours
+ * WRAPPER  ->  Distance Between Contours
  * Function that computes bounding boxes between the two largest computed contours in the image,
  * checks the distance between them and sends an alarm if they are within a distance threshold.
  *
@@ -722,16 +823,17 @@ ADCVStatus_t NDPluginCVHelper::distance_between_ctrs(Mat &img, double* inputs, d
     int thresholdVal = inputs[2];
     int applyBlur = inputs[3];
     int contour_size_thresh = inputs[4];
+    Mat temp;
 
     try{
         int largest_area = 0;
         int second_area = 0;
         Rect lbounding_rect, sbounding_rect;
-        if(applyBlur > 0) GaussianBlur(img, this->temporaryImg, Size(blurDegree, blurDegree), 0);
-        if(img.channels() == 3) cvtColor(this->temporaryImg, this->temporaryImg, COLOR_BGR2GRAY);
-        threshold(this->temporaryImg, this->temporaryImg, thresholdVal, 255, THRESH_BINARY);
+        if(applyBlur > 0) GaussianBlur(img, temp, Size(blurDegree, blurDegree), 0);
+        if(img.channels() == 3) cvtColor(temp, temp, COLOR_BGR2GRAY);
+        threshold(temp, temp, thresholdVal, 255, THRESH_BINARY);
         vector<vector<Point> > contours;
-        findContours(this->temporaryImg, contours, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0,0));
+        findContours(temp, contours, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0,0));
         if(contours.size() > 1){
             for(unsigned int i = 0; i< contours.size(); i++){
                 double area = contourArea(contours[i]);
@@ -750,15 +852,15 @@ ADCVStatus_t NDPluginCVHelper::distance_between_ctrs(Mat &img, double* inputs, d
                     }
                 }
             }
-            rectangle(img, lbounding_rect, Scalar(0, 255, 0), 3);
-            rectangle(img, sbounding_rect, Scalar(0, 255, 0), 3);
+            cv::rectangle(img, lbounding_rect, Scalar(0, 255, 0), 3);
+            cv::rectangle(img, sbounding_rect, Scalar(0, 255, 0), 3);
             outputs[1] = compute_rect_distance(lbounding_rect, sbounding_rect);
             if(outputs[1] < distance_threshold) outputs[0] = 1;
             else outputs[0] = 0;
             cvHelperStatus = "Finished processing distance between contours";
         }
         else cvHelperStatus = "Couldn't identify two or more contours";
-        this->temporaryImg.release();
+        temp.release();
     }catch(Exception &e){
         print_cv_error(e, functionName);
         status = cvHelperError;
@@ -991,8 +1093,9 @@ ADCVStatus_t NDPluginCVHelper::get_sharpen_description(string* inputDesc, string
  */
 ADCVStatus_t NDPluginCVHelper::get_subtract_description(string* inputDesc, string* outputDesc, string* description){
     ADCVStatus_t status = cvHelperSuccess;
-    int numInput = 0;
+    int numInput = 1;
     int numOutput = 0;
+    inputDesc[0] = "2nd - 1st(0)/1st - 2nd(1)";
     *description = "Subtracts consecutive images. Used in certain implementations of Dual Thresholding";
     populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
     return status;
@@ -1210,6 +1313,32 @@ ADCVStatus_t NDPluginCVHelper::get_convert_format_descripton(string* inputDesc, 
 }
 
 
+/**
+ * Function that sets the I/O descriptions for video_record
+ * 
+ * @params[out]: inputDesc      -> array of input descriptions
+ * @params[out]: outputDesc     -> array of output descriptions
+ * @params[out]: description    -> overall function usage description
+ * @return: void
+ */
+ADCVStatus_t NDPluginCVHelper::get_video_record_description(string* inputDesc, string* outputDesc, string* description){
+    ADCVStatus_t status = cvHelperSuccess;
+    int numInput = 0;
+    int numOutput = 0;
+    *description = "Video functions not built into ADCompVision. Set OPENCV_WITH_VIDEO=YES in Makefile and rebuild.";
+    #ifdef NDCV_WITH_VIDEO
+    numInput = 4;
+    inputDesc[0] = "Output Framerate (Int)";
+    inputDesc[1] = "Start(1)/Stop(0)";
+    inputDesc[2] = "H264/MPEG/DIVX/MP4/MJPG (0-4)";
+    inputDesc[3] = ".avi(0)/.mp4(1)";
+    *description = "Function that allows for recording video using areaDetector. Requires valid file path";
+    #endif
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    return status;
+}
+
+
 /* ---------------------- Functions called from the EPICS Plugin implementation ----------------------- */
 
 
@@ -1272,6 +1401,9 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
         case ADCV_DistanceCheck:
             //status = downscale_image_8bit(image, camera_depth);
             status = distance_between_ctrs(image, inputs, outputs);
+            break;
+        case ADCV_VideoRecord:
+            status = video_record(image, inputs, outputs);
             break;
         default:
             status = cvHelperError;
@@ -1340,6 +1472,9 @@ ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, s
         case ADCV_DistanceCheck:
             status = get_dist_between_description(inputDesc, outputDesc, description);
             break;
+        case ADCV_VideoRecord:
+            status = get_video_record_description(inputDesc, outputDesc, description);
+            break;
         default:
             status = get_default_description(inputDesc, outputDesc, description);
             break;
@@ -1350,55 +1485,6 @@ ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, s
     }
     return status;
 }
-
-
-// File writing temporarily disabled
-
-/**
- * This function is called fom the ADCompVision plugin. It takes an image and then saves it in the specified format
- * with the specified filename. 
- * 
- * @params[in]: image       -> image to be saved
- * @params[in]: filename    -> filename of saved image
- * @params[in]: format      -> file format in which to save image
- * @return: cvHelperSuccess if file saved correctly, otherwise cvHelperError
- *
-ADCVStatus_t NDPluginCVHelper::writeImage(Mat &image, string filename, ADCVFileFormat_t format){
-    const char* functionName = "writeImage";
-    ADCVStatus_t status = cvHelperError;
-
-    if(filename[0] != '/'){
-        cvHelperStatus = "Please use absolute path name starting with /";
-        return status;
-    }
-    
-    switch(format){
-        case ADCV_FileDisable:
-            status = cvHelperSuccess;
-            break;
-        case ADCV_FileJPEG:
-            filename = filename + ".jpg";
-            break;
-        case ADCV_FilePNG:
-            filename = filename + ".png";
-            break;
-        case ADCV_FileTIF:
-            filename = filename + ".tif";
-            break;
-        default:
-            cvHelperStatus = "Error in helper library invalid selected file format";
-            break;
-    }
-    if(status == cvHelperSuccess) return status;
-    try{
-        imwrite(filename, image);
-    }catch(Exception &e){
-        print_cv_error(e, functionName);
-        return cvHelperError;
-    }
-    return cvHelperSuccess;
-}
-*/
 
 /* Basic constructor/destructor, used by plugin to call processImage */
 

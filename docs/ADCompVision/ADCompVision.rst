@@ -1,11 +1,13 @@
 ADCompVision Documentation
 ==========================
 
-Author: Jakub Wlodek
-~~~~~~~~~~~~~~~~~~~~
+:Author: Jakub Wlodek
 
-Corresponding Author: Kazimierz Gofron
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:Corresp Author: Kazimierz Gofron
+
+:Created: November 2018
+
+:Last Updated: June 2019
 
 Installing the plugin
 ~~~~~~~~~~~~~~~~~~~~~
@@ -32,8 +34,11 @@ Using ADCompVision
 This plugin allows for a multitude of Open Computer Vision functions. As
 a result, each function will use the input/output PVs differently.
 
-To view how each function uses the inputs and outputs view the manual
-`here. <ADCompVisionManual.html>`__
+| To view how each function uses the inputs and outputs view the manual
+  `here. <ADCompVisionManual.html>`__
+| In addition, selecting an option from the dropdown menu will populate
+  the input and output descriptions for any that are used by the
+  selected CV function.
 
 The main CSS screen for the ADCompVision plugin looks as follows:
 
@@ -41,17 +46,52 @@ The main CSS screen for the ADCompVision plugin looks as follows:
 
 To use the plugin, you must select one of the functions from the three
 function sets. The other 2 function sets must be set to 'None' Then,
-make sure that the image1 plugin has its input port set to be the output
-port of ADCompVision (CV1). Then, open the main screen, and note that
-input and output descriptions are listed for each function. Enter valid
-input values for each of the required inputs. Next, start image
-acquisition and enable the plugin. You should see the processed image in
-image1 ArrayData. Some examples are shown below:
+make sure that the image1 or pv1 plugin has its input port set to be the
+output port of ADCompVision (CV1). You should pass CV1 to whichever
+plugin you use to display your images. Then, open the main screen, and
+note that input and output descriptions are listed for each function.
+Enter valid input values for each of the required inputs. Next, start
+image acquisition and enable the plugin. You should see the processed
+image in image1 ArrayData. Some examples are shown below.
+
+When using non-8bit cameras, note that many of the CompVision functions
+supported here require the input image to be downconverted to 8 bit in
+order to work. To do this, select your camera's actual bit depth in the
+bit depth selector. (NOT NDDataType). If your device is a 12 bit camera
+for example, select 12 bit in the menu, not 16 bit, even if the input
+has an NDDataType of NDUInt16.
 
 --------------
 
 Release Notes
 ^^^^^^^^^^^^^
+
+R1-2 (5-March-2020)
+^^^^^^^^^^^^^^^^^^^^
+
+-  Computer Vision functions implemented
+
+   -  Video Record - allows for video recording with areaDetector
+   -  Convert Format - Converts color format and Data type of input
+      image.
+
+-  Additional Feature changes
+
+   -  Added filepath PV
+   -  Added filepath exists PV
+   -  Added opencv\_video and opencv\_videoio as library dependancies
+   -  Added support for multithreading for certain functions
+   -  New medm, edm, and adl screens (Courtesy of Mark Rivers)
+   -  New rst documentation pages (Courtesy of Mark Rivers
+
+-  Bug Fixes
+
+   -  Edited mat2NDArray function to remove potential memory leak
+   -  Comment + documentation updates
+   -  Fixed bug where input pArray data would be placed into the Mat - which would result in data overwrite.
+   -  Removed call that added unnecessary DataType attribute
+   -  Changed `doCallbacksGenericPointer` to`endProcessCallbacks`
+   -  Cleanup of `mat2NDArray` function
 
 R1-1 (17-April-2019)
 ^^^^^^^^^^^^^^^^^^^^
@@ -128,26 +168,79 @@ R1-0 (14-January-2019)
 Usage Examples:
 ^^^^^^^^^^^^^^^
 
-Thresholding
+**Thresholding**
 
-|Thresholding| |Thresholding Menu|
+|Thresholding|
 
-Laplacian Edge Detection
+As of R1-0 ADCompVision supports Thresholding. Start by selecting it
+from the Vision Function 1 dropdown menu. Set the threshold value and
+max pixel value. The max pixel value will almost always be 255 on 8 bit
+images.
 
-|Laplacian| |Laplacian Menu|
+**Laplacian Edge Detection**
 
-Canny edge detection
+|Laplacian|
 
-|Canny| |Canny Menu|
+As of R1-0 ADCompVision supports Laplacian based edge detection. Start
+by selecting it from the Vision Function 1 dropdown menu. Set the blur
+degree, kernel size, scale, and delta. Note that the blur degree and
+kernel size must be odd integers from 1 to 15 (3 usually works best).
+Tweak these parameters until an acceptable result is visible.
 
-Centroid identification
+**Canny edge detection**
 
-|Centroid| |Centroid Menu|
+|Canny|
+
+As of R1-0 ADCompVision supports Canny based edge detection. Start by
+selecting it from the Vision Function 1 dropdown menu. Set the Threshold
+value, ratio, blur degree, and kernel size, note that the blur degree
+and kernel size must be odd integers from 1 to 15 (3 usually works
+best). Tweak these parameters until an acceptable result is visible.
+
+**Centroid identification**
+
+|Centroid|
+
+As of R1-0 ADCompVision supports centroid identification. To use this
+feature select it from the Function set 2 dropdown. Then, set the number
+of desired objects to find, the blur degree (3 or 5 is usually best), a
+threshold value, and an upper and lower pixel area threshold for the
+objects. Play around with these numbers until the desired objects are
+detected. The centroid centers are then outputted into the 'Output' PV
+values
+
+**Video Record**
+
+|Video Record|
+
+As of R1-2, ADCompVision supports writing video recordings for
+areaDetector. Controls allow for setting an output framerate, color and
+mono video, 4 different encoding formats, and 2 file formats. To start a
+recording, input a valid file path, then enter valid options for
+framerate and other video modes. Finally simply enter a '1' into the
+'Start/Stop' field to start recording, and a '0' to stop recording. The
+video will be saved to the given file path and will be called
+CV\_Output\_Vid\_$TIMESTAMP.avi or .mp4 depending on selection. Note
+that not all 4 encodings will be supported on each machine.
+
+**Distance Check**
+
+|Dist Check|
+
+As of R1-2, ADCompVision supports Distance Checking between two objects
+in an image. To use this feature, select it from Function set 3. Then
+enter a distance threshold in pixels, then a blur size (3 or 5 are
+usually best), a threshold value, select apply blur = yes (will give
+better results), and choose an object size threshold in pixels to avoid
+background noise. Tweak the threshold and size values until the two
+desired objects are detected, and then note that the output pvs print
+the pixel distance between them, and whether or not it is under the
+distance threshold input variable.
 
 --------------
 
 Issues and Pull Requests
-^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you wish to create an issue or pull request, please do so at the
 source fork on `github. <https://github.com/jwlodek/ADCompVision>`__
@@ -155,7 +248,7 @@ source fork on `github. <https://github.com/jwlodek/ADCompVision>`__
 --------------
 
 Important Links
-^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~
 
 | `Area Detector on Github <https://github.com/areaDetector>`__
 | `NSLS2 area detector reposiotries on
@@ -166,15 +259,18 @@ Important Links
 --------------
 
 copyright: Brookhaven National Laboratory 2018-2019
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. |main| image:: MainCVScreen.png
+   :width: 800pt
 .. |Thresholding| image:: threshold.png
-.. |Thresholding Menu| image:: threshold_menu.png
+   :width: 1000pt
 .. |Laplacian| image:: Laplacian.png
-.. |Laplacian Menu| image:: laplacian_menu.png
+   :width: 1000pt
 .. |Canny| image:: Canny2.png
-.. |Canny Menu| image:: canny_menu.png
+   :width: 1000pt
 .. |Centroid| image:: Centroid.png
-.. |Centroid Menu| image:: centroid_menu.png
-
+   :width: 1000pt
+.. |Video Record| image:: Video_Record.png
+   :width: 800pt
+.. |Dist Check| image:: DistanceCheck.png
+   :width: 1000pt

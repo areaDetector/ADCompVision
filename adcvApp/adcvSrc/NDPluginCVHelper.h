@@ -28,6 +28,11 @@
 //OpenCV is used for image manipulation
 #include <opencv2/opencv.hpp>
 
+#ifdef NDCV_WITH_VIDEO
+#include <opencv2/video.hpp>
+#include <opencv2/videoio.hpp>
+#endif
+
 // use standard and opencv namespaces
 using namespace cv;
 using namespace std;
@@ -47,7 +52,7 @@ using namespace std;
  */ 
 #define N_FUNC_1                    6
 #define N_FUNC_2                    4
-#define N_FUNC_3                    4
+#define N_FUNC_3                    5
 
 
 
@@ -72,6 +77,7 @@ typedef enum {
     ADCV_UserDefined        = 9,
     ADCV_ImageStats         = 10,
     ADCV_DistanceCheck      = 11,
+    ADCV_VideoRecord        = 12,
 } ADCVFunction_t;
 
 
@@ -127,6 +133,8 @@ class NDPluginCVHelper {
 
         // Additional processing functions (used to clean up wrapper functions)
         double compute_rect_distance(Rect r1, Rect r2);
+
+        void update_str_in(string* new_filepath);
  
 
         // OpenCV Wrapper functions
@@ -140,6 +148,7 @@ class NDPluginCVHelper {
         ADCVStatus_t sharpen_images(Mat &img, double* inputs, double* outputs);
         ADCVStatus_t distance_between_ctrs(Mat &img, double* inputs, double* outputs);
         ADCVStatus_t convert_image_format(Mat &img, double* inputs, double* outputs);
+        ADCVStatus_t video_record(Mat &img, double* inputs, double* outputs);
 
         // under development
         ADCVStatus_t movement_vectors(Mat &img, double* inputs, double* outputs);
@@ -162,6 +171,7 @@ class NDPluginCVHelper {
         ADCVStatus_t get_sharpen_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_dist_between_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_convert_format_descripton(string* inputDesc, string* outputDesc, string* description);
+        ADCVStatus_t get_video_record_description(string* inputDesc, string* outputDesc, string* description);
  
         // Under development
         ADCVStatus_t get_movement_vectors_description(string* inputDesc, string* outputDesc, string* description);
@@ -174,23 +184,29 @@ class NDPluginCVHelper {
         // Functions called from the Plugin itself
         ADCVStatus_t getFunctionDescription(ADCVFunction_t function, string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t processImage(Mat &image, ADCVFunction_t function, ADCVCameraDepth_t camera_depth, double* inputs, double* outputs);
-        //ADCVStatus_t writeImage(Mat &image, string filename, ADCVFileFormat_t fileFormat);
-
 
     protected:
 
     private:
 
         // Variables if function requires some information to be stored for multiple function calls
-        
-        // image stats net counter
-        double overall_total = 0;
+
+        // general filepath for use with video recording and image saving.
+        string filepath = "";
 
 
         // movement vector variables (Currently Unused/untested)
         int frameCounter = 0;
+
+        // Temp Mat used by image subtraction. Subtracts one mat from next one
         bool wasComputed = false;
         Mat temporaryImg;
+
+        // variables used for video recording
+        #ifdef NDCV_WITH_VIDEO
+        VideoWriter video;
+        bool isRecording = false;
+        #endif
 
 };
 #endif
