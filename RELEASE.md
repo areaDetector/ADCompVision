@@ -9,7 +9,7 @@ Dependencies: ADCompVision requires opencv core, highgui, image processing, and 
 
 <!--RELEASE START-->
 
-## R1-2 (???-July-2019)
+## R1-2 (5-March-2020)
 
 * Computer Vision functions implemented
     * Video Record - allows for video recording with areaDetector
