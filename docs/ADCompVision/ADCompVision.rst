@@ -66,7 +66,7 @@ has an NDDataType of NDUInt16.
 Release Notes
 ^^^^^^^^^^^^^
 
-R1-2 (???-July-2019)
+R1-2 (5-March-2020)
 ^^^^^^^^^^^^^^^^^^^^
 
 -  Computer Vision functions implemented
