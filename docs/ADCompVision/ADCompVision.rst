@@ -9,6 +9,13 @@ ADCompVision Documentation
 
 :Last Updated: June 2019
 
+.. contents:: Contents
+
+.. toctree::
+   :hidden:
+   
+   ADCompVisionManual.rst
+   
 Installing the plugin
 ~~~~~~~~~~~~~~~~~~~~~
 

@@ -296,7 +296,7 @@ the entire size of the image. Any contour with area > upper threshold is
 removed, and any lower than lower threshold
 
 MovementVectors (Testing)
-~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Function that does feature detection on images a set number of frames
 apart, and attempts to calculate the movement vector for the calculated
@@ -304,7 +304,7 @@ key points. It uses ORB feature detection and vector flow NOT YET
 IMPLEMENTED/TESTED
 
 ObjectIdentification (Testing)
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Function that detects contours in an image and returns information
 regarding said contours NOT YET IMPLEMENTED/TESTED
