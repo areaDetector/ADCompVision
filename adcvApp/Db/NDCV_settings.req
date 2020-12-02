@@ -1,5 +1,6 @@
-# Nothing extra needed beyond NDPluginBase_settings.req for now
+# Add plugin base, and file base settings
 file "NDPluginBase_settings.req", P=$(P), R=$(R)
+file "NDFile_settings.req", P=$(P), R=$(R)
 
 # Save the selected function
 $(P)$(R)CompVisionFunction1
@@ -39,3 +40,4 @@ $(P)$(R)Output7Description_RBV
 $(P)$(R)Output8Description_RBV
 $(P)$(R)Output9Description_RBV
 $(P)$(R)Output10Description_RBV
+
