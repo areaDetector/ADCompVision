@@ -9,7 +9,7 @@ include $(TOP)/configure/CONFIG
 #DB_OPT=YES
 
 DB+=NDCV.template
-
+DB+=NDCV_settings.req
 
 include $(TOP)/configure/RULES
 
