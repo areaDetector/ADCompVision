@@ -27,16 +27,22 @@ NDPluginCV_SRCS += NDPluginCVHelper.cpp
 
 ifdef OPENCV_INCLUDE
     USR_INCLUDES += -I$(OPENCV_INCLUDE)
+else
+ifeq (linux-x86_64, $(findstring linux-x86_64, $(T_A)))
+# for opencv4 on linux, we need this deeper include search
+USR_INCLUDES += -I/usr/include/opencv4
 endif
+endif
+
 ifdef OPENCV_LIB
     NDPluginCV_DIR += $(OPENCV_LIB)
     opencv_core_DIR = $(OPENCV_LIB)
     opencv_imgproc_DIR = $(OPENCV_LIB)
     opencv_highgui_DIR = $(OPENCV_LIB)
 
-    LIB_LIBS += opencv_core opencv_imgproc opencv_highgui
+    LIB_LIBS += opencv_core opencv_imgproc
 else
-    LIB_SYS_LIBS += opencv_core opencv_imgproc opencv_highgui
+    LIB_SYS_LIBS += opencv_core opencv_imgproc
 endif
 
 ifeq ($(WITH_OPENCV_VIDEO), YES)
