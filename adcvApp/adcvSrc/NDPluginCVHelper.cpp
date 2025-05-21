@@ -258,6 +258,35 @@ ADCVStatus_t NDPluginCVHelper::gaussian_blur(Mat &img, double* inputs, double* o
 
 
 /**
+ * WRAPPER  ->  Median Blur
+ * Sets each pixel to the median of the surrounding n x n kernel.
+ * Helpful for rejecting salt-and-pepper noise from, e.g., radiation-damaged sensors.
+ *
+ * @inCount     -> 1
+ * @inFormat    -> [Kernel size (Int), must be odd]
+ *
+ * @outCount    -> 0
+ * @outFormat   -> None
+ */
+ADCVStatus_t NDPluginCVHelper::median_blur(Mat &img, double* inputs, double* outputs){
+    const char* functionName = "median_blur";
+    ADCVStatus_t status = cvHelperSuccess;
+    try
+    {
+        int ksize = static_cast<int>(inputs[0]);
+        medianBlur(img,img,ksize);
+        cvHelperStatus = "Filtered input image";
+    }
+    catch(Exception& e)
+    {
+        print_cv_error(e, functionName);
+        status = cvHelperError;
+    }
+    return status;
+}
+
+
+/**
  * WRAPPER      -> Threshold Image
  * Function that thresholds an image based on a certain pixel value. First, the image is converted to grayscale.
  * RGB images cannot be thresholded. For each pixel, if the grayscale value is larger than the threshold, set it 
@@ -1009,6 +1038,25 @@ ADCVStatus_t NDPluginCVHelper::get_gaussian_blur_description(string* inputDesc, 
 
 
 /**
+ * Function that sets the I/O descriptions for Median Blur
+ * 
+ * @params[out]: inputDesc      -> array of input descriptions
+ * @params[out]: outputDesc     -> array of output descriptions
+ * @params[out]: description    -> overall function usage description
+ * @return: void
+ */
+ADCVStatus_t NDPluginCVHelper::get_median_blur_description(string* inputDesc, string* outputDesc, string* description){
+    ADCVStatus_t status = cvHelperSuccess;
+    int numInput = 1;
+    int numOutput = 0;
+    inputDesc[0] = "Window Size (px)";
+    *description = "Applies median value of n-by-n window";
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    return status;
+}
+
+
+/**
  * Function that sets the I/O descriptions for Laplacian
  * 
  * @params[out]: inputDesc      -> array of input descriptions
@@ -1364,6 +1412,10 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
         case ADCV_GaussianBlur:
             status = gaussian_blur(image, inputs, outputs);
             break;
+        case ADCV_MedianBlur:
+            status = downscale_image_8bit(image, camera_depth);
+            status = median_blur(image, inputs, outputs);
+            break;
         case ADCV_EdgeDetectionCanny:
             status = downscale_image_8bit(image, camera_depth);
             status = canny_edge_detection(image, inputs, outputs);
@@ -1439,6 +1491,9 @@ ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, s
             break;
         case ADCV_GaussianBlur:
             status = get_gaussian_blur_description(inputDesc, outputDesc, description);
+            break;
+        case ADCV_MedianBlur:
+            status = get_median_blur_description(inputDesc, outputDesc, description);
             break;
         case ADCV_Subtract:
             status = get_subtract_description(inputDesc, outputDesc, description);
