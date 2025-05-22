@@ -31,6 +31,10 @@
 #ifdef NDCV_WITH_VIDEO
 #include <opencv2/video.hpp>
 #include <opencv2/videoio.hpp>
+    // For compatibility with newer versions of OpenCV
+    #ifndef CV_FOURCC
+    #define CV_FOURCC(first,second,third,fourth) cv::VideoWriter::fourcc(first,second,third,fourth)
+    #endif
 #endif
 
 // use standard and opencv namespaces
