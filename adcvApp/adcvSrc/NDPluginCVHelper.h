@@ -54,7 +54,7 @@ using namespace std;
  * The I/O descriptions would be taken from the array using this value
  * 
  */ 
-#define N_FUNC_1                    6
+#define N_FUNC_1                    7
 #define N_FUNC_2                    4
 #define N_FUNC_3                    5
 
@@ -72,16 +72,17 @@ typedef enum {
     ADCV_Subtract           = 3,
     ADCV_Laplacian          = 4,
     ADCV_EdgeDetectionCanny = 5,
-    ADCV_CentroidFinder     = 6,
-    ADCV_Sharpen            = 7,
-    ADCV_ConvertFormat      = 8,
+    ADCV_MedianBlur         = 6,
+    ADCV_CentroidFinder     = 7,
+    ADCV_Sharpen            = 8,
+    ADCV_ConvertFormat      = 9,
     //These two functions are not yet fully implemented
     //ADCV_MovementVectors    = 6,
     //ADCV_ObjIdentification    = 7,
-    ADCV_UserDefined        = 9,
-    ADCV_ImageStats         = 10,
-    ADCV_DistanceCheck      = 11,
-    ADCV_VideoRecord        = 12,
+    ADCV_UserDefined        = 10,
+    ADCV_ImageStats         = 11,
+    ADCV_DistanceCheck      = 12,
+    ADCV_VideoRecord        = 13,
 } ADCVFunction_t;
 
 
@@ -157,6 +158,7 @@ class NDPluginCVHelper {
         // under development
         ADCVStatus_t movement_vectors(Mat &img, double* inputs, double* outputs);
         ADCVStatus_t obj_identification(Mat &img, double* inputs, double* outputs);
+        ADCVStatus_t median_blur(Mat &img, double* inputs, double *outputs);
 
 
         // IO description helper functions
@@ -180,7 +182,8 @@ class NDPluginCVHelper {
         // Under development
         ADCVStatus_t get_movement_vectors_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_obj_identification_description(string* inputDesc, string* outputDesc, string* description);
-        
+        ADCVStatus_t get_median_blur_description(string* inputDesc, string* outputDesc, string* description);
+
         // User defined function. Implement these functions in NDPluginCVHelper.cpp to be able to use them within the plugin
         ADCVStatus_t get_user_function_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t user_function(Mat& img, double* inputs, double* outputs);
