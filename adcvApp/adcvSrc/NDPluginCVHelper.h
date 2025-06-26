@@ -71,13 +71,11 @@ typedef enum {
     ADCV_CentroidFinder     = 6,
     ADCV_Sharpen            = 7,
     ADCV_ConvertFormat      = 8,
-    //These two functions are not yet fully implemented
-    //ADCV_MovementVectors    = 6,
-    //ADCV_ObjIdentification    = 7,
-    ADCV_UserDefined        = 9,
-    ADCV_ImageStats         = 10,
-    ADCV_DistanceCheck      = 11,
-    ADCV_VideoRecord        = 12,
+    ADCV_LogScaling         = 9,
+    ADCV_UserDefined        = 10,
+    ADCV_ImageStats         = 11,
+    ADCV_DistanceCheck      = 12,
+    ADCV_VideoRecord        = 13,
 } ADCVFunction_t;
 
 
@@ -149,6 +147,7 @@ class NDPluginCVHelper {
         ADCVStatus_t distance_between_ctrs(Mat &img, double* inputs, double* outputs);
         ADCVStatus_t convert_image_format(Mat &img, double* inputs, double* outputs);
         ADCVStatus_t video_record(Mat &img, double* inputs, double* outputs);
+        ADCVStatus_t log_scaling(Mat &img, double* inputs, double* outputs);
 
         // under development
         ADCVStatus_t movement_vectors(Mat &img, double* inputs, double* outputs);
@@ -172,6 +171,7 @@ class NDPluginCVHelper {
         ADCVStatus_t get_dist_between_description(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_convert_format_descripton(string* inputDesc, string* outputDesc, string* description);
         ADCVStatus_t get_video_record_description(string* inputDesc, string* outputDesc, string* description);
+        ADCVStatus_t get_log_scaling_description(string* inputDesc, string* outputDesc, string* description);
  
         // Under development
         ADCVStatus_t get_movement_vectors_description(string* inputDesc, string* outputDesc, string* description);
