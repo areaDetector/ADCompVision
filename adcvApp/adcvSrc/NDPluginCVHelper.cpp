@@ -777,6 +777,34 @@ ADCVStatus_t NDPluginCVHelper::obj_identification(Mat &img, double* inputs, doub
     return status;
 }
 
+/**
+ * WRAPPER  ->  Median Blur
+ * Function that applies a median blur to an image. A median blur is a non-linear filter that replaces each pixel
+ * with the median value of the pixels in a square kernel around it. This is useful for removing noise from an image
+ * while preserving edges. The kernel size must be an odd number.
+ *
+ * @inCount     -> 1
+ * @inFormat    -> [Kernel size (Odd Int)]
+ *
+ * @outCount    -> 0
+ * @outFormat   -> []
+ */
+ADCVStatus_t NDPluginCVHelper::median_blur(Mat &img, double* inputs, double* outputs){
+    const char* functionName = "median_blur";
+    ADCVStatus_t status = cvHelperSuccess;
+    try
+    {
+        int ksize = static_cast<int>(inputs[0]);
+        medianBlur(img,img,ksize);
+        cvHelperStatus = "Filtered input image";
+    }
+    catch(Exception& e)
+    {
+        print_cv_error(e, functionName);
+        status = cvHelperError;
+    }
+    return status;
+}
 
 /**
  * WRAPPER  ->  User Function
@@ -1205,6 +1233,23 @@ ADCVStatus_t NDPluginCVHelper::get_canny_edge_description(string* inputDesc, str
     return status;
 }
 
+/**
+ * Function that sets the I/O descriptions for Median Filter
+ * 
+ * @params[out]: inputDesc      -> array of input descriptions
+ * @params[out]: outputDesc     -> array of output descriptions
+ * @params[out]: description    -> overall function usage description
+ * @return: void
+ */
+ADCVStatus_t NDPluginCVHelper::get_median_blur_description(string* inputDesc, string* outputDesc, string* description){
+    ADCVStatus_t status = cvHelperSuccess;
+    int numInput = 1;
+    int numOutput = 0;
+    inputDesc[0] = "Window Size (px)";
+    *description = "Applies median value of n-by-n window";
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    return status;
+}
 
 /**
  * Function that sets the I/O descriptions for Centroid identification
@@ -1432,6 +1477,10 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
             status = downscale_image_8bit(image, camera_depth);
             status = canny_edge_detection(image, inputs, outputs);
             break;
+        case ADCV_MedianBlur:
+            status = downscale_image_8bit(image, camera_depth);
+            status = median_blur(image, inputs, outputs);
+            break;
         case ADCV_CentroidFinder:
             status = downscale_image_8bit(image, camera_depth);
             status = find_centroids(image, inputs, outputs);
@@ -1515,6 +1564,9 @@ ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, s
             break;
         case ADCV_EdgeDetectionCanny:
             status = get_canny_edge_description(inputDesc, outputDesc, description);
+            break;
+        case ADCV_MedianBlur:
+            status = get_median_blur_description(inputDesc, outputDesc, description);
             break;
         case ADCV_CentroidFinder:
             status = get_centroid_finder_description(inputDesc, outputDesc, description);
