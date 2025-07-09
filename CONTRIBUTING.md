@@ -1,8 +1,5 @@
 # Guide to contributing to ADCompVision
 
-Author: Jakub Wlodek
-
-
 Some pointers:  
 * OpenCV uses Mat objects for images. They are written as a 'smart-pointer' class, meaning that they are passed
 by-reference by default. Because of this, make sure to pass the image into the function with (Mat &img).
