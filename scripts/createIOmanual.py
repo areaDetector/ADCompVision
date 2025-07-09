@@ -1,6 +1,6 @@
-# 
+#
 # Python script for scraping the documentation of NDPluginCVHelper.cpp to create an
-# html file containing information on the inputs and outputs of each of the supported 
+# html file containing information on the inputs and outputs of each of the supported
 # wrapper funcitons
 #
 # Author: Jakub Wlodek
@@ -105,7 +105,7 @@ def parse_comments_descriptions():
                 functions.append(function)
         line = helper_file.readline()
     return functions
-            
+
 
 # Function that generates the table of I/O for html
 def generate_html_table(functions):
@@ -132,7 +132,7 @@ def generate_html_descriptions(functions):
 def create_manual():
     if os.path.exists("../docs/manual.html"):
         os.remove("../docs/manual.html")
-    
+
     print("Writing base of manual")
     write_manual_top()
 
@@ -153,6 +153,6 @@ def create_manual():
 
     print("Finished creating the I/O manual")
     write_manual_bottom()
-    
+
 
 create_manual()

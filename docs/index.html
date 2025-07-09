@@ -23,7 +23,7 @@
     <hr/>
     <h3>Using ADCompVision</h3>
     <p>This plugin allows for a multitude of Open Computer Vision functions. As a result, each function will use the input/output PVs differently.</p>
-    <p>To view how each function uses the inputs and outputs view the manual <a href="manual.html">here.</a><br/>In addition, selecting an option from 
+    <p>To view how each function uses the inputs and outputs view the manual <a href="manual.html">here.</a><br/>In addition, selecting an option from
     the dropdown menu will populate the input and output descriptions for any that are used by the selected CV function.</p>
 
     <p>The main CSS screen for the ADCompVision plugin looks as follows:</p>
@@ -34,7 +34,7 @@
         note that input and output descriptions are listed for each function. Enter valid input values for each of the required inputs.
         Next, start image acquisition and enable the plugin. You should see the processed image in image1 ArrayData. Some examples are shown below.
     </p>
-    <p class="text-section-local">When using non-8bit cameras, note that many of the CompVision functions supported here require the input image to be downconverted 
+    <p class="text-section-local">When using non-8bit cameras, note that many of the CompVision functions supported here require the input image to be downconverted
         to 8 bit in order to work. To do this, select your camera's actual bit depth in the bit depth selector. (NOT NDDataType). If your device is a 12 bit camera for
         example, select 12 bit in the menu, not 16 bit, even if the input has an NDDataType of NDUInt16.
     </p>
@@ -187,7 +187,7 @@
     <img style="width: 70%;"src = "ADCompVision/Centroid.png" alt = "Centroid">
     <!--<img style="width: 30%;"src = "ADCompVision/centroid_menu.png" alt = "Centroid Menu">-->
     <p class="text-section-local">As of R1-0 ADCompVision supports centroid identification. To use this feature select it from the Function
-        set 2 dropdown. Then, set the number of desired objects to find, the blur degree (3 or 5 is usually best), a threshold value, and an upper 
+        set 2 dropdown. Then, set the number of desired objects to find, the blur degree (3 or 5 is usually best), a threshold value, and an upper
         and lower pixel area threshold for the objects. Play around with these numbers until the desired objects are detected. The centroid centers
         are then outputted into the 'Output' PV values
     </p>
@@ -204,7 +204,7 @@
 
     <p><strong>Distance Check</strong></p>
     <img style="width: 70%;"src = "ADCompVision/DistanceCheck.png" alt = "Dist Check">
-    <p class="text-section-local">As of R1-2, ADCompVision supports Distance Checking between two objects in an image. To use this feature, 
+    <p class="text-section-local">As of R1-2, ADCompVision supports Distance Checking between two objects in an image. To use this feature,
         select it from Function set 3. Then enter a distance threshold in pixels, then a blur size (3 or 5 are usually best), a threshold value,
         select apply blur =  yes (will give better results), and choose an object size threshold in pixels to avoid background noise. Tweak the threshold
         and size values until the two desired objects are detected, and then note that the output pvs print the pixel distance between them, and whether or
@@ -215,7 +215,7 @@
 
     <h4>Issues and Pull Requests</h4>
 
-    <p>If you wish to create an issue or pull request, please do so at the source fork on 
+    <p>If you wish to create an issue or pull request, please do so at the source fork on
         <a href = "https://github.com/jwlodek/ADCompVision">github.</a>
     </p>
     <hr/>

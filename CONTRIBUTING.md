@@ -1,13 +1,13 @@
 # Guide to contributing to ADCompVision
 
-Some pointers:  
+Some pointers:
 * OpenCV uses Mat objects for images. They are written as a 'smart-pointer' class, meaning that they are passed
 by-reference by default. Because of this, make sure to pass the image into the function with (Mat &img).
 * The plugin works by calling functions in a helper library. If you wish to add an additional function for a more specific use case that the plugin does not support, follow the steps below.
 
 ## Adding a new CV function
 
-There are two primary ways to add a new CV function to ADCompVision to customize the plugin. 
+There are two primary ways to add a new CV function to ADCompVision to customize the plugin.
 
 ### Implementing user_function
 
@@ -25,12 +25,12 @@ This is a more complicated process than simply implementing the user_function, a
 To add a new CV function there are several files you will need to edit. First, in the NDCV.template file, find the record titled "CompVisionFunctionN", where N is an integer from 1 to 3. These are the three sets of supported functions, and generally follow the rule:
 * Function set 1 contains basic OpenCV image processing functions
 * Function set 2 contains more complex functions that are still general and with many use cases
-* Function set 3 contains functions for specific use cases and custom implementations.  
+* Function set 3 contains functions for specific use cases and custom implementations.
 
-Decide which of these sets your new function falls under, and add it to the Input and Output records.   
+Decide which of these sets your new function falls under, and add it to the Input and Output records.
 
 
-Next, in the `NDPluginCVHelper.h` file, change the `N_FUNC_#` value to take into account the new number of functions in the `CompVisionFunction#` PV you add your function to.  
+Next, in the `NDPluginCVHelper.h` file, change the `N_FUNC_#` value to take into account the new number of functions in the `CompVisionFunction#` PV you add your function to.
 Next, you will need to edit the `NDPluginCVHelper.cpp` and `NDPluginCVHelper.h` files. In `NDPluginCVHelper.h`, find the definition of `ADCVFunction_t` and add:
 ```
 // Some basic flag types
@@ -54,7 +54,7 @@ Make sure to add your function type in the appropriate position, this is importa
 ADCVStatus_t YOURFUNCTION(Mat &img, double* inputs, double* outputs);
 ADCVStatus_t get_YOURFUNCTION_description(string* inputDesc, string* outputDesc, string* description);
 ```
-in the 'public' portion of the class declaration. You may follow the standard set by the other functions.   
+in the 'public' portion of the class declaration. You may follow the standard set by the other functions.
 Next, in the `NDPluginCVHelper.cpp` file, add your new function definitions. They should take the following form:
 
 **The Wrapper**
@@ -96,7 +96,7 @@ ADCVStatus_t NDPluginCVHelper::YOURFUNCTION(Mat &img, double* inputs, double* ou
 ```
 /**
  * Function that sets the I/O descriptions for YOURFUNCTION
- * 
+ *
  * @params[out]: inputDesc      -> array of input descriptions
  * @params[out]: outputDesc     -> array of output descriptions
  * @params[out]: description    -> overall function usage description
@@ -125,7 +125,7 @@ ADCVStatus_t NDPluginCVHelper::get_YOURFUNCTION_description(string* inputDesc, s
 ```
 python3 createIOmanual.py
 ```
-This will create a manual (in docs/manual.html) describing the inputs and outputs of each of the functions including your new custom function along with a description of each function as provided in the comments.  
+This will create a manual (in docs/manual.html) describing the inputs and outputs of each of the functions including your new custom function along with a description of each function as provided in the comments.
 
 Next, you must edit the `getFunctionDescription` function in `NDPluginCVHelper.cpp`. Add a case to the switch statement as follows:
 ```

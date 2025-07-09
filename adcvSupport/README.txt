@@ -14,8 +14,8 @@ Where ADCOMPVISION is the location of ADCompVision on your machine
 
 Some things to keep in mind:
 When building with non-system opencv, I couldn't get the static
-versions of the libraries to link correctly. Thus, in 
-$(AREA_DETECTOR)/configure/CONFIG_SITE.local.Linux I set 
+versions of the libraries to link correctly. Thus, in
+$(AREA_DETECTOR)/configure/CONFIG_SITE.local.Linux I set
 STATIC_BUILD=NO
 
 You may add the custom-built OpenCV to the system path, by building without the -DCMAKE_INSTALL_PREFIX flag,
