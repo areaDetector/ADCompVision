@@ -1577,9 +1577,9 @@ ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, s
         case ADCV_ConvertFormat:
             status = get_convert_format_descripton(inputDesc, outputDesc, description);
             break;
-	case ADCV_LogScaling:
-	    status = get_log_scaling_description(inputDesc, outputDesc, description);
-	    break;
+        case ADCV_LogScaling:
+            status = get_log_scaling_description(inputDesc, outputDesc, description);
+            break;
         /*
         case ADCV_MovementVectors:
             status = get_movement_vectors_description(inputDesc, outputDesc, description);
