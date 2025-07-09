@@ -1,9 +1,9 @@
 #
-# EPICS database template file for ADCompVision. 
+# EPICS database template file for ADCompVision.
 # This will contatin records used by the plugin's various
 # functions.
-# 
-# Author: Jakub Wlodek 
+#
+# Author: Jakub Wlodek
 #
 # Created on: 26-Jun-2018
 # Last modified: 11-Jan-2019
@@ -716,7 +716,7 @@ record(stringin, "$(P)$(R)Output10Description_RBV"){
 #     field(VAL, "0")
 #     info(autosaveFields, "VAL")
 # }
-# 
+#
 # record(mbbi, "$(P)$(R)CVWriteFile_RBV")
 # {
 #     field(DTYP, "asynInt32")
@@ -732,8 +732,8 @@ record(stringin, "$(P)$(R)Output10Description_RBV"){
 #     field(VAL, "0")
 #     field(SCAN, "I/O Intr")
 # }
-# 
-# 
+#
+#
 # record(waveform, "$(P)$(R)CVFilename"){
 #     field(PINI, "YES")
 #     field(DTYP, "asynOctetWrite")
@@ -742,7 +742,7 @@ record(stringin, "$(P)$(R)Output10Description_RBV"){
 #     field(NELM, "256")
 #     field(autosaveFields, "VAL")
 # }
-# 
+#
 # record(waveform, "$(P)$(R)CVFilename_RBV"){
 #     field(DTYP, "asynOctetRead")
 #     field(INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))NDCV_FILENAME")
@@ -814,7 +814,3 @@ record(mbbi, "$(P)$(R)CompVisionCamDepth_RBV")
     field(VAL, "0")
     field(SCAN, "I/O Intr")
 }
-
-
-
-
