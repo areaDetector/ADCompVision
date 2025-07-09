@@ -777,7 +777,18 @@ ADCVStatus_t NDPluginCVHelper::obj_identification(Mat &img, double* inputs, doub
     return status;
 }
 
-
+/**
+ * WRAPPER  ->  Median Blur
+ * Function that applies a median blur to an image. A median blur is a non-linear filter that replaces each pixel
+ * with the median value of the pixels in a square kernel around it. This is useful for removing noise from an image
+ * while preserving edges. The kernel size must be an odd number.
+ *
+ * @inCount     -> 1
+ * @inFormat    -> [Kernel size (Odd Int)]
+ *
+ * @outCount    -> 0
+ * @outFormat   -> []
+ */
 ADCVStatus_t NDPluginCVHelper::median_blur(Mat &img, double* inputs, double* outputs){
     const char* functionName = "median_blur";
     ADCVStatus_t status = cvHelperSuccess;
@@ -908,6 +919,53 @@ ADCVStatus_t NDPluginCVHelper::convert_image_format(Mat &img, double* inputs, do
         else if(toRGB == 1 && img.channels() == 1) cvtColor(img, img, COLOR_GRAY2RGB);
 
         cvHelperStatus = "Finished processing convert_image_format";
+    }catch(Exception &e){
+        print_cv_error(e, functionName);
+        status = cvHelperError;
+    }
+    return status;
+}
+
+/**
+ * WRAPPER  ->  Log scaling
+ *
+ * Converts the format of the image to a different one for use with other AD Plugins. This is useful for 
+ * cameras that only support one format but a different one is required, ex. ADPluginDmtx needs 8bit rgb image, so 
+ * grayscale camera needs to be converted.
+ *
+ * @inCount     -> 2
+ * @inFormat    -> [min, max]
+ *
+ * @outCount    -> 0
+ * @outFormat   -> N/A
+ */
+ADCVStatus_t NDPluginCVHelper::log_scaling(Mat &img, double* inputs, double* outputs){
+    const char* functionName = "log_scaling";
+    ADCVStatus_t status = cvHelperSuccess;
+    int minValue = inputs[0];
+    int outputBitDepth = inputs[1];
+    try{
+	if(img.channels() == 3) cvtColor(img, img, COLOR_BGR2GRAY);
+	subtract(img, Scalar(minValue), img);
+	img.convertTo(img, CV_64F);
+	img = img + 1;
+	log(img, img);
+	
+	switch(outputBitDepth){
+            case 0:
+	        normalize(img, img, 0, 255, cv::NORM_MINMAX);
+        	img.convertTo(img, CV_8U);
+		break;
+	    case 1:
+	        normalize(img, img, 0, 65535, cv::NORM_MINMAX);
+        	img.convertTo(img, CV_16U);
+		break;
+	    default:
+	        normalize(img, img, 0, 255, cv::NORM_MINMAX);
+        	img.convertTo(img, CV_8U);	
+		break;
+	}
+	cvHelperStatus = "Finished computing log scaled image";
     }catch(Exception &e){
         print_cv_error(e, functionName);
         status = cvHelperError;
@@ -1372,7 +1430,24 @@ ADCVStatus_t NDPluginCVHelper::get_video_record_description(string* inputDesc, s
     return status;
 }
 
-
+/**
+ * Function that sets the I/O descriptions for log_scaling
+ * 
+ * @params[out]: inputDesc      -> array of input descriptions
+ * @params[out]: outputDesc     -> array of output descriptions
+ * @params[out]: description    -> overall function usage description
+ * @return: void
+ */
+ADCVStatus_t NDPluginCVHelper::get_log_scaling_description(string* inputDesc, string* outputDesc, string* description){
+    ADCVStatus_t status = cvHelperSuccess;
+    int numInput = 2;
+    int numOutput = 0;
+    *description = "Perform logarithmic scaling of the input image";
+    inputDesc[0] = "Minimum level";
+    inputDesc[1] = "Bit depth (0 = 8 / 1 = 16)";
+    populate_remaining_descriptions(inputDesc, outputDesc, numInput, numOutput);
+    return status;
+}
 /* ---------------------- Functions called from the EPICS Plugin implementation ----------------------- */
 
 
@@ -1414,7 +1489,10 @@ ADCVStatus_t NDPluginCVHelper::processImage(Mat &image, ADCVFunction_t function,
             status = downscale_image_8bit(image, camera_depth);
             status = laplacian_edge_detection(image, inputs, outputs);
             break;
-         case ADCV_Sharpen:
+	case ADCV_LogScaling:
+	    status = log_scaling(image, inputs, outputs);
+	    break;
+        case ADCV_Sharpen:
             status = downscale_image_8bit(image, camera_depth);
             status = sharpen_images(image, inputs, outputs);
             break;
@@ -1498,6 +1576,9 @@ ADCVStatus_t NDPluginCVHelper::getFunctionDescription(ADCVFunction_t function, s
             break;
         case ADCV_ConvertFormat:
             status = get_convert_format_descripton(inputDesc, outputDesc, description);
+            break;
+        case ADCV_LogScaling:
+            status = get_log_scaling_description(inputDesc, outputDesc, description);
             break;
         /*
         case ADCV_MovementVectors:
